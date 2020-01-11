@@ -1,0 +1,37 @@
+﻿@inherits CreateNonPersonalAccountBase
+@page "/accounts/nonpersonal/create"
+@page "/accounts/nonpersonal/{AccountId:int}/edit"
+@using MoneyManager.Models.Domain;
+
+
+
+@if (IsNewAccount)
+{
+    <h1 class="ui header">Create a Non Personal Account</h1>
+}
+else
+{
+    <h1 class="ui header">Edit a Non Personal Account</h1>
+}
+
+<EditForm class="ui form"
+          Model=FormModel
+          OnValidSubmit=HandleValidSubmit
+          Context=editContext>
+
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+
+
+    <div class="field required @(IsFormValidString(editContext, () => FormModel.Name))">
+        <label>Name</label>
+        <InputText @bind-Value=FormModel.Name></InputText>
+    </div>
+
+    <button class="ui primary button @(IsSavingAccount ? "loading" : "")"
+            type="submit">
+        @(IsNewAccount ? "Create" : "Save")
+    </button>
+
+</EditForm>

@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>MoneyManager</title>
+    <base href="/" />
+    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" integrity="sha384-SI27wrMjH3ZZ89r4o+fGIJtnzkAnFs3E4qz9DIYioCQ5l9Rd/7UAa8DHcaL8jkWt" crossorigin="anonymous">-->
+    <link href="css/site.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://gitcdn.xyz/repo/fomantic/Fomantic-UI-CSS/master/semantic.min.css">
+</head>
+
+<body>
+    <app>Loading...</app>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+
+    <script>
+        window.FomanticUIDropdown = {
+            preventInputKeyDownDefaults: (element) => {
+		        element.addEventListener('keydown', (e) => {
+			        switch (e.key) {
+				        case "ArrowUp":
+				        case "ArrowDown":
+				        case "Enter":
+					        e.preventDefault();
+					        break;
+			        }
+		        });
+	        },
+	        blurElement: (element) => {
+		        element.blur();
+	        }
+        }
+
+        window.clickOutsideHandler = {
+            listeners: {},
+            addListener: (id, element, dotnetHelper, methodName) => { 
+                console.log(id, element, dotnetHelper, methodName);
+                clickOutsideHandler.listeners[id] = { element, dotnetHelper, methodName };
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            Object.keys(clickOutsideHandler.listeners).forEach(listenerId => {
+                const listener = clickOutsideHandler.listeners[listenerId];
+                let elementToCheck = e.target;
+                let isClickOutside = true;
+                while (elementToCheck != listener.element && elementToCheck != null) {
+                    elementToCheck = elementToCheck.parentElement;
+                    if (elementToCheck == listener.element) {
+                        isClickOutside = false;
+                        break;
+                    }
+                }
+
+                if (isClickOutside) {
+                    listener.dotnetHelper.invokeMethodAsync(listener.methodName);
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+﻿@inherits FomanticDropdownBase<TItem>
+@typeparam TItem
+
+<div class=@ComponentClass
+        @ref=ComponentElementRef
+        @onclick=OnSearchBoxClick>
+
+    @if (IsSearchable)
+    {
+        <input @oninput=OnSearchInput
+                @onfocus=OnSearchInputFocus
+                @onblur="OnSearchInputBlur"
+                @ref=InputElementRef
+                type="text"
+                class="search"
+                autocomplete="off"
+                value=@SearchText
+                @onkeyup="OnSearchInputKeyUp" />
+    }
+
+
+    @if (IsClearable)
+    {
+        <i class="remove icon"
+            style=@(CanClearInput ? "display: block" : "display: none")
+            @onclick=OnClearButtonClick></i>
+    }
+
+
+    <div class=@SearchBoxTextClass>
+        @if (SelectedItem == null)
+        {
+            @PlaceholderText
+        }
+        else
+        {
+            @SelectedItemTemplate(SelectedItem)
+        }
+    </div>
+
+    <div class="menu @(ShowResults ? " visible" : "hidden" )"
+            tabindex="-1"
+            style="display: @(ShowResults ? "block" : "none") !important;">
+
+        @if (Items.Count > 0)
+        {
+            @for (int i = 0; i < Items.Count; i++)
+            {
+                int thisIndex = i;
+                var suggestion = Items[i];
+
+                <div @key=@suggestion
+                        class="item @(i == SelectedItemIndex ? "active selected" : "")"
+                        @onclick=@(async _ => await OnSuggestionClick(suggestion, thisIndex))
+                        @onclick:stopPropagation="true"
+                        @onmousedown=@(() => { return; })
+                        @onmousedown:preventDefault="true">
+                    @ResultItemTemplate(suggestion)
+                </div>
+            }
+        }
+        else
+        {
+            <div class="message">No results found.</div>
+        }
+
+    </div>
+</div>
+

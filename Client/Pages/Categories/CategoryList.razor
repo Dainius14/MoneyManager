@@ -1,0 +1,51 @@
+﻿@inherits CategoryListBase
+@page "/categories"
+
+
+<h1 class="ui header">Categories</h1>
+
+<NavLink class="ui primary button"
+         type="button"
+         href="categories/create">
+    Create new category
+</NavLink>
+
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (IsLoading)
+        {
+        <tr>
+            <td colspan="4">
+                <div class="ui active centered inline loader"></div>
+            </td>
+        </tr>
+        }
+        else
+        {
+            if (Categories.Count == 0)
+            {
+                <tr>
+                    <td colspan="4">You have no categories! :(</td>
+                </tr>
+            }
+
+            @foreach (var cat in Categories)
+            {
+            <tr>
+                <td>
+                    <NavLink href=@($"categories/{cat.ID}/edit")>@cat.Name</NavLink>
+                </td>
+                <td>
+                    <span class="ui red text">Delete</span>
+                </td>
+            </tr>
+            }
+        }
+    </tbody>
+</table>

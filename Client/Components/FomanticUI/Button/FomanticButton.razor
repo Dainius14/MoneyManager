@@ -1,0 +1,22 @@
+﻿@inherits FomanticButtonBase
+
+@if (HtmlElement == ButtonHtmlElementEnum.Button)
+{
+    <button class="@ClassName"
+            type="@HtmlType"
+            @onclick=@(async (e) => await HandleClick(e))
+            >
+
+        @ChildContent
+    </button>
+}
+
+@if (HtmlElement == ButtonHtmlElementEnum.Anchor)
+{
+    <a class="@ClassName"
+       href=@Href
+            @onclick=@(async (e) => await HandleClick(e))
+       >
+        @ChildContent
+    </a>
+}

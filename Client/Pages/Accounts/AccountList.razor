@@ -1,0 +1,110 @@
+﻿@*@page "/accounts"
+@using MoneyManager.Models.Domain
+@using MoneyManager.Client.Services.Interfaces
+@using  MoneyManager.Client.State.Actions
+@inject IAccountService _accountService
+@inject Microsoft.AspNetCore.Components.NavigationManager NavManager
+@inject Store<AppState> _appStore
+
+<h1>
+    Accounts
+
+    @if (!isLoading)
+    {
+        <button type="button" class="ui icon button"
+                @onclick=@(() => Refresh())>
+            <span class="reload icon"></span>
+        </button>
+    }
+</h1>
+
+
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Is personal</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (isLoading)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else if (_appStore.State.Accounts == null || _appStore.State.Accounts.Count == 0)
+        {
+            <tr>
+                No Accounts :(
+            </tr>
+        }
+        else
+        {
+            @foreach (var account in _appStore.State.Accounts)
+            {
+                <tr>
+                    <th scope="row">@account.ID</th>
+                    <td>
+                        <NavLink href=@($"accounts/{account.ID}/edit")>@account.Name</NavLink>
+                    </td>
+                    <td>@account.IsPersonal</td>
+                    <td>
+                        <a type="button" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_appStore.State.Accounts == null)
+        {
+            await Refresh(true);
+        }
+
+        //if (accounts == null)
+        //{
+        //    //accounts = _appState.Accounts;
+        //}
+
+    }
+
+    protected void OnEditButtonClick(Account account)
+    {
+        NavManager.NavigateTo($"accounts/{account.ID}/edit");
+    }
+
+    protected async Task Refresh(bool force = false)
+    {
+        if (isLoading && !force)
+        {
+            return;
+        }
+
+        _appStore.StateChanged += (sender, e) =>
+        {
+            Console.WriteLine("State changed: " + e.Accounts.Count);
+            //accounts.Clear();
+            //accounts.AddRange(e.Accounts);
+            //StateHasChanged();
+        };
+
+        isLoading = true;
+        await _accountService.GetAllAccountsAsync();
+        await Task.Run(async () =>
+        {
+            //foreach (var acc in accountss)
+            //{
+            //    _appState.AccountStore.Dispath(new AddAccountAction { NewAccount = acc });
+            //    await Task.Delay(1000);
+            //}
+        });
+        isLoading = false;
+    }
+}*@

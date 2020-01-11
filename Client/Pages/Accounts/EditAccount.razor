@@ -1,0 +1,53 @@
+﻿@page "/accounts/{AccountID:int}/edit"
+@using MoneyManager.Models.Domain
+@using MoneyManager.Client.Services.Interfaces
+@inject IAccountService _accountService
+@inject Store<AppState> _appStore
+
+<h1>Account <b>@Account?.Name</b></h1>
+@if (Account == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@SelectedAccount" OnValidSubmit="OnHandleValidSubmit"
+              class="ui form">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="name">Name</label>
+                <InputText id="name" @bind-Value="SelectedAccount.Name" class="form-control" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="name">Is Personal</label>
+                <InputCheckbox id="is-personal" @bind-Value="SelectedAccount.IsPersonal" class="form-control" />
+            </div>
+        </div>
+
+
+        <button class="btn btn-primary" type="submit">Save</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int AccountID { get; set; }
+
+    public Account Account => _appStore.State.AccountsState.Accounts?.FirstOrDefault(x => x.ID == AccountID);
+
+    protected Account SelectedAccount { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private async void OnHandleValidSubmit()
+    {
+        await _accountService.EditAccountAsync(SelectedAccount);
+    }
+}

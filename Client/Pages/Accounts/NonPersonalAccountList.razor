@@ -1,0 +1,54 @@
+﻿@inherits NonPersonalAccountListBase
+@page "/accounts/nonpersonal"
+
+
+<h1 class="ui header">Nonpersonal accounts</h1>
+
+<NavLink class="ui primary button"
+         type="button"
+         href="accounts/nonpersonal/create">
+    Create new nonpersonal account
+</NavLink>
+
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Current balance</th>
+            <th>Last activity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (IsLoading)
+        {
+            <tr>
+                <td colspan="4">
+                    <div class="ui active centered inline loader"></div>
+                </td>
+            </tr>
+        }
+        else
+        {
+            if (NonPersonalAccountsVms.Count == 0)
+            {
+                <tr>
+                    <td colspan="4">You have no nonpersonal accounts! :(</td>
+                </tr>
+            }
+            @foreach (var vm in NonPersonalAccountsVms)
+            {
+                <tr>
+                    <td>
+                        <NavLink href=@($"accounts/nonpersonal/{vm.Account.ID}/edit")>@vm.Account.Name</NavLink>
+                    </td>
+                    <td>@vm.CurrentBalanceStr @vm.Currency.Symbol</td>
+                    <td></td>
+                    <td>
+                        <span class="ui red text">Delete</span>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

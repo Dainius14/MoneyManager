@@ -1,0 +1,60 @@
+﻿@inherits TransactionListBase
+@page "/transactions"
+
+
+<h1 class="ui header">Transactions</h1>
+
+<FomanticButton HtmlElement=ButtonHtmlElementEnum.Anchor
+                Emphasis=EmphasisEnum.Primary
+                Href="transactions/create"
+                >
+    Create a new Transaction
+</FomanticButton>
+
+
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (IsLoading)
+        {
+            <tr>
+                <td colspan="6">
+                    <div class="ui active centered inline loader"></div>
+                </td>
+            </tr>
+        }
+        else
+        {
+            if (Transactions.Count == 0)
+            {
+                <tr>
+                    <td colspan="6">There are no transactions! :(</td>
+                </tr>
+            }
+            @foreach (var t in Transactions)
+            {
+                <tr>
+                    <td>
+                        <NavLink href=@($"transactions/{t.ID}/edit")>@t.Description</NavLink>
+                    </td>
+                    <td>@t.AmountStr @t.TransactionDetails.FirstOrDefault()?.Currency.Symbol</td>
+                    <td>@t.FromAccountName</td>
+                    <td>@t.ToAccountName</td>
+                    <td>@t.CategoryName</td>
+                    <td>
+                        <span class="ui red text">Delete</span>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
