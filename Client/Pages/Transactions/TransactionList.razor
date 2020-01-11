@@ -51,7 +51,10 @@
                     <td>@t.ToAccountName</td>
                     <td>@t.CategoryName</td>
                     <td>
-                        <span class="ui red text">Delete</span>
+                        <span style="color: red; cursor: pointer"
+                              @onclick=@(async () => await HandleRowDelete(t))>
+                            Delete
+                        </span>
                     </td>
                 </tr>
             }

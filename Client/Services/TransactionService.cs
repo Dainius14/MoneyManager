@@ -38,5 +38,11 @@ namespace MoneyManager.Client.Services
             var dto = await _httpClient.PostJsonAsync<GetTransactionDTO>("api/transactions", sendDto);
             return dto.ToDomainModel();
         }
+
+        public static async Task<bool> DeleteTransactionAsync(int id)
+        {
+            var request = await _httpClient.DeleteAsync("api/transactions/" + id);
+            return request.IsSuccessStatusCode;
+        }
     }
 }

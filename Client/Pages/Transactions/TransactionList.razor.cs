@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
+using MoneyManager.Client.State.Actions;
 using MoneyManager.Models.Domain;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -29,6 +31,15 @@ namespace MoneyManager.Client.Pages.Transactions
         private void Store_StateChanged(object sender, AppState e)
         {
             StateHasChanged();
+        }
+
+        protected async Task HandleRowDelete(Transaction transaction)
+        { 
+            bool success = await TransactionService.DeleteTransactionAsync((int)transaction.ID!);
+            if (success)
+            {
+                Store.Dispath(new TransactionActions.Delete(transaction));
+            }
         }
 
     }

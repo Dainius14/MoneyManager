@@ -29,6 +29,10 @@ namespace MoneyManager.Client.State.Reducers
                     newState.Transactions = newAccounts;
                     return newState;
 
+                case TransactionActions.Delete a:
+                    newState.Transactions = state.Transactions.Where(t => t.ID != a.Item.ID).ToList();
+                    return newState;
+
                 case TransactionActions.SetProperty a:
                     newState.GetType().GetProperty(a.PropertyName).SetValue(newState, a.NewValue);
                     return newState;

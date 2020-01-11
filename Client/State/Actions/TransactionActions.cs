@@ -28,8 +28,18 @@ namespace MoneyManager.Client.State.Actions
         public class Edit
         {
             public Transaction Item { get; set; }
-            
+
             public Edit(Transaction item)
+            {
+                Item = item;
+            }
+        }
+
+        public class Delete
+        {
+            public Transaction Item { get; set; }
+
+            public Delete(Transaction item)
             {
                 Item = item;
             }

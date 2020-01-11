@@ -34,7 +34,7 @@ namespace MoneyManager.Core.Repositories.Dapper
         public async Task<T> GetAsync(int id)
         {
             return await Connection.QuerySingleOrDefaultAsync<T>(
-                $"SELECT * FROM {_tableName} WHERE ID=@ID",
+                $"SELECT * FROM \"{_tableName}\" WHERE ID=@ID",
                 new { ID = id },
                 Transaction
             );
@@ -117,7 +117,7 @@ namespace MoneyManager.Core.Repositories.Dapper
         public async Task DeleteAsync(int id)
         {
             await Connection.ExecuteAsync(
-                $"DELETE FROM {_tableName} WHERE ID=@ID",
+                $"DELETE FROM \"{_tableName}\" WHERE ID=@ID",
                 new { ID = id },
                 Transaction
             );
