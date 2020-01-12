@@ -7,6 +7,7 @@ using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
 using MoneyManager.Models.Domain;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 
@@ -75,6 +76,23 @@ namespace MoneyManager.Client.Pages.Transactions
             ModalService.Close();
         }
 
+        protected string GetTransactionAmountColor(Transaction transaction) =>
+            transaction.TransactionType switch
+            {
+                TransactionTypeEnum.Expense => "red",
+                TransactionTypeEnum.Income => "green",
+                _ => ""
+            };
+        protected string GetTransactionAmountText(Transaction transaction)
+        {
+            string currencySymbol = transaction.TransactionDetails.FirstOrDefault()?.Currency.Symbol ?? "";
+            return transaction.TransactionType switch
+            {
+                TransactionTypeEnum.Expense => $"-{transaction.AmountStr} {currencySymbol}",
+                TransactionTypeEnum.Income => $"+{transaction.AmountStr} {currencySymbol}",
+                _ => $"{transaction.AmountStr} {currencySymbol}"
+            };
+        }
 
 
     }

@@ -1,4 +1,6 @@
 ﻿@inherits TransactionListBase
+@using Models.Domain
+
 @page "/transactions"
 
 
@@ -46,7 +48,11 @@
                     <td>
                         <NavLink href=@($"transactions/{t.ID}/edit")>@t.Description</NavLink>
                     </td>
-                    <td>@t.AmountStr @t.TransactionDetails.FirstOrDefault()?.Currency.Symbol</td>
+                    <td>
+                        <span class="ui text @(GetTransactionAmountColor(t))">
+                            @GetTransactionAmountText(t)
+                        </span>
+                    </td>
                     <td>@t.FromAccountName</td>
                     <td>@t.ToAccountName</td>
                     <td>@t.CategoryName</td>
