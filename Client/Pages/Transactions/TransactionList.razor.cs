@@ -1,15 +1,22 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
+using MoneyManager.Client.Components.FomanticUI.Button;
+using MoneyManager.Client.Components.FomanticUI.Modal;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
 using MoneyManager.Models.Domain;
 using System.Collections.Generic;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Pages.Transactions
 {
     public class TransactionListBase : ComponentBase
     {
+        [Inject]
+        protected ModalService ModalService{ get; set; } = null!;
+
         [Inject]
         protected NavigationManager NavManager { get; set; } = null!;
 
@@ -23,6 +30,8 @@ namespace MoneyManager.Client.Pages.Transactions
         protected bool IsLoading => TransactionState.IsLoading || !TransactionState.IsFirstLoadComplete;
 
 
+        private bool _isDeletingTransaction = false;
+
         protected override void OnInitialized()
         {
             Store.StateChanged += Store_StateChanged;
@@ -33,14 +42,40 @@ namespace MoneyManager.Client.Pages.Transactions
             StateHasChanged();
         }
 
-        protected async Task HandleRowDelete(Transaction transaction)
-        { 
+        protected void HandleRowDelete(Transaction transaction)
+        {
+            var options = new ModalOptions(
+                "Deleting transaction",
+                $"Do you really want to delete the transaction <b>{SecurityElement.Escape(transaction.Description)}</b>?",
+                async () => await OnConfirmDelete(transaction),
+                OnCancelDelete
+                );
+            ModalService.Show(options);
+        }
+        protected async Task OnConfirmDelete(Transaction transaction)
+        {
+            if (_isDeletingTransaction)
+            {
+                return;
+            }
+
+            _isDeletingTransaction = true;
+            ModalService.SetLoading(true);
             bool success = await TransactionService.DeleteTransactionAsync((int)transaction.ID!);
+
             if (success)
             {
                 Store.Dispath(new TransactionActions.Delete(transaction));
             }
+            ModalService.Close();
+            _isDeletingTransaction = false;
         }
+        protected void OnCancelDelete()
+        {
+            ModalService.Close();
+        }
+
+
 
     }
 }

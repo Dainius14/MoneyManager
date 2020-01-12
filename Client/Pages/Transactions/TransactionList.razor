@@ -52,7 +52,7 @@
                     <td>@t.CategoryName</td>
                     <td>
                         <span style="color: red; cursor: pointer"
-                              @onclick=@(async () => await HandleRowDelete(t))>
+                              @onclick=@(() => HandleRowDelete(t))>
                             Delete
                         </span>
                     </td>
