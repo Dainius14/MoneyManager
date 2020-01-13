@@ -10,7 +10,7 @@ namespace MoneyManager.Models.Mappers
             return new GetTransactionDetailsDTO
             {
                 ID = (int)detail.ID!,
-                Amount = detail.AmountCents,
+                Amount = detail.Amount,
                 Currency = detail.Currency.ToGetCurrencyDTO(),
                 Category = detail.Category?.ToGetCategoryDTO(),
                 FromAccount = detail.FromAccount?.ToGetAccountDTO(),
@@ -23,7 +23,7 @@ namespace MoneyManager.Models.Mappers
             return new EditTransactionDetailsDTO
             {
                 ID = detail.ID,
-                Amount = detail.AmountCents,
+                Amount = detail.Amount,
                 Currency = detail.Currency.ID,
                 Category = detail.Category?.ID,
                 FromAccount = detail.FromAccount?.ID,
@@ -40,7 +40,7 @@ namespace MoneyManager.Models.Mappers
                 ToAccountID = dto.ToAccount,
                 CurrencyID = dto.Currency,
                 CategoryID = dto.Category,
-                AmountCents = (int)(dto.Amount * 100),
+                Amount = dto.Amount,
             };
         }
         public static TransactionDetails ToDomainModel(this GetTransactionDetailsDTO dto)
@@ -54,7 +54,7 @@ namespace MoneyManager.Models.Mappers
                 ToAccount = dto.ToAccount.ToDomainModel(),
                 CurrencyID = dto.Currency.ID,
                 Currency = dto.Currency.ToDomainModel(),
-                AmountCents = (int)(dto.Amount * 100),
+                Amount = dto.Amount,
                 CategoryID = dto.Category?.ID,
                 Category = dto.Category?.ToDomainModel(),
             };

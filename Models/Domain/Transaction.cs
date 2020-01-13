@@ -20,10 +20,10 @@ namespace MoneyManager.Models.Domain
 
         public double Amount
         {
-            get => TransactionDetails.Sum(td => td.AmountCents) / (double)100;
+            get => TransactionDetails.Sum(td => td.Amount);
         }
 
-        public string AmountStr => string.Format("{0:0,0.00}", Amount);
+        public string AmountStr => string.Format("{0:0.00}", Amount);
 
         public string FromAccountName =>
             TransactionDetails.FirstOrDefault()?.FromAccount?.Name ?? string.Empty;

@@ -97,7 +97,7 @@ namespace MoneyManager.Core.Services
                 {
                     FromAccountID = null,
                     ToAccountID = accountId,
-                    AmountCents = (int)(vm.InitialBalance * 100),
+                    Amount = vm.InitialBalance,
                     CurrencyID = (int)vm.CurrencyId!,
                     TransactionID = transactionId,
                     CreatedAt = createdAt

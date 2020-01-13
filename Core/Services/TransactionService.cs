@@ -82,7 +82,7 @@ namespace MoneyManager.Core.Services
 
             foreach (var split in existingDetails)
             {
-                split.Existing.AmountCents = split.Given.AmountCents;
+                split.Existing.Amount = split.Given.Amount;
                 split.Existing.FromAccountID = split.Given.FromAccountID;
                 split.Existing.ToAccountID = split.Given.ToAccountID;
                 split.Existing.CategoryID = split.Given.CategoryID;

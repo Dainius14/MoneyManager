@@ -12,12 +12,7 @@ namespace MoneyManager.Models.Domain
         [Column]
         public int TransactionID { get; set; }
         [Column]
-        public int AmountCents { get; set; }
-        public double Amount
-        {
-            get => AmountCents / (double)100;
-            set => AmountCents = (int)(value * 100);
-        }
+        public double Amount { get; set; }
         [Column]
         public int CurrencyID { get; set; }
         [Column]
