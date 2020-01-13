@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Routing;
+using MoneyManager.Client.Components.FomanticUI.Message;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
@@ -17,6 +18,9 @@ namespace MoneyManager.Client.Pages.Transactions
 {
     public class EditTransactionBase : ComponentBase
     {
+        [Inject]
+        protected MessageService MessageService { get; set; } = null!;
+
         [Parameter]
         public int? TransactionId { get; set; }
         protected bool IsNew => TransactionId == null;
@@ -134,6 +138,12 @@ namespace MoneyManager.Client.Pages.Transactions
                 var created = await TransactionService.CreateTransactionAsync(FormModel);
                 Store.Dispath(new TransactionActions.Add(created));
                 NavManager.NavigateTo("/transactions");
+
+                var msgBuilder = new FomanticMessageBuilder(builder => builder
+                    .SetContent("Transaction successfully created")
+                    .SetEmphasis(EmphasisEnum.Success)
+                );
+                MessageService.Show(msgBuilder.GetMessage());
             }
             IsSaving = false;
         }

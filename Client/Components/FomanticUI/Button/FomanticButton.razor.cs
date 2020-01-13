@@ -24,7 +24,7 @@ namespace MoneyManager.Client.Components.FomanticUI.Button
         public ButtonHtmlTypeEnum HtmlType { get; set; } = ButtonHtmlTypeEnum.Button;
 
         [Parameter]
-        public EmphasisEnum Emphasis { get; set; } = EmphasisEnum.Normal;
+        public ButtonEmphasisEnum Emphasis { get; set; } = ButtonEmphasisEnum.Normal;
 
         [Parameter]
         public bool IsActive { get; set; } = false;
@@ -47,7 +47,7 @@ namespace MoneyManager.Client.Components.FomanticUI.Button
             get
             {
                 var strBuilder = new StringBuilder($"ui button");
-                if (Emphasis != EmphasisEnum.Normal)
+                if (Emphasis != ButtonEmphasisEnum.Normal)
                 {
                     strBuilder.Append(" ");
                     strBuilder.Append(EmphasisStr);
@@ -93,11 +93,11 @@ namespace MoneyManager.Client.Components.FomanticUI.Button
         protected string EmphasisStr =>
             Emphasis switch
             {
-                EmphasisEnum.Normal => "",
-                EmphasisEnum.Primary => "primary",
-                EmphasisEnum.Secondary => "secondary",
-                EmphasisEnum.Positive => "positive",
-                EmphasisEnum.Negative => "negative",
+                ButtonEmphasisEnum.Normal => "",
+                ButtonEmphasisEnum.Primary => "primary",
+                ButtonEmphasisEnum.Secondary => "secondary",
+                ButtonEmphasisEnum.Positive => "positive",
+                ButtonEmphasisEnum.Negative => "negative",
                 _ => "normal"
             };
 
@@ -129,7 +129,7 @@ namespace MoneyManager.Client.Components.FomanticUI.Button
         Reset
     }
 
-    public enum EmphasisEnum
+    public enum ButtonEmphasisEnum
     {
         Normal,
         Primary,

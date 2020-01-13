@@ -1,0 +1,12 @@
+﻿@inherits FomanticMessageBase
+
+
+<div class=@MessageClassName>
+    @if (Header != null)
+    {
+        <div class="header">
+            @Header
+        </div>
+    }
+    @ChildContent
+</div>

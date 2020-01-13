@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using MoneyManager.Client.Components.FomanticUI.Button;
+using MoneyManager.Client.Components.FomanticUI.Message;
 using MoneyManager.Client.Components.FomanticUI.Modal;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
@@ -10,13 +11,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace MoneyManager.Client.Pages.Transactions
 {
     public class TransactionListBase : ComponentBase
     {
         [Inject]
-        protected ModalService ModalService{ get; set; } = null!;
+        protected ModalService ModalService { get; set; } = null!;
+
+        [Inject]
+        protected MessageService MessageService { get; set; } = null!;
 
         [Inject]
         protected NavigationManager NavManager { get; set; } = null!;

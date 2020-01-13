@@ -23,6 +23,7 @@ namespace MoneyManager
             services.AddScoped<IAccountService, RESTAccountService>();
             services.AddScoped<ITransactionService, RESTTransactionService>();
             services.AddScoped<ModalService>();
+            services.AddScoped<MessageService>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)
