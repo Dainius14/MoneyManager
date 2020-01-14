@@ -20,6 +20,7 @@
         <tr>
             <th>Description</th>
             <th>Amount</th>
+            <th>Date</th>
             <th>From</th>
             <th>To</th>
             <th>Category</th>
@@ -54,6 +55,7 @@
                             @GetTransactionAmountText(t)
                         </span>
                     </td>
+                    <td>@t.Date.ToString("yyyy-MM-dd")</td>
                     <td>@t.FromAccountName</td>
                     <td>@t.ToAccountName</td>
                     <td>@t.CategoryName</td>

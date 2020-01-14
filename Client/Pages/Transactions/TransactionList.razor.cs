@@ -71,6 +71,13 @@ namespace MoneyManager.Client.Pages.Transactions
 
             if (success)
             {
+                var transactionDeletedMsg = new FomanticMessageBuilder(builder => builder
+                    .SetHeader("Transaction deleted")
+                    .SetContent($"Transaction <b>{SecurityElement.Escape(transaction.Description)}</b> has been successfully deleted")
+                    .SetEmphasis(EmphasisEnum.Success)
+                    .SetIcon("check")
+                ).GetMessage();
+                MessageService.Show(transactionDeletedMsg);
                 Store.Dispath(new TransactionActions.Delete(transaction));
             }
             ModalService.Close();

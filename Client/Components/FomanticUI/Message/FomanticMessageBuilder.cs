@@ -40,7 +40,17 @@ namespace MoneyManager.Client.Components.FomanticUI.Message
         {
             _builder.AddAttribute(2, nameof(FomanticMessage.ChildContent), (RenderFragment)((attrBuilder) =>
             {
-                attrBuilder.AddContent(3, content);
+                attrBuilder.AddContent(3, (MarkupString)content);
+            }
+            ));
+            return this;
+        }
+
+        public FomanticMessageBuilderDelegate SetHeader(string header)
+        {
+            _builder.AddAttribute(4, nameof(FomanticMessage.Header), (RenderFragment)((attrBuilder) =>
+            {
+                attrBuilder.AddContent(5, (MarkupString)header);
             }
             ));
             return this;
@@ -48,7 +58,13 @@ namespace MoneyManager.Client.Components.FomanticUI.Message
 
         public FomanticMessageBuilderDelegate SetEmphasis(EmphasisEnum emphasis)
         {
-            _builder.AddAttribute(4, nameof(FomanticMessage.Emphasis), emphasis);
+            _builder.AddAttribute(6, nameof(FomanticMessage.Emphasis), emphasis);
+            return this;
+        }
+
+        public FomanticMessageBuilderDelegate SetIcon(string icon)
+        {
+            _builder.AddAttribute(7, nameof(FomanticMessage.Icon), icon);
             return this;
         }
     }

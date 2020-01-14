@@ -16,12 +16,21 @@ namespace MoneyManager.Client.Components.FomanticUI.Message
         [Parameter]
         public EmphasisEnum Emphasis { get; set; } = EmphasisEnum.Normal;
 
+        [Parameter]
+        public string? Icon { get; set; }
+
         protected string MessageClassName
         {
             get
             {
                 var className = new StringBuilder("ui message");
                 className.Append(" " + EmphasisStr);
+
+                if (!string.IsNullOrEmpty(Icon))
+                {
+                    className.Append(" icon");
+                }
+
                 return className.ToString();
             }
         }

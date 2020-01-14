@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Pages.Transactions
@@ -139,11 +140,13 @@ namespace MoneyManager.Client.Pages.Transactions
                 Store.Dispath(new TransactionActions.Add(created));
                 NavManager.NavigateTo("/transactions");
 
-                var msgBuilder = new FomanticMessageBuilder(builder => builder
-                    .SetContent("Transaction successfully created")
+                var transactionCreatedMsg = new FomanticMessageBuilder(builder => builder
+                    .SetHeader("Transaction created")
+                    .SetContent($"Transaction <b><a href=\"/transactions/{created.ID}\">{SecurityElement.Escape(created.Description)}</a></b> has been successfully created")
                     .SetEmphasis(EmphasisEnum.Success)
-                );
-                MessageService.Show(msgBuilder.GetMessage());
+                    .SetIcon("check")
+                ).GetMessage();
+                MessageService.Show(transactionCreatedMsg);
             }
             IsSaving = false;
         }

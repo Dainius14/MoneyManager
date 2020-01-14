@@ -2,11 +2,19 @@
 
 
 <div class=@MessageClassName>
-    @if (Header != null)
+    @if (!string.IsNullOrEmpty(Icon))
     {
-        <div class="header">
-            @Header
-        </div>
+        <i class="@Icon icon"></i>
     }
-    @ChildContent
+
+    <div class="content">
+        @if (Header != null)
+        {
+            <div class="header">
+                @Header
+            </div>
+        }
+
+        @ChildContent
+    </div>
 </div>
