@@ -30,6 +30,7 @@ namespace MoneyManager.Core.Repositories.Dapper
 			        on td.CategoryID = cat.ID
 			        LEFT JOIN Category as catParent
 				        on cat.ParentID = catParent.ID
+            ORDER BY t.Date DESC
             ";
 
             var transactionsDict = new Dictionary<int, Transaction>();

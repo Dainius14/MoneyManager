@@ -4,6 +4,7 @@ using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Components.FomanticUI.Dropdown
@@ -23,6 +24,9 @@ namespace MoneyManager.Client.Components.FomanticUI.Dropdown
 
         [Parameter]
         public string PlaceholderText { get; set; } = string.Empty;
+
+        [Parameter]
+        public bool IsFluid { get; set; } = true;
 
 
         [Parameter]
@@ -72,21 +76,26 @@ namespace MoneyManager.Client.Components.FomanticUI.Dropdown
         {
             get
             {
-                string className = "ui selection dropdown";
+                var className = new StringBuilder("ui selection dropdown");
 
                 if (ShowResults)
                 {
-                    className += " active visible";
+                    className.Append(" active visible");
                 }
                 if (IsClearable)
                 {
-                    className += " clearable";
+                    className.Append(" clearable");
                 }
                 if (IsSearchable)
                 {
-                    className += " search";
+                    className.Append(" search");
                 }
-                return className;
+                if (IsFluid)
+                {
+
+                    className.Append(" fluid");
+                }
+                return className.ToString();
             }
         }
 

@@ -50,7 +50,7 @@ namespace MoneyManager.Models.Domain
                 {
                     return null;
                 }
-                else if ((bool)isFromPersonal && (bool)!isToPersonal)
+                else if ((bool)!isToPersonal)
                 {
                     return TransactionTypeEnum.Expense;
                 }

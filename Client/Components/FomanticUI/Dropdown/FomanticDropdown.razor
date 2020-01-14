@@ -22,8 +22,9 @@
     @if (IsClearable)
     {
         <i class="remove icon"
-            style=@(CanClearInput ? "display: block" : "display: none")
-            @onclick=OnClearButtonClick></i>
+           style="@(CanClearInput ? "display: block;" : "display: none;") right: 1.5em;"
+           @onclick=OnClearButtonClick
+           @onclick:stopPropagation=true></i>
     }
 
 

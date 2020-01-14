@@ -28,6 +28,7 @@ else
         </div>
     }
 
+
     <div class="field required @(IsFormValidString(editContext, () => FormModel.Description))">
         <label>Description</label>
         <InputText @bind-Value=FormModel.Description></InputText>
@@ -37,9 +38,8 @@ else
         <label>Date</label>
         <InputDate @bind-Value=FormModel.Date></InputDate>
     </div>
-
-    <h4 class="ui dividing header">Transaction details</h4>
-    <div class="ui five column grid compact">
+    
+    <div class="ui five column grid compact mm-transaction-edit-details">
         <div class="row">
             <div class="column field required">
                 <label>From account</label>
@@ -68,10 +68,14 @@ else
                         <FomanticDropdown PlaceholderText="From account"
                                           TItem=Account
                                           SearchFunction=SuggestFromAccount
-                                          @bind-SelectedItem=detail.FromAccount>
+                                          @bind-SelectedItem=detail.FromAccount
+                                          IsClearable=true>
                             <SelectedItemTemplate>
                                 @context.Name
                             </SelectedItemTemplate>
+                            <ResultItemTemplate>
+                                @context.Name <i style="color: darkgray">@(context.IsPersonal ? "Personal" : "Nonpersonal")</i>
+                            </ResultItemTemplate>
                         </FomanticDropdown>
                     }
                     else
@@ -85,10 +89,14 @@ else
                     <FomanticDropdown PlaceholderText="To account"
                                       TItem=Account
                                       SearchFunction=SuggestToAccount
-                                      @bind-SelectedItem=detail.ToAccount>
+                                      @bind-SelectedItem=detail.ToAccount
+                                      IsClearable=true>
                         <SelectedItemTemplate>
                             @context.Name
                         </SelectedItemTemplate>
+                        <ResultItemTemplate>
+                            @context.Name <i style="color: darkgray">@(context.IsPersonal ? "Personal" : "Nonpersonal")</i>
+                        </ResultItemTemplate>
                     </FomanticDropdown>
                 </div>
 
@@ -104,7 +112,8 @@ else
                         <FomanticDropdown @bind-SelectedItem=detail.Currency
                                           TItem=Currency
                                           GivenItems=Store.State.CurrencyState.Currencies
-                                          PlaceholderText="Currency">
+                                          PlaceholderText="Currency"
+                                          IsClearable=true>
                             <SelectedItemTemplate>
                                 @context.Name
                             </SelectedItemTemplate>
@@ -116,7 +125,7 @@ else
                     <div class="field">
                         <FomanticDropdown @bind-SelectedItem=detail.Category
                                           TItem=Category
-                                          GivenItems=Store.State.CategoryState.Categories
+                                          SearchFunction=SuggestCategory
                                           PlaceholderText="Category">
                             <SelectedItemTemplate>
                                 @context.Name
@@ -124,7 +133,7 @@ else
                         </FomanticDropdown>
                     </div>
                 </div>
-    </div>
+            </div>
         }
         <div class="row">
             <FomanticButton OnClick=AddDetailsRow>

@@ -24,3 +24,12 @@
     right: 0.75rem;
     top: 0.5rem;
 }
+
+.mm-transaction-edit-details > .row:first-child {
+    padding-bottom: 0 !important;
+    padding-top: 1.2em !important;
+}
+
+.mm-transaction-edit-details > .row:first-child label {
+    margin-bottom: 0 !important; 
+}

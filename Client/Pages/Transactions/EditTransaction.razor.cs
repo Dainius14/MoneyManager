@@ -96,7 +96,12 @@ namespace MoneyManager.Client.Pages.Transactions
 
         protected void AddDetailsRow()
         {
-            FormModel.TransactionDetails.Add(new TransactionDetails());
+            FormModel.TransactionDetails.Add(new TransactionDetails
+            { 
+                FromAccount = FormModel.TransactionDetails.First().FromAccount,
+                ToAccount = null,
+                Currency = FormModel.TransactionDetails.First().Currency
+            });
         }
 
         protected string IsFormValidString(EditContext editContext, Expression<Func<object>> expression)
@@ -109,20 +114,38 @@ namespace MoneyManager.Client.Pages.Transactions
             if (FormModel.TransactionType == TransactionTypeEnum.Expense
                 || FormModel.TransactionType == TransactionTypeEnum.Transfer)
             {
-                return Store.State.AccountsState.Accounts.Where(a => a.IsPersonal && a.Name.Contains(searchText));
+                return Store.State.AccountsState.Accounts
+                    .Where(a => a.IsPersonal && a.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(a => a.Name);
             }
             else if (FormModel.TransactionType == TransactionTypeEnum.Income)
             {
-                return Store.State.AccountsState.Accounts.Where(a => !a.IsPersonal && a.Name.Contains(searchText));
+                return Store.State.AccountsState.Accounts
+                    .Where(a => !a.IsPersonal && a.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(a => a.Name);
             }
             else
             {
-                return Store.State.AccountsState.Accounts.Where(a => a.Name.Contains(searchText));
+                return Store.State.AccountsState.Accounts
+                    .Where(a => a.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(a => a.IsPersonal)
+                    .ThenBy(a => a.Name);
             }
         }
+
         protected async Task<IEnumerable<Account>> SuggestToAccount(string searchText)
         {
-            return Store.State.AccountsState.Accounts.Where(a => a.Name.Contains(searchText));
+            return Store.State.AccountsState.Accounts
+                .Where(a => a.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(a => a.IsPersonal)
+                .ThenBy(a => a.Name);
+        }
+
+        protected async Task<IEnumerable<Category>> SuggestCategory(string searchText)
+        {
+            return Store.State.CategoryState.Categories
+                .Where(x => x.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(x => x.Name);
         }
 
         #region Html Events
