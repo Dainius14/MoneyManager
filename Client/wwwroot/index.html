@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width" />
     <title>MoneyManager</title>
     <base href="/" />
-    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" integrity="sha384-SI27wrMjH3ZZ89r4o+fGIJtnzkAnFs3E4qz9DIYioCQ5l9Rd/7UAa8DHcaL8jkWt" crossorigin="anonymous">-->
     <link href="css/site.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://gitcdn.xyz/repo/fomantic/Fomantic-UI-CSS/master/semantic.min.css">
 </head>
 
 <body>
-    <app>Loading...</app>
+    <div class="ui active text loader" id="app-loader">Loading...</div>
+
+    <app></app>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
@@ -23,26 +24,35 @@
     <script src="_framework/blazor.webassembly.js"></script>
 
     <script>
+        const appEl = document.querySelector('app');
+        const observer = new MutationObserver((mutations) => {
+            const appLoaderEl = document.getElementById('app-loader');
+            appLoaderEl.parentNode.removeChild(appLoaderEl);
+            observer.disconnect();
+        });
+        observer.observe(appEl, { attributes: true, childList: true, characterData: true });
+
+
         window.FomanticUIDropdown = {
             preventInputKeyDownDefaults: (element) => {
-		        element.addEventListener('keydown', (e) => {
-			        switch (e.key) {
-				        case "ArrowUp":
-				        case "ArrowDown":
-				        case "Enter":
-					        e.preventDefault();
-					        break;
-			        }
-		        });
-	        },
-	        blurElement: (element) => {
-		        element.blur();
-	        }
+                element.addEventListener('keydown', (e) => {
+                    switch (e.key) {
+                        case "ArrowUp":
+                        case "ArrowDown":
+                        case "Enter":
+                            e.preventDefault();
+                            break;
+                    }
+                });
+            },
+            blurElement: (element) => {
+                element.blur();
+            }
         }
 
         window.clickOutsideHandler = {
             listeners: {},
-            addListener: (id, element, dotnetHelper, methodName) => { 
+            addListener: (id, element, dotnetHelper, methodName) => {
                 console.log(id, element, dotnetHelper, methodName);
                 clickOutsideHandler.listeners[id] = { element, dotnetHelper, methodName };
             }
