@@ -1,12 +1,14 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Options;
 using MoneyManager.Core.Data;
 using MoneyManager.Core.Repositories.Dapper;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 
 namespace MoneyManager.Core.Repositories
 {
-    public class DapperUnitOfWork : IUnitOfWork
+    public class DapperUnitOfWork : IUnitOfWork, IDisposable
     {
         private IOptions<DapperDbContext> _dbContext;
         public IDbConnection Connection { get; }
@@ -37,10 +39,15 @@ namespace MoneyManager.Core.Repositories
         {
             _dbContext = dbContext;
 
-            Connection = new SqlConnection(_dbContext.Value.ConnectionString);
+            Connection = new SqliteConnection(_dbContext.Value.ConnectionString);
             Connection.Open();
 
             Transaction = Connection.BeginTransaction();
+        }
+
+        ~DapperUnitOfWork()
+        {
+            Dispose();
         }
 
         public void Commit()
@@ -68,6 +75,24 @@ namespace MoneyManager.Core.Repositories
             _categoryRepo = null;
             _transactionRepo = null;
             _transactionDetailsRepo = null;
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                Transaction.Commit();
+            }
+            catch
+            {
+                Transaction.Rollback();
+                throw;
+            }
+            finally
+            {
+                Transaction.Dispose();
+                GC.SuppressFinalize(this);
+            }
         }
     }
 }

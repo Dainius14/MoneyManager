@@ -11,7 +11,7 @@ namespace MoneyManager.Models.Mappers
             {
                 ID = currency.ID,
                 Name = currency.Name,
-                ShortName = currency.ShortName,
+                IsoCode = currency.IsoCode,
                 Symbol = currency.Symbol,
             };
         }
@@ -21,7 +21,7 @@ namespace MoneyManager.Models.Mappers
             {
                 ID = dto.ID,
                 Name = dto.Name,
-                ShortName = dto.ShortName,
+                IsoCode = dto.IsoCode,
                 Symbol = dto.Symbol,
             };
         }
