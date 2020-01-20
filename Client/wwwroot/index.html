@@ -77,6 +77,29 @@
             });
         });
 
+
+
+        window.BrowserStorage = {
+            key: (storage, n) => {
+                return window[storage].key(n);
+            },
+            getItem: (storage, key) => {
+                return window[storage].getItem(key);
+            },
+            setItem: (storage, key, value) => {
+                if (typeof (value) === 'object') {
+                    value = JSON.stringify(value);
+                }
+                window[storage].setItem(key, value);
+            },
+            removeItem: (storage, key,) => {
+                window[storage].removeItem(key);
+            },
+            clear: (storage) => {
+                window[storage].clear();
+            }
+        }
+
     </script>
 </body>
 

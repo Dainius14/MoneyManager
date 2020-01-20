@@ -33,6 +33,8 @@ namespace MoneyManager
                 provider.GetRequiredService<JwtAuthStateProvider>()
             );
             services.AddScoped<UserService>();
+            services.AddScoped<LocalStorage>();
+            services.AddScoped<SessionStorage>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)
