@@ -39,6 +39,9 @@ namespace MoneyManager.Client.Components.FomanticUI.Button
         public bool IsLoading { get; set; } = false;
 
         [Parameter]
+        public bool IsFluid { get; set; } = false;
+
+        [Parameter]
         public LoadingAnimationEnum LoadingAnimation { get; set; } = LoadingAnimationEnum.Normal;
 
 
@@ -73,9 +76,12 @@ namespace MoneyManager.Client.Components.FomanticUI.Button
                     strBuilder.Append(" loading");
                     if (LoadingAnimation != LoadingAnimationEnum.Normal)
                     {
-                        strBuilder.Append(" ");
-                        strBuilder.Append(LoadingAnimationStr);
+                        strBuilder.Append(" " + LoadingAnimationStr);
                     }
+                }
+                if (IsFluid)
+                {
+                    strBuilder.Append(" fluid");
                 }
                 return strBuilder.ToString();
             }

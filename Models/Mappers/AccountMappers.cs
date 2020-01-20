@@ -11,7 +11,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new Account
             {
-                ID = dto.Id,
+                Id = dto.Id,
                 Name = dto.Name,
                 IsPersonal = true,
             };
@@ -21,7 +21,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new Account
             {
-                ID = dto.ID,
+                Id = dto.Id,
                 Name = dto.Name,
                 IsPersonal = dto.IsPersonal,
             };
@@ -31,7 +31,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new GetAccountDTO
             {
-                ID = (int)domain.ID!,
+                Id = (int)domain.Id!,
                 Name = domain.Name,
                 IsPersonal = domain.IsPersonal,
                 CreatedAt = domain.CreatedAt,

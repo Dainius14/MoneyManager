@@ -30,17 +30,17 @@ namespace MoneyManager.Core.Services
                 _uow.Commit();
 
                 Category? parent = null;
-                if (category.ParentID != null)
+                if (category.ParentId != null)
                 {
-                    parent = await _uow.CategoryRepo.GetAsync((int)category.ParentID);
+                    parent = await _uow.CategoryRepo.GetAsync((int)category.ParentId);
                 }
 
                 var createdCategory = new Category
                 {
-                    ID = categoryId,
+                    Id = categoryId,
                     Name = category.Name,
                     Parent = parent,
-                    ParentID = parent?.ID,
+                    ParentId = parent?.Id,
                     CreatedAt = category.CreatedAt
                 };
 

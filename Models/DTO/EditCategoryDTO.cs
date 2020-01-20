@@ -4,11 +4,11 @@ namespace MoneyManager.Models.DTO
 {
     public class EditCategoryDTO
     {
-        public int? ID { get; set; }
+        public int? Id { get; set; }
         [Required]
         [MaxLength(30)]
         public string Name { get; set; } = null!;
-        public int? ParentID { get; set; }
+        public int? ParentId { get; set; }
 
         public EditCategoryDTO()
         {
@@ -16,9 +16,9 @@ namespace MoneyManager.Models.DTO
 
         public EditCategoryDTO(int? id, string name, int? parentId)
         {
-            ID = id;
+            Id = id;
             Name = name;
-            ParentID = parentId;
+            ParentId = parentId;
         }
     }
 }

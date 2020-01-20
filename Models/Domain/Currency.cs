@@ -4,7 +4,7 @@ namespace MoneyManager.Models.Domain
 {
     public class Currency : IEquatable<Currency>
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string IsoCode { get; set; } = null!;
         public string Symbol { get; set; } = null!;
@@ -22,12 +22,12 @@ namespace MoneyManager.Models.Domain
 
         public bool Equals(Currency other)
         {
-            return other.ID == ID;
+            return other.Id == Id;
         }
 
         public override int GetHashCode()
         {
-            return ID.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }

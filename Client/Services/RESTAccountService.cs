@@ -16,7 +16,7 @@ namespace MoneyManager.Client.Services
 {
     public class RESTAccountService : IAccountService
     {
-        private static HttpClient _httpClient = new HttpClient()
+        private static System.Net.Http.HttpClient _httpClient = new System.Net.Http.HttpClient()
         {
             BaseAddress = new Uri("https://localhost:5501")
         };
@@ -98,7 +98,7 @@ namespace MoneyManager.Client.Services
         {
             throw new NotImplementedException();
             //var editDto = account.ToEditAccountDTO();
-            //var dto = await _httpClient.PutJsonAsync<GetAccountDTO>("api/accounts/" + account.ID, editDto);
+            //var dto = await _httpClient.PutJsonAsync<GetAccountDTO>("api/accounts/" + account.Id, editDto);
             //var item = dto.ToDomainModel();
 
             //return item;

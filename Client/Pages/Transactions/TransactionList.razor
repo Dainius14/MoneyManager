@@ -1,16 +1,15 @@
 ﻿@inherits TransactionListBase
 @using Models.Domain
-
+@attribute [Authorize]
 @page "/transactions"
-
+@attribute [Authorize]
 
 
 <h1 class="ui header">Transactions</h1>
 
 <FomanticButton HtmlElement=ButtonHtmlElementEnum.Anchor
                 Emphasis=ButtonEmphasisEnum.Primary
-                Href="transactions/create"
-                >
+                Href="transactions/create">
     Create a new Transaction
 </FomanticButton>
 
@@ -48,7 +47,7 @@
             {
                 <tr>
                     <td>
-                        <NavLink href=@($"transactions/{t.ID}/edit")>@t.Description</NavLink>
+                        <NavLink href=@($"transactions/{t.Id}/edit")>@t.Description</NavLink>
                     </td>
                     <td>
                         <span class="ui text @(GetTransactionAmountColor(t))">

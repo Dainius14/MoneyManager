@@ -51,6 +51,18 @@ namespace MoneyManager.Client.State
         }
     }
 
+    public class UserState : ICloneable
+    {
+        public User? User { get; set; } = null;
+
+        public bool IsAuthenticated => User != null;
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+    }
+
     public class AppState
     {
         public AccountsState AccountsState { get; set; } = new AccountsState();

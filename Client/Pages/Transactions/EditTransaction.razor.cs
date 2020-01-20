@@ -48,7 +48,7 @@ namespace MoneyManager.Client.Pages.Transactions
             {
                 if (TransactionState.IsFirstLoadComplete)
                 {
-                    var existingTransaction = TransactionState.Transactions.Where(c => c.ID == TransactionId).FirstOrDefault();
+                    var existingTransaction = TransactionState.Transactions.Where(c => c.Id == TransactionId).FirstOrDefault();
                     if (existingTransaction == null)
                     {
                         NavManager.NavigateTo("/transactions/create");
@@ -79,7 +79,7 @@ namespace MoneyManager.Client.Pages.Transactions
         {
             if (!IsNew && IsLoading && TransactionState.IsFirstLoadComplete)
             {
-                var existingCategory = TransactionState.Transactions.Where(c => c.ID == TransactionId).FirstOrDefault();
+                var existingCategory = TransactionState.Transactions.Where(c => c.Id == TransactionId).FirstOrDefault();
                 if (existingCategory == null)
                 {
                     NavManager.NavigateTo("/transactions/create");
@@ -165,7 +165,7 @@ namespace MoneyManager.Client.Pages.Transactions
 
                 var transactionCreatedMsg = new FomanticMessageBuilder(builder => builder
                     .SetHeader("Transaction created")
-                    .SetContent($"Transaction <b><a href=\"/transactions/{created.ID}\">{SecurityElement.Escape(created.Description)}</a></b> has been successfully created")
+                    .SetContent($"Transaction <b><a href=\"/transactions/{created.Id}\">{SecurityElement.Escape(created.Description)}</a></b> has been successfully created")
                     .SetEmphasis(EmphasisEnum.Success)
                     .SetIcon("check")
                 ).GetMessage();

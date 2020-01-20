@@ -12,11 +12,11 @@ namespace MoneyManager.Client.Services
 {
     public class RESTTransactionService : ITransactionService
     {
-        private HttpClient _httpClient;
+        private System.Net.Http.HttpClient _httpClient;
 
         public RESTTransactionService()
         {
-            _httpClient = new HttpClient();
+            _httpClient = new System.Net.Http.HttpClient();
             //_httpClient.BaseAddress = new System.Uri("https://localhost:44358");
             _httpClient.BaseAddress = new System.Uri("https://localhost:5501");
         }
@@ -42,7 +42,7 @@ namespace MoneyManager.Client.Services
         }
         public async Task<Transaction> EditTransactionAsync(Transaction transaction)
         {
-            var dto = await _httpClient.PutJsonAsync<GetTransactionDTO>("/api/transactions/" + transaction.ID, transaction);
+            var dto = await _httpClient.PutJsonAsync<GetTransactionDTO>("/api/transactions/" + transaction.Id, transaction);
             var item = dto.ToDomainModel();
             return item;
         }

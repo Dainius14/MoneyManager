@@ -2,6 +2,7 @@
 @page "/transactions/create"
 @page "/transactions/{TransactionId:int}/edit"
 @using MoneyManager.Models.Domain
+@attribute [Authorize]
 
 
 @if (IsNew)
@@ -38,7 +39,7 @@ else
         <label>Date</label>
         <InputDate @bind-Value=FormModel.Date></InputDate>
     </div>
-    
+
     <div class="ui five column grid compact mm-transaction-edit-details">
         <div class="row">
             <div class="column field required">

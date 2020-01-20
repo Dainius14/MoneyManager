@@ -1,6 +1,7 @@
 ﻿@inherits CreatePersonalAccountBase
 @page "/accounts/personal/create"
 @page "/accounts/personal/{AccountId:int}/edit"
+@attribute [Authorize]
 @using MoneyManager.Models.Domain;
 
 
@@ -50,7 +51,7 @@ else
         <label>Initial balance date</label>
         <InputDate @bind-Value=FormModel.InitialDate></InputDate>
     </div>
-    
+
     <FomanticButton HtmlType=ButtonHtmlTypeEnum.Submit
                     Emphasis=ButtonEmphasisEnum.Primary
                     IsLoading=IsSavingAccount>

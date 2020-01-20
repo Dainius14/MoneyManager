@@ -8,7 +8,7 @@ namespace MoneyManager.Models.Domain
     public class Transaction : IAudited
     {
         [Column]
-        public int? ID { get; set; }
+        public int? Id { get; set; }
         [Column]
         public string? Description { get; set; }
         [Column]

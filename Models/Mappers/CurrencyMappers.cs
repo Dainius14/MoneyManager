@@ -9,7 +9,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new GetCurrencyDTO
             {
-                ID = currency.ID,
+                Id = currency.Id,
                 Name = currency.Name,
                 IsoCode = currency.IsoCode,
                 Symbol = currency.Symbol,
@@ -19,7 +19,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new Currency
             {
-                ID = dto.ID,
+                Id = dto.Id,
                 Name = dto.Name,
                 IsoCode = dto.IsoCode,
                 Symbol = dto.Symbol,

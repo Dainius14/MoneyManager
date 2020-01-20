@@ -14,7 +14,7 @@ namespace MoneyManager.Client.Services
 {
     public class RESTCurrencyService : ICurrencyService
     {
-        private static HttpClient _httpClient = new HttpClient()
+        private static System.Net.Http.HttpClient _httpClient = new System.Net.Http.HttpClient()
         {
             BaseAddress = new Uri("https://localhost:5501")
         };

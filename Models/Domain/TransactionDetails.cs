@@ -8,19 +8,19 @@ namespace MoneyManager.Models.Domain
     public class TransactionDetails : IAudited
     {
         [Column]
-        public int? ID { get; set; }
+        public int? Id { get; set; }
         [Column]
-        public int TransactionID { get; set; }
+        public int TransactionId { get; set; }
         [Column]
         public double Amount { get; set; }
         [Column]
-        public int CurrencyID { get; set; }
+        public int CurrencyId { get; set; }
         [Column]
-        public int? FromAccountID { get; set; }
+        public int? FromAccountId { get; set; }
         [Column]
-        public int ToAccountID { get; set; }
+        public int ToAccountId { get; set; }
         [Column]
-        public int? CategoryID { get; set; }
+        public int? CategoryId { get; set; }
         [Column]
         public DateTime CreatedAt { get; set; }
 
@@ -44,7 +44,7 @@ namespace MoneyManager.Models.Domain
                 return false;
             }
 
-            return x.ID == y.ID;
+            return x.Id == y.Id;
         }
 
         public int GetHashCode([DisallowNull] TransactionDetails obj)

@@ -7,7 +7,7 @@ namespace MoneyManager.Models.Mappers
     {
         public static EditPersonalAccountVmDto ToDto(this EditPersonalAccountVm vm)
         {
-            return new EditPersonalAccountVmDto(vm.Id, vm.Name, vm.Currency!.ID, vm.InitialBalance, vm.InitialDate);
+            return new EditPersonalAccountVmDto(vm.Id, vm.Name, vm.Currency!.Id, vm.InitialBalance, vm.InitialDate);
         }
 
         public static EditPersonalAccountVm ToViewModel(this EditPersonalAccountVmDto vm)

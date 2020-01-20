@@ -22,7 +22,7 @@ namespace MoneyManager.Client.State.Reducers
                 case TransactionActions.Edit a:
                     var newAccounts = state.Transactions.ToList();
                     int accountIndex = state.Transactions.IndexOf(
-                        newAccounts.FirstOrDefault(x => x?.ID == a.Item.ID)
+                        newAccounts.FirstOrDefault(x => x?.Id == a.Item.Id)
                     );
                     newAccounts[accountIndex] = a.Item;
 
@@ -30,7 +30,7 @@ namespace MoneyManager.Client.State.Reducers
                     return newState;
 
                 case TransactionActions.Delete a:
-                    newState.Transactions = state.Transactions.Where(t => t.ID != a.Item.ID).ToList();
+                    newState.Transactions = state.Transactions.Where(t => t.Id != a.Item.Id).ToList();
                     return newState;
 
                 case TransactionActions.SetProperty a:

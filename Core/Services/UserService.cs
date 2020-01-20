@@ -1,0 +1,100 @@
+﻿using MoneyManager.Core.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using MoneyManager.Models.Domain;
+using MoneyManager.Core.Services.Exceptions;
+
+namespace MoneyManager.Core.Services
+{
+    public class UserService : IUserService
+    {
+        private readonly IUnitOfWork _uow;
+
+        public UserService(IUnitOfWork unitOfWork)
+        {
+            _uow = unitOfWork;
+        }
+
+        public async Task<bool> Create(User user)
+        {
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                throw new Exception("Email is required");
+            }
+            if (string.IsNullOrWhiteSpace(user.Password))
+            {
+                throw new Exception("Password is required");
+            }
+
+            byte[] passwordHash, passwordSalt;
+            CreatePasswordHash(user.Password, out passwordHash, out passwordSalt);
+
+            user.CreatedAt = DateTime.UtcNow;
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+
+            await _uow.UserRepo.InsertAsync(user);
+            _uow.Commit();
+
+            return true;
+        }
+
+        public async Task<User> Authenticate(string email, string password)
+        {
+            var user = await _uow.UserRepo.GetByEmailAsync(email);
+            if (user == null)
+            {
+                throw new NotFoundException("Cant find user with given email");
+            }
+
+            if (!VerifyPasswordHash(password, user.PasswordHash!, user.PasswordSalt!))
+            {
+                throw new BadUserPasswordException("Wrong password");
+            }
+
+            return user;
+        }
+
+        public async Task<IEnumerable<User>> GetAll()
+        {
+            return await _uow.UserRepo.GetAllAsync();
+        }
+
+        public async Task<User> GetOne(int id)
+        {
+            return await _uow.UserRepo.GetAsync(id);
+        }
+
+        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            if (password == null) throw new ArgumentNullException("password");
+            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+
+            using (var hmac = new System.Security.Cryptography.HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+        }
+
+        private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
+        {
+            if (password == null) throw new ArgumentNullException("password");
+            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+            if (storedHash.Length != 64) throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
+            if (storedSalt.Length != 128) throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
+
+            using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                for (int i = 0; i < computedHash.Length; i++)
+                {
+                    if (computedHash[i] != storedHash[i]) return false;
+                }
+            }
+
+            return true;
+        }
+    }
+}

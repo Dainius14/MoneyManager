@@ -8,7 +8,8 @@ namespace MoneyManager.Core.Repositories
         public ICategoryRepository CategoryRepo { get; }
         public ICurrencyRepository CurrencyRepo { get; }
         public ITransactionRepository TransactionRepo { get; }
-        public ITransactionDetailsRepository TransactionDetailsRepo{ get; }
+        public ITransactionDetailsRepository TransactionDetailsRepo { get; }
+        public IUserRepository UserRepo { get; }
 
         public void Commit();
     }

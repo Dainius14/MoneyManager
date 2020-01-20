@@ -6,7 +6,7 @@ namespace MoneyManager.Models.Domain
     public class Account : IAudited, ICloneable
     {
         [Column]
-        public int? ID { get; set; }
+        public int? Id { get; set; }
         [Column]
         public string Name { get; set; } = null!;
         [Column]

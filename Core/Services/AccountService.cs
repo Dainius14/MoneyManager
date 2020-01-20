@@ -95,11 +95,11 @@ namespace MoneyManager.Core.Services
 
                 var transactionDetail = new TransactionDetails
                 {
-                    FromAccountID = null,
-                    ToAccountID = accountId,
+                    FromAccountId = null,
+                    ToAccountId = accountId,
                     Amount = vm.InitialBalance,
-                    CurrencyID = (int)vm.CurrencyId!,
-                    TransactionID = transactionId,
+                    CurrencyId = (int)vm.CurrencyId!,
+                    TransactionId = transactionId,
                     CreatedAt = createdAt
                 };
                 int transactionDetailsId = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);

@@ -67,7 +67,7 @@ namespace MoneyManager.Client.Pages.Transactions
 
             _isDeletingTransaction = true;
             ModalService.SetLoading(true);
-            bool success = await TransactionService.DeleteTransactionAsync((int)transaction.ID!);
+            bool success = await TransactionService.DeleteTransactionAsync((int)transaction.Id!);
 
             if (success)
             {

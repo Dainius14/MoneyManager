@@ -41,7 +41,7 @@ namespace MoneyManager.Client.Pages.Accounts
             if (!IsNew)
             {
                 var viewModels = await RESTAccountService.GetAllPersonalAccountsAsync();
-                var existingVm = viewModels.Where(vm => vm.Account.ID == AccountId).FirstOrDefault();
+                var existingVm = viewModels.Where(vm => vm.Account.Id == AccountId).FirstOrDefault();
                 if (existingVm == null)
                 {
                     NavManager.NavigateTo("/accounts/personal/create");

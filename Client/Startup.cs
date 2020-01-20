@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManager.Client;
@@ -12,6 +13,7 @@ namespace MoneyManager
     {
         public void ConfigureServices(IServiceCollection services)
         {
+
             var initialState = new AppState();
             var store = new Store<AppState>(RootReducer.Reducer, initialState);
 
@@ -24,6 +26,13 @@ namespace MoneyManager
             services.AddScoped<ITransactionService, RESTTransactionService>();
             services.AddScoped<ModalService>();
             services.AddScoped<MessageService>();
+
+            services.AddAuthorizationCore();
+            services.AddScoped<JwtAuthStateProvider>();
+            services.AddScoped<AuthenticationStateProvider>(provider =>
+                provider.GetRequiredService<JwtAuthStateProvider>()
+            );
+            services.AddScoped<UserService>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

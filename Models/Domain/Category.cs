@@ -6,13 +6,13 @@ namespace MoneyManager.Models.Domain
     public class Category: IAudited
     {
         [Column]
-        public int? ID { get; set; }
+        public int? Id { get; set; }
 
         [Column]
         public string Name { get; set; } = null!;
 
         [Column]
-        public int? ParentID { get; set; }
+        public int? ParentId { get; set; }
 
         [Column]
         public DateTime CreatedAt { get; set; }
@@ -29,9 +29,9 @@ namespace MoneyManager.Models.Domain
 
         public Category(int id, string name, int? parentId, DateTime createdAt)
         {
-            ID = id;
+            Id = id;
             Name = name;
-            ParentID = parentId;
+            ParentId = parentId;
             CreatedAt = createdAt;
     }
     }

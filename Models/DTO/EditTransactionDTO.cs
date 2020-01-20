@@ -5,7 +5,7 @@ namespace MoneyManager.Models.DTO
 {
     public class EditTransactionDTO
     {
-        public int? ID { get; set; }
+        public int? Id { get; set; }
         public string? Description { get; set; }
         public DateTime Date { get; set; }
         public IEnumerable<EditTransactionDetailsDTO> TransactionDetails { get; set; } = null!;

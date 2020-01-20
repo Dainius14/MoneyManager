@@ -19,17 +19,17 @@ namespace MoneyManager.Core.Repositories.Dapper
             string sql = @"
             SELECT * FROM ""transaction"" AS t
 	            LEFT JOIN TransactionDetails as td
-		            ON td.TransactionID = t.ID
+		            ON td.TransactionId = t.Id
 		        LEFT JOIN  Account as accFrom
-			        on td.FromAccountID = accFrom.ID
+			        on td.FromAccountId = accFrom.Id
 		        LEFT JOIN Account as accTo
-			        on td.ToAccountID = accTo.ID
+			        on td.ToAccountId = accTo.Id
 		        LEFT  JOIN Currency as crnc
-			        on td.CurrencyID = crnc.ID
+			        on td.CurrencyId = crnc.Id
 		        LEFT JOIN Category as cat
-			        on td.CategoryID = cat.ID
+			        on td.CategoryId = cat.Id
 			        LEFT JOIN Category as catParent
-				        on cat.ParentID = catParent.ID
+				        on cat.ParentId = catParent.Id
             ORDER BY t.Date DESC
             ";
 
@@ -42,11 +42,11 @@ namespace MoneyManager.Core.Repositories.Dapper
                 {
                     Transaction? transaction;
 
-                    if (!transactionsDict.TryGetValue((int)t.ID!, out transaction))
+                    if (!transactionsDict.TryGetValue((int)t.Id!, out transaction))
                     {
                         transaction = t;
                         transaction.TransactionDetails = new List<TransactionDetails>();
-                        transactionsDict.Add((int)t.ID, transaction);
+                        transactionsDict.Add((int)t.Id, transaction);
                     }
                     td.FromAccount = fromAccount;
                     td.ToAccount = toAccount;
@@ -62,7 +62,7 @@ namespace MoneyManager.Core.Repositories.Dapper
 
                     return transaction;
                 },
-                splitOn: "ID,ID,ID,ID,ID,ID",
+                splitOn: "Id,Id,Id,Id,Id,Id",
                 transaction: Transaction
             );
             return items.Distinct().ToList();

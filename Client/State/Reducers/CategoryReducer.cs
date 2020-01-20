@@ -22,7 +22,7 @@ namespace MoneyManager.Client.State.Reducers
                 case CategoryActions.Edit a:
                     var newCategories = state.Categories.ToList();
                     int accountIndex = state.Categories.IndexOf(
-                        newCategories.FirstOrDefault(x => x?.ID == a.Item.ID)
+                        newCategories.FirstOrDefault(x => x?.Id == a.Item.Id)
                     );
                     newCategories[accountIndex] = a.Item;
 

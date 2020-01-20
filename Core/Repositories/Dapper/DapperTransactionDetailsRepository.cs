@@ -19,16 +19,16 @@ namespace MoneyManager.Core.Repositories.Dapper
             string sql = @"
             SELECT * FROM ""TransactionDetails"" AS td
 		        LEFT OUTER JOIN Account as accFrom
-			        on td.FromAccountID = accFrom.ID
+			        on td.FromAccountId = accFrom.Id
 		        LEFT OUTER JOIN Account as accTo
-			        on td.ToAccountID = accTo.ID
+			        on td.ToAccountId = accTo.Id
 		        LEFT OUTER JOIN Currency as crnc
-			        on td.CurrencyID = crnc.ID
+			        on td.CurrencyId = crnc.Id
 		        LEFT OUTER JOIN Category as cat
-			        on td.CategoryID = cat.ID
+			        on td.CategoryId = cat.Id
 			        LEFT OUTER JOIN Category as catParent
-				        on cat.ParentID = catParent.ID
-                WHERE td.ID = @id
+				        on cat.ParentId = catParent.Id
+                WHERE td.Id = @id
             ";
 
 
@@ -38,7 +38,7 @@ namespace MoneyManager.Core.Repositories.Dapper
                 param: new { id },
                 map: (td, fromAccount, toAccount, currency, category, categoryParent) =>
                 {
-                    td.FromAccount = fromAccount.ID != default ? fromAccount : null;
+                    td.FromAccount = fromAccount.Id != default ? fromAccount : null;
                     td.ToAccount = toAccount;
                     td.Currency = currency;
                     td.Category = category;
@@ -50,7 +50,7 @@ namespace MoneyManager.Core.Repositories.Dapper
 
                     return td;
                 },
-                splitOn: "ID,ID,ID,ID,ID",
+                splitOn: "Id,Id,Id,Id,Id",
                 transaction: Transaction
             );
             return item.FirstOrDefault();

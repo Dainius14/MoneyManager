@@ -9,7 +9,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new GetTransactionDetailsDTO
             {
-                ID = (int)detail.ID!,
+                Id = (int)detail.Id!,
                 Amount = detail.Amount,
                 Currency = detail.Currency.ToGetCurrencyDTO(),
                 Category = detail.Category?.ToGetCategoryDTO(),
@@ -22,12 +22,12 @@ namespace MoneyManager.Models.Mappers
         {
             return new EditTransactionDetailsDTO
             {
-                ID = detail.ID,
+                Id = detail.Id,
                 Amount = detail.Amount,
-                Currency = detail.Currency.ID,
-                Category = detail.Category?.ID,
-                FromAccount = detail.FromAccount?.ID,
-                ToAccount = (int)detail.ToAccount.ID!,
+                Currency = detail.Currency.Id,
+                Category = detail.Category?.Id,
+                FromAccount = detail.FromAccount?.Id,
+                ToAccount = (int)detail.ToAccount.Id!,
             };
         }
 
@@ -35,11 +35,11 @@ namespace MoneyManager.Models.Mappers
         {
             return new TransactionDetails
             {
-                ID = dto.ID,
-                FromAccountID = dto.FromAccount,
-                ToAccountID = dto.ToAccount,
-                CurrencyID = dto.Currency,
-                CategoryID = dto.Category,
+                Id = dto.Id,
+                FromAccountId = dto.FromAccount,
+                ToAccountId = dto.ToAccount,
+                CurrencyId = dto.Currency,
+                CategoryId = dto.Category,
                 Amount = dto.Amount,
             };
         }
@@ -47,15 +47,15 @@ namespace MoneyManager.Models.Mappers
         {
             return new TransactionDetails
             {
-                ID = dto.ID,
-                FromAccountID = dto.FromAccount?.ID,
+                Id = dto.Id,
+                FromAccountId = dto.FromAccount?.Id,
                 FromAccount = dto.FromAccount?.ToDomainModel(),
-                ToAccountID = dto.ToAccount.ID,
+                ToAccountId = dto.ToAccount.Id,
                 ToAccount = dto.ToAccount.ToDomainModel(),
-                CurrencyID = dto.Currency.ID,
+                CurrencyId = dto.Currency.Id,
                 Currency = dto.Currency.ToDomainModel(),
                 Amount = dto.Amount,
-                CategoryID = dto.Category?.ID,
+                CategoryId = dto.Category?.Id,
                 Category = dto.Category?.ToDomainModel(),
             };
         }

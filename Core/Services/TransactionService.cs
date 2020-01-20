@@ -37,7 +37,7 @@ namespace MoneyManager.Core.Services
                 var transactionDetails = await Task.WhenAll(transaction.TransactionDetails.Select(async (transactionDetail) =>
                 {
                     transactionDetail.CreatedAt = createdAt;
-                    transactionDetail.TransactionID = transactionId;
+                    transactionDetail.TransactionId = transactionId;
                     var detailId = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);
                     return await _uow.TransactionDetailsRepo.GetAsync(detailId);
                 }));
@@ -46,7 +46,7 @@ namespace MoneyManager.Core.Services
 
                 var createdTransaction = new Transaction
                 {
-                    ID = transactionId,
+                    Id = transactionId,
                     Description = transaction.Description,
                     Date = transaction.Date,
                     TransactionDetails = transactionDetails,
@@ -75,7 +75,7 @@ namespace MoneyManager.Core.Services
 
             var comparator = new TransactionDetailsIDComparator();
             var existingDetails = from existing in existingTransaction.TransactionDetails
-                                  join given in transaction.TransactionDetails on existing.ID equals given.ID
+                                  join given in transaction.TransactionDetails on existing.Id equals given.Id
                                   select new { Existing = existing, Given = given };
             var newDetails = transaction.TransactionDetails.Except(existingTransaction.TransactionDetails, comparator);
             var removedDetails = existingTransaction.TransactionDetails.Except(transaction.TransactionDetails, comparator);
@@ -83,9 +83,9 @@ namespace MoneyManager.Core.Services
             foreach (var split in existingDetails)
             {
                 split.Existing.Amount = split.Given.Amount;
-                split.Existing.FromAccountID = split.Given.FromAccountID;
-                split.Existing.ToAccountID = split.Given.ToAccountID;
-                split.Existing.CategoryID = split.Given.CategoryID;
+                split.Existing.FromAccountId = split.Given.FromAccountId;
+                split.Existing.ToAccountId = split.Given.ToAccountId;
+                split.Existing.CategoryId = split.Given.CategoryId;
             }
 
             foreach (var split in newDetails)

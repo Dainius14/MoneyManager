@@ -10,9 +10,9 @@ namespace MoneyManager.Models.Mappers
         {
             return new Category
             {
-                ID = dto.ID,
+                Id = dto.Id,
                 Name = dto.Name,
-                ParentID = dto.ParentID,
+                ParentId = dto.ParentId,
             };
         }
 
@@ -20,21 +20,21 @@ namespace MoneyManager.Models.Mappers
         {
             return new Category
             {
-                ID = dto.ID,
+                Id = dto.Id,
                 Name = dto.Name,
-                ParentID = dto.Parent?.ID,
+                ParentId = dto.Parent?.Id,
                 Parent = dto.Parent?.ToDomainModel(),
             };
         }
 
         public static GetCategoryDTO ToGetCategoryDTO(this Category domain)
         {
-            return new GetCategoryDTO((int)domain.ID!, domain.Name, domain.Parent?.ToGetCategoryDTO(), domain.CreatedAt, domain.UpdatedAt);
+            return new GetCategoryDTO((int)domain.Id!, domain.Name, domain.Parent?.ToGetCategoryDTO(), domain.CreatedAt, domain.UpdatedAt);
         }
 
         public static EditCategoryDTO ToEditCategoryDTO(this Category domain)
         {
-            return new EditCategoryDTO(domain.ID, domain.Name, domain.Parent?.ID);
+            return new EditCategoryDTO(domain.Id, domain.Name, domain.Parent?.Id);
         }
     }
 }

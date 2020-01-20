@@ -35,6 +35,10 @@ namespace MoneyManager.Core.Repositories
         public ITransactionDetailsRepository TransactionDetailsRepo =>
             _transactionDetailsRepo ?? (_transactionDetailsRepo = new DapperTransactionDetailsRepository(Transaction));
 
+        private IUserRepository? _userRepo;
+        public IUserRepository UserRepo =>
+            _userRepo ?? (_userRepo = new DapperUserRepository(Transaction));
+
         public DapperUnitOfWork(IOptions<DapperDbContext> dbContext)
         {
             _dbContext = dbContext;
@@ -73,8 +77,10 @@ namespace MoneyManager.Core.Repositories
         {
             _accountRepo = null;
             _categoryRepo = null;
+            _currencyRepo = null;
             _transactionRepo = null;
             _transactionDetailsRepo = null;
+            _userRepo = null;
         }
 
         public void Dispose()

@@ -10,7 +10,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new GetTransactionDTO
             {
-                ID = (int)transaction.ID!,
+                Id = (int)transaction.Id!,
                 Date = transaction.Date,
                 Description = transaction.Description,
                 TransactionDetails = transaction.TransactionDetails.Select(td => td.ToGetTransactionDetailsDTO()),
@@ -21,7 +21,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new EditTransactionDTO
             {
-                ID = transaction.ID,
+                Id = transaction.Id,
                 Date = transaction.Date,
                 Description = transaction.Description ?? string.Empty,
                 TransactionDetails = transaction.TransactionDetails.Select(td => td.ToEditTransactionDetailsDTO()),
@@ -32,7 +32,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new Transaction
             {
-                ID = dto.ID,
+                Id = dto.Id,
                 Description = dto.Description,
                 Date = dto.Date,
                 TransactionDetails = dto.TransactionDetails.Select(td => td.ToDomainModel()).ToList(),
@@ -43,7 +43,7 @@ namespace MoneyManager.Models.Mappers
         {
             return new Transaction
             {
-                ID = dto.ID,
+                Id = dto.Id,
                 Description = dto.Description,
                 Date = dto.Date,
                 TransactionDetails = dto.TransactionDetails.Select(td => td.ToDomainModel()).ToList(),

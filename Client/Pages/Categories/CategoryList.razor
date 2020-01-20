@@ -1,5 +1,6 @@
 ﻿@inherits CategoryListBase
 @page "/categories"
+@attribute [Authorize]
 
 
 <h1 class="ui header">Categories</h1>
@@ -20,11 +21,11 @@
     <tbody>
         @if (IsLoading)
         {
-        <tr>
-            <td colspan="4">
-                <div class="ui active centered inline loader"></div>
-            </td>
-        </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="ui active centered inline loader"></div>
+                </td>
+            </tr>
         }
         else
         {
@@ -37,14 +38,14 @@
 
             @foreach (var cat in Categories)
             {
-            <tr>
-                <td>
-                    <NavLink href=@($"categories/{cat.ID}/edit")>@cat.Name</NavLink>
-                </td>
-                <td>
-                    <span class="ui red text">Delete</span>
-                </td>
-            </tr>
+                <tr>
+                    <td>
+                        <NavLink href=@($"categories/{cat.Id}/edit")>@cat.Name</NavLink>
+                    </td>
+                    <td>
+                        <span class="ui red text">Delete</span>
+                    </td>
+                </tr>
             }
         }
     </tbody>

@@ -1,5 +1,6 @@
 ﻿@inherits PersonalAccountListBase
 @page "/accounts/personal"
+@attribute [Authorize]
 
 
 <h1 class="ui header">Personal accounts</h1>
@@ -40,7 +41,7 @@
             {
                 <tr>
                     <td>
-                        <NavLink href=@($"accounts/personal/{vm.Account.ID}/edit")>@vm.Account.Name</NavLink>
+                        <NavLink href=@($"accounts/personal/{vm.Account.Id}/edit")>@vm.Account.Name</NavLink>
                     </td>
                     <td>@vm.CurrentBalanceStr @vm.Currency.Symbol</td>
                     <td></td>

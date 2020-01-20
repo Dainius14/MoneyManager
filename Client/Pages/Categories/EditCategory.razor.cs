@@ -40,7 +40,7 @@ namespace MoneyManager.Client.Pages.Categories
             {
                 if (CategoryState.IsFirstLoadComplete)
                 {
-                    var existingCategory = CategoryState.Categories.Where(c => c.ID == CategoryId).FirstOrDefault();
+                    var existingCategory = CategoryState.Categories.Where(c => c.Id == CategoryId).FirstOrDefault();
                     if (existingCategory == null)
                     {
                         NavManager.NavigateTo("/categories/create");
@@ -60,7 +60,7 @@ namespace MoneyManager.Client.Pages.Categories
         {
             if (!IsNew && IsLoading && CategoryState.IsFirstLoadComplete)
             {
-                var existingCategory = CategoryState.Categories.Where(c => c.ID == CategoryId).FirstOrDefault();
+                var existingCategory = CategoryState.Categories.Where(c => c.Id == CategoryId).FirstOrDefault();
                 if (existingCategory == null)
                 {
                     NavManager.NavigateTo("/categories/create");

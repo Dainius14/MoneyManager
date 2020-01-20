@@ -2,7 +2,7 @@
 {
     public class EditTransactionDetailsDTO
     {
-        public int? ID { get; set; }
+        public int? Id { get; set; }
         public double Amount { get; set; }
         public int Currency { get; set; }
         public int? Category { get; set; }

@@ -15,18 +15,18 @@ namespace MoneyManager.Core.Repositories.Dapper
         protected IDbTransaction Transaction { get; }
         protected IDbConnection Connection { get => Transaction.Connection; }
 
-        private readonly string _tableName;
+        protected string TableName { get; }
 
         protected DapperGenericRepository(IDbTransaction transaction, string tableName)
         {
             Transaction = transaction;
-            _tableName = tableName;
+            TableName = tableName;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await Connection.QueryAsync<T>(
-                $"SELECT * FROM \"{_tableName}\"",
+                @$"SELECT * FROM ""{TableName}""",
                 transaction: Transaction
             );
         }
@@ -34,8 +34,8 @@ namespace MoneyManager.Core.Repositories.Dapper
         public async Task<T> GetAsync(int id)
         {
             return await Connection.QuerySingleOrDefaultAsync<T>(
-                $"SELECT * FROM \"{_tableName}\" WHERE ID=@ID",
-                new { ID = id },
+                @$"SELECT * FROM ""{TableName}"" WHERE Id=@id",
+                new { id },
                 Transaction
             );
         }
@@ -51,7 +51,7 @@ namespace MoneyManager.Core.Repositories.Dapper
 
         private string GenerateInsertQuery()
         {
-            var insertQuery = new StringBuilder($"INSERT INTO \"{_tableName}\" ");
+            var insertQuery = new StringBuilder(@$"INSERT INTO ""{TableName}"" ");
 
             insertQuery.Append("(");
 
@@ -60,13 +60,13 @@ namespace MoneyManager.Core.Repositories.Dapper
 
             insertQuery
                 .Remove(insertQuery.Length - 1, 1)
-                .Append(") OUTPUT INSERTED.[ID] VALUES (");
+                .Append(") VALUES (");
 
             properties.ForEach(prop => { insertQuery.Append($"@{prop},"); });
 
             insertQuery
                 .Remove(insertQuery.Length - 1, 1)
-                .Append(")");
+                .Append("); SELECT last_insert_rowid();");
 
             return insertQuery.ToString();
         }
@@ -98,27 +98,27 @@ namespace MoneyManager.Core.Repositories.Dapper
 
         private string GenerateUpdateQuery()
         {
-            var updateQuery = new StringBuilder($"UPDATE {_tableName} SET ");
+            var updateQuery = new StringBuilder($"UPDATE {TableName} SET ");
             var properties = GenerateListOfProperties(GetProperties);
 
             properties.ForEach(property =>
             {
-                if (!property.Equals("ID"))
+                if (!property.Equals("Id"))
                 {
                     updateQuery.Append($"{property}=@{property},");
                 }
             });
 
             updateQuery.Remove(updateQuery.Length - 1, 1); //remove last comma
-            updateQuery.Append(" WHERE ID=@ID");
+            updateQuery.Append(" WHERE Id=@Id");
 
             return updateQuery.ToString();
         }
         public async Task DeleteAsync(int id)
         {
             await Connection.ExecuteAsync(
-                $"DELETE FROM \"{_tableName}\" WHERE ID=@ID",
-                new { ID = id },
+                @$"DELETE FROM ""{TableName}"" WHERE Id=@id",
+                new { id },
                 Transaction
             );
         }
@@ -129,7 +129,7 @@ namespace MoneyManager.Core.Repositories.Dapper
         {
             return (from prop in listOfProperties
                     let isDbColumn = prop.GetCustomAttributes(typeof(ColumnAttribute)).FirstOrDefault() != null
-                    where isDbColumn && prop.Name != "ID"
+                    where isDbColumn && prop.Name != "Id"
                     select prop.Name).ToList();
         }
     }
