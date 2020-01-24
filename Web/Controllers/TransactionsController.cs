@@ -5,10 +5,12 @@ using MoneyManager.Core.Services;
 using System.Linq;
 using MoneyManager.Models.Mappers;
 using MoneyManager.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace money_backend.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class TransactionsController : ControllerBase
     {

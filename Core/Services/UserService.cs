@@ -1,9 +1,10 @@
 ﻿using MoneyManager.Core.Repositories;
+using MoneyManager.Models.Domain;
+using MoneyManager.Core.Services.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MoneyManager.Models.Domain;
-using MoneyManager.Core.Services.Exceptions;
+
 
 namespace MoneyManager.Core.Services
 {
@@ -54,6 +55,28 @@ namespace MoneyManager.Core.Services
             }
 
             return user;
+        }
+
+        public async Task SaveRefreshToken(int userId, string token)
+        {
+            DateTime issuedAt = DateTime.UtcNow;
+            DateTime expiresAt = issuedAt.AddDays(7);
+            var refreshToken = new RefreshToken(userId, token, issuedAt, expiresAt);
+            await _uow.RefreshTokenRepo.InsertAsync(refreshToken);
+        }
+
+        public async Task<bool> IsRefreshTokenValid(string refreshToken)
+        {
+            var refreshTokenEntry = await _uow.RefreshTokenRepo.GetAsync(refreshToken);
+            return refreshTokenEntry != null && refreshTokenEntry.IsValid
+                && refreshTokenEntry.ExpiresAt >= DateTime.UtcNow;
+        }
+
+        public async Task InvalidateRefreshToken(string refreshToken)
+        {
+            var refreshTokenEntry = await _uow.RefreshTokenRepo.GetAsync(refreshToken);
+            refreshTokenEntry.IsValid = false;
+            await _uow.RefreshTokenRepo.UpdateAsync(refreshTokenEntry);
         }
 
         public async Task<IEnumerable<User>> GetAll()

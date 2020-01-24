@@ -12,10 +12,16 @@ namespace MoneyManager.Client.Pages
     public class LoginBase : ComponentBase
     {
         [CascadingParameter]
-        protected Task<AuthenticationState> _authenticationStateTask { get; set; }
+        protected Task<AuthenticationState> _authStateTask { get; set; }
 
         [Inject]
-        protected UserService UserService { get; set; } = null!;
+        protected Bootstrapper Bootstrapper { get; set; } = null!;
+
+        [Inject]
+        protected AuthService AuthService { get; set; } = null!;
+
+        //[Inject]
+        //protected JwtAuthStateProvider AuthProvider { get; set; } = null!;
 
         [Inject]
         protected NavigationManager NavManager { get; set; } = null!;
@@ -28,10 +34,28 @@ namespace MoneyManager.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            var authState = await _authenticationStateTask;
-            Console.WriteLine("IsAuthenticated: " + authState.User.Identity.IsAuthenticated);
+            var authState = await _authStateTask;
+            Console.WriteLine("authState.User.Identity.IsAuthenticated: " + authState.User.Identity.IsAuthenticated);
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                NavManager.NavigateTo("/transactions");
+            }
+
+            //AuthProvider.AuthenticationStateChanged += async (authStateTask) =>
+            //    await AuthProvider_AuthenticationStateChanged(authStateTask);
+
         }
 
+        //private async Task AuthProvider_AuthenticationStateChanged(Task<AuthenticationState> authStateTask)
+        //{
+        //    var authState = await authStateTask;
+        //    Console.WriteLine("authState.User.Identity.IsAuthenticated: " + authState.User.Identity.IsAuthenticated);
+        //    if (authState.User.Identity.IsAuthenticated)
+        //    {
+        //        NavManager.NavigateTo("/transactions");
+        //    }
+
+        //}
 
         protected async Task HandleLoginClick()
         {
@@ -40,8 +64,9 @@ namespace MoneyManager.Client.Pages
                 return;
             }
 
-            if (await UserService.AuthenticateAsync(Email, Password))
+            if (await AuthService.AuthenticateAsync(Email, Password))
             {
+                Bootstrapper.GetData();
                 NavManager.NavigateTo("/transactions");
             }
         }

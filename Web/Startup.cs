@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,15 @@ namespace MoneyManager.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("CorsPolicy", builder =>
+            //    {
+            //        builder.WithExposedHeaders("Token-Expired");
+            //    });
+            //});
+
             services.Configure<DapperDbContext>(opt =>
                 opt.ConnectionString = Configuration.GetConnectionString("MoneyContext")
             );
@@ -63,6 +73,14 @@ namespace MoneyManager.Web
                         {
                             context.Fail("Unauthorized");
                         }
+                    }, 
+                    OnAuthenticationFailed = context =>
+                    {
+                        if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                        {
+                            context.Response.Headers.Add("Token-Expired", "true");
+                        }
+                        return Task.CompletedTask;
                     }
                 };
 
@@ -73,7 +91,8 @@ namespace MoneyManager.Web
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(secret),
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
                 };
 
             });
@@ -86,10 +105,12 @@ namespace MoneyManager.Web
             {
                 app.UseDeveloperExceptionPage();
             }
+            
             app.UseCors(builder =>
             {
                 builder.WithOrigins("http://localhost:5000", "https://localhost:5001")
                        .WithMethods("GET", "POST", "PUT", "DELETE")
+                       .WithExposedHeaders("Token-Expired")
                        .AllowAnyHeader();
             });
 

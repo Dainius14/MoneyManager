@@ -28,12 +28,12 @@ namespace MoneyManager.Models.Mappers
 
         public static AuthenticatedUserVmDto ToDto(this AuthenticatedUserVm vm)
         {
-            return new AuthenticatedUserVmDto(vm.User.ToGetUserDto(), vm.Token);
+            return new AuthenticatedUserVmDto(vm.User.ToGetUserDto(), vm.AuthToken, vm.RefreshToken);
         }
 
-        public static AuthenticatedUserVm ToViewModel(this AuthenticatedUserVmDto vm)
+        public static AuthenticatedUserVm ToViewModel(this AuthenticatedUserVmDto dto)
         {
-            return new AuthenticatedUserVm(vm.User.ToDomainModel(), vm.Token);
+            return new AuthenticatedUserVm(dto.User.ToDomainModel(), dto.AuthToken, dto.RefreshToken);
         }
     }
 }

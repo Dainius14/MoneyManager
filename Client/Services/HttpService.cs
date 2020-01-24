@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -15,6 +16,15 @@ namespace MoneyManager.Client.Services
             : base(message)
         {
             Response = response;
+        }
+    }
+
+    public class HttpAuthException : HttpException
+    {
+
+        public HttpAuthException(HttpResponseMessage response, string message)
+            : base(response, message)
+        {
         }
     }
 
@@ -36,32 +46,40 @@ namespace MoneyManager.Client.Services
 
         private readonly string _baseUrl = "https://localhost:5501/api";
 
+        private readonly AuthService _authService;
+
+        public Func<Task<bool>>? OnAuthTokenExpired { get; set; }
+        
+
+        public HttpClient(AuthService authService)
+        {
+            _authService = authService;
+        }
 
 
-        public async Task<T> Get<T>(string resource) =>
-            await DoRequest<T>(HttpMethod.Get, resource);
+        public async Task<T> GetAsync<T>(string resource) =>
+            await DoRequestAsync<T>(HttpMethod.Get, resource);
 
-        public async Task<T> Post<T>(string resource, object data) =>
-            await DoRequest<T>(HttpMethod.Post, resource, data);
+        public async Task<T> PostAsync<T>(string resource, object data) =>
+            await DoRequestAsync<T>(HttpMethod.Post, resource, data);
 
-        public async Task<T> Put<T>(string resource, object data) =>
-            await DoRequest<T>(HttpMethod.Put, resource, data);
+        public async Task<T> PutAsync<T>(string resource, object data) =>
+            await DoRequestAsync<T>(HttpMethod.Put, resource, data);
 
-        public async Task<T> Delete<T>(string resource) =>
-            await DoRequest<T>(HttpMethod.Delete, resource);
+        public async Task<T> DeleteAsync<T>(string resource) =>
+            await DoRequestAsync<T>(HttpMethod.Delete, resource);
 
 
         public void SetAuthHeader(string token)
         {
+            Console.WriteLine("SetAuthHeader. Setting header: " + token.Substring(token.LastIndexOf(".") + 1, 5));
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        private async Task<T> DoRequest<T>(HttpMethod method, string resource, object? data = null)
-        {
-            Console.WriteLine("hash: " + _client.GetHashCode());
-            var request = new HttpRequestMessage(method, GetFullUri(resource));
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer");
+        private async Task<T> DoRequestAsync<T>(HttpMethod method, string resource, object? data = null, bool isRetry = false)
+        {
+            var request = new HttpRequestMessage(method, GetFullUri(resource));
 
             if (data != null)
             {
@@ -75,7 +93,34 @@ namespace MoneyManager.Client.Services
             if (!response.IsSuccessStatusCode)
             {
                 var content = FromErrorJson(responseContent);
-                throw new HttpException(response, content.Message ?? response.ReasonPhrase);
+                var message = string.IsNullOrEmpty(content.Message) ? response.ReasonPhrase : content.Message;
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                    && response.Headers.Contains("Token-Expired"))
+                {
+                    Console.WriteLine("DoRequestAsync. Token expired: " + GetHashCode());
+                    Console.WriteLine(OnAuthTokenExpired == null);
+
+                    bool refreshedAuthToken = await _authService.RefreshAuthToken();
+                    if (refreshedAuthToken)
+                    {
+                        if (!isRetry)
+                        {
+                            return await DoRequestAsync<T>(method, resource, data, true);
+                        }
+                    }
+                    else
+                    {
+                        throw new HttpAuthException(response, message);
+                    }
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    Console.WriteLine("DoRequestAsync. Unauthorized");
+                    throw new HttpAuthException(response, message);
+                }
+                Console.WriteLine("DoRequestAsync. Other error: " + message);
+                throw new HttpException(response, message);
             }
 
             return FromJson<T>(responseContent);
@@ -92,8 +137,10 @@ namespace MoneyManager.Client.Services
         private T FromJson<T>(string data) =>
             JsonSerializer.Deserialize<T>(data, _jsonOptions);
 
-        private HttpErrorContent FromErrorJson(string data) =>
-            FromJson<HttpErrorContent>(data);
+        private HttpErrorContent FromErrorJson(string? data) =>
+            string.IsNullOrEmpty(data)
+                ? new HttpErrorContent()
+                : FromJson<HttpErrorContent>(data);
 
         private HttpContent GetRequestContent(string content) =>
             new StringContent(content, Encoding.UTF8, "application/json");

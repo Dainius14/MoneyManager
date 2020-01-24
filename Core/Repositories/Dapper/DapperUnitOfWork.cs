@@ -14,6 +14,7 @@ namespace MoneyManager.Core.Repositories
         public IDbConnection Connection { get; }
         public IDbTransaction Transaction { get; private set; }
 
+
         private IAccountRepository? _accountRepo;
         public IAccountRepository AccountRepo =>
             _accountRepo ?? (_accountRepo = new DapperAccountRepository(Transaction));
@@ -22,10 +23,13 @@ namespace MoneyManager.Core.Repositories
         public ICategoryRepository CategoryRepo =>
             _categoryRepo ?? (_categoryRepo = new DapperCategoryRepository(Transaction));
 
-
         private ICurrencyRepository? _currencyRepo;
         public ICurrencyRepository CurrencyRepo =>
             _currencyRepo ?? (_currencyRepo = new DapperCurrencyRepository(Transaction));
+       
+        private IRefreshTokenRepository? _refreshTokenRepo;
+        public IRefreshTokenRepository RefreshTokenRepo =>
+            _refreshTokenRepo ?? (_refreshTokenRepo = new DapperRefreshTokenRepository(Transaction));
 
         private ITransactionRepository? _transactionRepo;
         public ITransactionRepository TransactionRepo =>
@@ -78,6 +82,7 @@ namespace MoneyManager.Core.Repositories
             _accountRepo = null;
             _categoryRepo = null;
             _currencyRepo = null;
+            _refreshTokenRepo = null;
             _transactionRepo = null;
             _transactionDetailsRepo = null;
             _userRepo = null;

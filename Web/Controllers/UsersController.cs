@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +12,7 @@ using MoneyManager.Models.Domain;
 using MoneyManager.Models.DTO;
 using MoneyManager.Models.Mappers;
 using MoneyManager.Models.ViewModels;
+using MoneyManager.Web.Helpers;
 
 namespace MoneyManager.Web.Controllers
 {
@@ -51,24 +48,16 @@ namespace MoneyManager.Web.Controllers
                 return BadRequest(new { ex.Message });
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var claims = new Claim[]
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(30),
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256Signature
-                )
+                new Claim(ClaimTypes.Name, user.Id.ToString())
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenStr = tokenHandler.WriteToken(token);
+            string authToken = AuthHelper.GenerateAuthToken(claims, _appSettings.Secret);
+            string refreshToken = AuthHelper.GenerateRefreshToken();
 
-            return Ok(new AuthenticatedUserVm(user, tokenStr).ToDto());
+            await _userService.SaveRefreshToken((int)user.Id!, refreshToken);
+
+            return Ok(new AuthenticatedUserVm(user, authToken, refreshToken).ToDto());
         }
 
         [AllowAnonymous]
@@ -93,6 +82,46 @@ namespace MoneyManager.Web.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("refreshToken")]
+        public async Task<IActionResult> RefreshToken([FromBody]RefreshTokenVmDto dto)
+        {
+            var requestTokens = dto.ToViewModel();
+            ClaimsPrincipal principal;
+            try
+            {
+                principal = AuthHelper.GetPrincipalFromExpiredToken(dto.AuthToken, _appSettings.Secret);
+            }
+            catch (SecurityTokenException)
+            {
+                return Unauthorized(new { Message = "Invalid auth token" });
+            }
+
+
+            if (!await _userService.IsRefreshTokenValid(requestTokens.RefreshToken))
+            {
+                return Unauthorized(new { Message = "Invalid refresh token" });
+            }
+
+            var newAuthToken = AuthHelper.GenerateAuthToken(principal.Claims, _appSettings.Secret);
+            var newRefreshToken = AuthHelper.GenerateRefreshToken();
+
+            var userId = Convert.ToInt32(principal.Identity.Name);
+            await _userService.InvalidateRefreshToken(requestTokens.RefreshToken);
+            await _userService.SaveRefreshToken(userId, newRefreshToken);
+            var user = await _userService.GetOne(userId);
+
+            return Ok(new AuthenticatedUserVm(user, newAuthToken, newRefreshToken).ToDto());
+        }
+
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            int userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
+            var user = await _userService.GetOne(userId);
+            return Ok(user.ToGetUserDto());
         }
 
         [HttpGet]

@@ -13,7 +13,7 @@ namespace MoneyManager.Client.Services
 {
     public static class TransactionService
     {
-        private static HttpClient _httpClient2 = new HttpClient();
+        //private static readonly HttpClient _httpClient2 = new HttpClient();
 
         public static async Task<List<Transaction>?> GetAllTransactionsAsync()
         {
@@ -22,7 +22,9 @@ namespace MoneyManager.Client.Services
 
             try
             {
-                var response = await _httpClient2.Get<List<GetTransactionDTO>>("/transactions");
+                var _httpClient = new System.Net.Http.HttpClient();
+                var response = await _httpClient.GetJsonAsync<List<GetTransactionDTO>>("/transactions");
+                //var response = await _httpClient.GetAsync<List<GetTransactionDTO>>("/transactions");
                 var transactions = response.Select(t => t.ToDomainModel()).ToList();
                 Console.WriteLine("transactions success");
                 return transactions;

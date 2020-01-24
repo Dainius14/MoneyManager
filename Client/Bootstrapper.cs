@@ -1,4 +1,5 @@
-﻿using MoneyManager.Client.Services;
+﻿using Microsoft.AspNetCore.Components;
+using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
 using System;
@@ -8,21 +9,46 @@ namespace MoneyManager.Client
 {
     public class Bootstrapper
     {
-        private Store<AppState> _store;
+        private readonly Store<AppState> _store;
+        private readonly AuthService _authService;
+        private readonly NavigationManager _navManager;
 
-        public Bootstrapper(Store<AppState> store)
+
+        public Bootstrapper(Store<AppState> store, AuthService authService,
+            NavigationManager navManager)
         {
             _store = store;
+            _authService = authService;
+            _navManager = navManager;
         }
 
-        public async Task InitAsync()
+        public void InitAsync()
+        {
+            // Because called from Task.Run(), exceptions are lost
+            try
+            {
+                if (!_authService.SetAuthTokenFromSession())
+                {
+                    _navManager.NavigateTo("/login");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
+            }
+
+            GetData();
+        }
+
+        public void GetData()
         {
             Parallel.Invoke(
-                async () => await GetCurrenciesAsync(),
-                async () => await GetAccountsAsync(),
-                async () => await GetCategoriesAsync(),
-                async () => await GetTransactionsAsync()
-            );
+                  async () => await GetCurrenciesAsync(),
+                  async () => await GetAccountsAsync(),
+                  async () => await GetCategoriesAsync(),
+                  async () => await GetTransactionsAsync()
+              );
         }
 
         private async Task GetAccountsAsync()

@@ -32,6 +32,7 @@ namespace MoneyManager
             services.AddScoped<AuthenticationStateProvider>(provider =>
                 provider.GetRequiredService<JwtAuthStateProvider>()
             );
+            services.AddScoped<AuthService>();
             services.AddScoped<UserService>();
             services.AddScoped<LocalStorage>();
             services.AddScoped<SessionStorage>();
