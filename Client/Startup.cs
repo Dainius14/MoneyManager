@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManager.Client;
 using MoneyManager.Client.Services;
-using MoneyManager.Client.Services.Interfaces;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Reducers;
 
@@ -21,9 +20,6 @@ namespace MoneyManager
 
             services.AddScoped<Bootstrapper>();
 
-            services.AddScoped<RESTAccountService>();
-            services.AddScoped<IAccountService, RESTAccountService>();
-            services.AddScoped<ITransactionService, RESTTransactionService>();
             services.AddScoped<ModalService>();
             services.AddScoped<MessageService>();
 
@@ -32,10 +28,16 @@ namespace MoneyManager
             services.AddScoped<AuthenticationStateProvider>(provider =>
                 provider.GetRequiredService<JwtAuthStateProvider>()
             );
+            services.AddScoped<HttpClient>();
             services.AddScoped<AuthService>();
             services.AddScoped<UserService>();
             services.AddScoped<LocalStorage>();
             services.AddScoped<SessionStorage>();
+
+            services.AddScoped<AccountService>();
+            services.AddScoped<CurrencyService>();
+            services.AddScoped<CategoryService>();
+            services.AddScoped<TransactionService>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

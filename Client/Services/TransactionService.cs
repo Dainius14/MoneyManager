@@ -1,65 +1,66 @@
-﻿using MoneyManager.Client.Services.Interfaces;
+﻿using MoneyManager.Models.Domain;
+using MoneyManager.Models.DTO;
+using MoneyManager.Models.Mappers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Net.Http;
-using Microsoft.AspNetCore.Components;
-using MoneyManager.Models.Domain;
 using System.Linq;
-using MoneyManager.Models.Mappers;
 using System;
-using MoneyManager.Models.DTO;
 
 namespace MoneyManager.Client.Services
 {
-    public static class TransactionService
+    public class TransactionService
     {
-        //private static readonly HttpClient _httpClient2 = new HttpClient();
+        private readonly HttpClient _httpClient;
 
-        public static async Task<List<Transaction>?> GetAllTransactionsAsync()
+        public TransactionService(HttpClient httpClient)
         {
+            _httpClient = httpClient;
+        }
 
-            //var data = new AuthenticateDto(email, password);
-
+        public async Task<List<Transaction>?> GetAllTransactionsAsync()
+        {
+            List<GetTransactionDTO> response;
             try
             {
-                var _httpClient = new System.Net.Http.HttpClient();
-                var response = await _httpClient.GetJsonAsync<List<GetTransactionDTO>>("/transactions");
-                //var response = await _httpClient.GetAsync<List<GetTransactionDTO>>("/transactions");
-                var transactions = response.Select(t => t.ToDomainModel()).ToList();
-                Console.WriteLine("transactions success");
-                return transactions;
+                response = await _httpClient.GetAsync<List<GetTransactionDTO>>("/transactions");
             }
             catch (HttpException ex)
             {
                 Console.WriteLine("Exception: " + ex.Message);
                 return null;
             }
-            //var dtos = await _httpClient.GetJsonAsync<List<GetTransactionDTO>>("api/transactions");
-            //var items = dtos.Select(item => item.ToDomainModel()).ToList();
-            //return items;
+            var transactions = response.Select(t => t.ToDomainModel()).ToList();
+            return transactions;
         }
 
-        public static async Task<Transaction> GetTransactionAsync(int id)
+        public async Task<Transaction?> CreateTransactionAsync(Transaction givenItem)
         {
-            var _httpClient = new System.Net.Http.HttpClient();
-            var dto = await _httpClient.GetJsonAsync<GetTransactionDTO>("api/transactions/" + id);
-            var item = dto.ToDomainModel();
-            return item;
-        }
-
-        public static async Task<Transaction> CreateTransactionAsync(Transaction givenItem)
-        {
-            var _httpClient = new System.Net.Http.HttpClient();
             var sendDto = givenItem.ToEditTransactionDTO();
-            var dto = await _httpClient.PostJsonAsync<GetTransactionDTO>("api/transactions", sendDto);
-            return dto.ToDomainModel();
+            GetTransactionDTO response;
+            try
+            {
+                response = await _httpClient.PostAsync<GetTransactionDTO>("/transactions", sendDto);
+            }
+            catch (HttpException ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+                return null;
+            }
+            var transaction = response.ToDomainModel();
+            return transaction;
         }
 
-        public static async Task<bool> DeleteTransactionAsync(int id)
+        public async Task<bool> DeleteTransactionAsync(int id)
         {
-            var _httpClient = new System.Net.Http.HttpClient();
-            var request = await _httpClient.DeleteAsync("api/transactions/" + id);
-            return request.IsSuccessStatusCode;
+            try
+            {
+                return await _httpClient.DeleteAsync<bool>("/transactions/" + id);
+            }
+            catch (HttpException ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+                return false;
+            }
         }
     }
 }

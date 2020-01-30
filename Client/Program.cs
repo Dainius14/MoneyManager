@@ -12,8 +12,6 @@ namespace MoneyManager
         {
             var webHost = CreateHostBuilder(args).Build();
             webHost.Run();
-
-            Task.Run(() => webHost.Services.GetRequiredService<Bootstrapper>().InitAsync());
         }
 
         public static IWebAssemblyHostBuilder CreateHostBuilder(string[] args) =>

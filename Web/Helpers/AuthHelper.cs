@@ -10,7 +10,7 @@ namespace MoneyManager.Web.Helpers
 {
     public static class AuthHelper
     {
-        public static string GenerateAuthToken(IEnumerable<Claim> claims, string secret)
+        public static string GenerateAccessToken(IEnumerable<Claim> claims, string secret)
         {
             var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor

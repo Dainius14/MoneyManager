@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using MoneyManager.Core.Data;
 using MoneyManager.Core.Repositories;
 using MoneyManager.Core.Services;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,15 +30,6 @@ namespace MoneyManager.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy("CorsPolicy", builder =>
-            //    {
-            //        builder.WithExposedHeaders("Token-Expired");
-            //    });
-            //});
-
             services.Configure<DapperDbContext>(opt =>
                 opt.ConnectionString = Configuration.GetConnectionString("MoneyContext")
             );

@@ -6,12 +6,12 @@ namespace MoneyManager.Models.Mappers
     {
         public static RefreshTokenVmDto ToDto(this RefreshTokenVm vm)
         {
-            return new RefreshTokenVmDto(vm.AuthToken, vm.RefreshToken);
+            return new RefreshTokenVmDto(vm.AccessToken, vm.RefreshToken);
         }
 
         public static RefreshTokenVm ToViewModel(this RefreshTokenVmDto dto)
         {
-            return new RefreshTokenVm(dto.AuthToken, dto.RefreshToken);
+            return new RefreshTokenVm(dto.AccessToken, dto.RefreshToken);
         }
     }
 }

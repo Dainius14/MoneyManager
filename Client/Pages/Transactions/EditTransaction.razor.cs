@@ -20,6 +20,12 @@ namespace MoneyManager.Client.Pages.Transactions
     public class EditTransactionBase : ComponentBase
     {
         [Inject]
+        protected TransactionService TransactionService { get; set; } = null!;
+
+        [Inject]
+        protected NavigationManager NavManager { get; set; } = null!;
+
+        [Inject]
         protected MessageService MessageService { get; set; } = null!;
 
         [Parameter]
@@ -32,8 +38,6 @@ namespace MoneyManager.Client.Pages.Transactions
         protected Store<AppState> Store { get; set; } = null!;
         protected TransactionState TransactionState => Store.State.TransactionState;
 
-        [Inject]
-        protected NavigationManager NavManager { get; set; } = null!;
 
         public bool IsLoading { get; private set; } = false;
         public bool IsSaving { get; private set; } = false;

@@ -52,12 +52,12 @@ namespace MoneyManager.Web.Controllers
             {
                 new Claim(ClaimTypes.Name, user.Id.ToString())
             };
-            string authToken = AuthHelper.GenerateAuthToken(claims, _appSettings.Secret);
+            string accessToken = AuthHelper.GenerateAccessToken(claims, _appSettings.Secret);
             string refreshToken = AuthHelper.GenerateRefreshToken();
 
             await _userService.SaveRefreshToken((int)user.Id!, refreshToken);
 
-            return Ok(new AuthenticatedUserVm(user, authToken, refreshToken).ToDto());
+            return Ok(new AuthenticatedUserVm(user, accessToken, refreshToken).ToDto());
         }
 
         [AllowAnonymous]
@@ -92,7 +92,7 @@ namespace MoneyManager.Web.Controllers
             ClaimsPrincipal principal;
             try
             {
-                principal = AuthHelper.GetPrincipalFromExpiredToken(dto.AuthToken, _appSettings.Secret);
+                principal = AuthHelper.GetPrincipalFromExpiredToken(dto.AccessToken, _appSettings.Secret);
             }
             catch (SecurityTokenException)
             {
@@ -105,7 +105,7 @@ namespace MoneyManager.Web.Controllers
                 return Unauthorized(new { Message = "Invalid refresh token" });
             }
 
-            var newAuthToken = AuthHelper.GenerateAuthToken(principal.Claims, _appSettings.Secret);
+            var newAccessToken = AuthHelper.GenerateAccessToken(principal.Claims, _appSettings.Secret);
             var newRefreshToken = AuthHelper.GenerateRefreshToken();
 
             var userId = Convert.ToInt32(principal.Identity.Name);
@@ -113,7 +113,7 @@ namespace MoneyManager.Web.Controllers
             await _userService.SaveRefreshToken(userId, newRefreshToken);
             var user = await _userService.GetOne(userId);
 
-            return Ok(new AuthenticatedUserVm(user, newAuthToken, newRefreshToken).ToDto());
+            return Ok(new AuthenticatedUserVm(user, newAccessToken, newRefreshToken).ToDto());
         }
 
         [HttpGet("current")]

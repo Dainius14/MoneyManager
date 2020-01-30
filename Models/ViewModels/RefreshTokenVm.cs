@@ -5,20 +5,21 @@ namespace MoneyManager.Models.ViewModels
     public class RefreshTokenVm
     {
 
-        public string AuthToken { get; set; }
+        public string AccessToken { get; set; }
 
         public string RefreshToken { get; set; }
 
-        public RefreshTokenVm(string authToken, string refreshToken)
+
+        public RefreshTokenVm(string accessToken, string refreshToken)
         {
-            AuthToken = authToken;
+            AccessToken = accessToken;
             RefreshToken = refreshToken;
         }
     }
     public class RefreshTokenVmDto
     {
         [Required]
-        public string AuthToken { get; set; } = null!;
+        public string AccessToken { get; set; } = null!;
         
         [Required]
         public string RefreshToken { get; set; } = null!;
@@ -28,9 +29,9 @@ namespace MoneyManager.Models.ViewModels
         {
         }
 
-        public RefreshTokenVmDto(string authToken, string refreshToken)
+        public RefreshTokenVmDto(string accessToken, string refreshToken)
         {
-            AuthToken = authToken;
+            AccessToken = accessToken;
             RefreshToken = refreshToken;
         }
     }

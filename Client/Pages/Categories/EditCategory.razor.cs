@@ -4,10 +4,7 @@ using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
 using MoneyManager.Models.Domain;
-using MoneyManager.Models.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -16,18 +13,25 @@ namespace MoneyManager.Client.Pages.Categories
 {
     public class EditCategoryBase : ComponentBase
     {
+        #region Injections
+        [Inject]
+        protected Store<AppState> Store { get; set; } = null!;
+
+        [Inject]
+        protected NavigationManager NavManager { get; set; } = null!;
+
+        [Inject]
+        protected CategoryService CategoryService { get; set; } = null!;
+        #endregion
+
         [Parameter]
         public int? CategoryId { get; set; }
         protected bool IsNew => CategoryId == null;
 
         protected Category FormModel { get; set; } = new Category();
 
-        [Inject]
-        protected Store<AppState> Store { get; set; } = null!;
         protected CategoryState CategoryState => Store.State.CategoryState;
 
-        [Inject]
-        protected NavigationManager NavManager { get; set; } = null!;
 
         public bool IsLoading { get; private set; } = false;
         public bool IsSaving { get; private set; } = false;

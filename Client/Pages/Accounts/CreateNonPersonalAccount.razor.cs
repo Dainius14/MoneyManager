@@ -3,11 +3,8 @@ using Microsoft.AspNetCore.Components.Forms;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
-using MoneyManager.Models.Domain;
 using MoneyManager.Models.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -16,17 +13,24 @@ namespace MoneyManager.Client.Pages.Accounts
 {
     public class CreateNonPersonalAccountBase : ComponentBase
     {
+        #region Injections
+        [Inject]
+        protected Store<AppState> Store { get; set; } = null!;
+
+        [Inject]
+        protected NavigationManager NavManager { get; set; } = null!;
+
+        [Inject]
+        protected AccountService AccountService { get; set; } = null!;
+        #endregion
+
         [Parameter]
         public int? AccountId { get; set; }
         protected bool IsNewAccount => AccountId == null;
 
         protected EditNonPersonalAccountVm FormModel { get; set; } = new EditNonPersonalAccountVm();
 
-        [Inject]
-        protected Store<AppState> Store { get; set; } = null!;
 
-        [Inject]
-        protected NavigationManager NavManager { get; set; } = null!;
 
         public bool IsSavingAccount { get; private set; } = false;
 
@@ -37,7 +41,7 @@ namespace MoneyManager.Client.Pages.Accounts
 
             if (!IsNewAccount)
             {
-                var viewModels = await RESTAccountService.GetAllNonPersonalAccountsAsync();
+                var viewModels = await AccountService.GetAllNonPersonalAccountsAsync();
                 var existingVm = viewModels.Where(vm => vm.Account.Id == AccountId).FirstOrDefault();
                 if (existingVm == null)
                 {
@@ -68,7 +72,7 @@ namespace MoneyManager.Client.Pages.Accounts
             }
 
             IsSavingAccount = true;
-            var savedVm = await RESTAccountService.CreateNonPersonalAccountAsync(FormModel);
+            var savedVm = await AccountService.CreateNonPersonalAccountAsync(FormModel);
             Store.Dispath(new AccountActions.Add(savedVm.Account));
             IsSavingAccount = false;
         }

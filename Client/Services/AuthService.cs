@@ -1,8 +1,14 @@
-﻿using MoneyManager.Models.Domain;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.DependencyInjection;
+using MoneyManager.Models.Domain;
 using MoneyManager.Models.DTO;
 using MoneyManager.Models.Mappers;
 using MoneyManager.Models.ViewModels;
 using System;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Services
@@ -10,21 +16,76 @@ namespace MoneyManager.Client.Services
     public class AuthService
     {
         private readonly HttpClient _httpClient;
-        private readonly JwtAuthStateProvider _authProvider;
         private readonly SessionStorage _sessionStorage;
         private readonly LocalStorage _localStorage;
 
-        public AuthService(JwtAuthStateProvider authProvider,
-            LocalStorage localStorage, SessionStorage sessionStorage, HttpClient httpClient)
+        private Task<bool>? _refreshTokenTask;
+
+        public delegate void AuthenticatedHandler(Dictionary<string, object> accessTokenPayload);
+        public event AuthenticatedHandler? OnAuthenticated;
+
+        public AuthService(
+            HttpClient httpClient,
+            LocalStorage localStorage,
+            SessionStorage sessionStorage)
         {
             _httpClient = httpClient;
-            _authProvider = authProvider;
             _localStorage = localStorage;
             _sessionStorage = sessionStorage;
 
-            Console.WriteLine("setting callback: " + _httpClient.GetHashCode());
-            _httpClient.OnAuthTokenExpired = RefreshAuthToken;
+            _httpClient.AccessTokenExpired += TryAuthenticateFromRefreshToken;
         }
+
+        public async Task<bool> TryAuthenticate()
+        {
+            return TryAuthenticateFromAccessToken() || await TryAuthenticateFromRefreshToken();
+        }
+
+        public bool TryAuthenticateFromAccessToken()
+        {
+            var accessToken = GetAccessTokenFromSessionStorage();
+            if (!IsAccessTokenValid(accessToken, out Dictionary<string, object>? payload))
+            {
+                return false;
+            }
+
+            _httpClient.SetAuthHeader(accessToken!);
+            FireOnAuthenticatedEvent(accessToken!);
+            return true;
+        }
+
+
+        public Task<bool> TryAuthenticateFromRefreshToken()
+        {
+            var accessToken = GetAccessTokenFromSessionStorage();
+            var refreshToken = GetRefreshTokenFromLocalStorage();
+            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
+            {
+                return Task.FromResult(false);
+            }
+
+            if (_refreshTokenTask == null || _refreshTokenTask.IsCompleted)
+            {                
+                _refreshTokenTask = AuthenticateFromRefreshToken(accessToken, refreshToken);
+            }
+            return _refreshTokenTask;
+        }
+
+        private async Task<bool> AuthenticateFromRefreshToken(string accessToken, string refreshToken)
+        {
+            var response = await RefreshAccessTokenAsync(accessToken, refreshToken);
+            if (response == null)
+            {
+                return false;
+            }
+
+            _httpClient.SetAuthHeader(response.AccessToken);
+            SaveAccessTokenToSessionStorage(response.AccessToken);
+            SaveRefreshTokenToLocalStorage(response.RefreshToken);
+            FireOnAuthenticatedEvent(response.AccessToken);
+            return true;
+        }
+
 
         public async Task<bool> AuthenticateAsync(string email, string password)
         {
@@ -37,26 +98,24 @@ namespace MoneyManager.Client.Services
             }
             catch (HttpException ex)
             {
-                Console.WriteLine("Exception: " + ex.Message);
+                Console.WriteLine("AuthService AuthenticateAsync()  HttpException: " + ex.Message);
                 return false;
             }
 
             var vm = responseDto.ToViewModel();
 
-            _localStorage.SetItem("refreshToken", vm.RefreshToken);
-            _sessionStorage.SetItem("authToken", vm.AuthToken);
-            _httpClient.SetAuthHeader(vm.AuthToken);
-            _authProvider.User = vm.User;
+            SaveAccessTokenToSessionStorage(vm.AccessToken);
+            SaveRefreshTokenToLocalStorage(vm.RefreshToken);
+            _httpClient.SetAuthHeader(vm.AccessToken);
+            FireOnAuthenticatedEvent(vm.AccessToken);
+
+
             return true;
         }
 
-        public async Task<bool> RefreshAuthToken()
+        public async Task<RefreshTokenVm?> RefreshAccessTokenAsync(string accessToken, string refreshToken)
         {
-            Console.WriteLine("RefreshAuthToken. Called");
-            var requestDto = new RefreshTokenVm(
-                _sessionStorage.GetItem<string>("authToken"),
-                _localStorage.GetItem<string>("refreshToken")
-            ).ToDto();
+            var requestDto = new RefreshTokenVm(accessToken, refreshToken).ToDto();
 
             RefreshTokenVmDto responseDto;
             try
@@ -65,42 +124,71 @@ namespace MoneyManager.Client.Services
             }
             catch (HttpAuthException ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("AuthService RefreshAccessTokenAsync()  HttpAuthException: " + ex.Message);
+                return null;
+            }
+            catch (HttpException ex)
+            {
+                Console.WriteLine("AuthService RefreshAccessTokenAsync()  HttpException: " + ex.Message);
+                return null;
+            }
+
+            Console.WriteLine("AuthService RefreshAccessTokenAsync()  Ok");
+
+            return responseDto.ToViewModel();
+        }
+
+        private void FireOnAuthenticatedEvent(string accessToken)
+        {
+            var payload = GetJwtPayload(accessToken);
+            OnAuthenticated?.Invoke(payload);
+        }
+
+
+        public string? GetAccessTokenFromSessionStorage() =>
+            _sessionStorage.GetItem<string?>("accessToken");
+
+        private string? GetRefreshTokenFromLocalStorage() =>
+            _localStorage.GetItem<string?>("refreshToken");
+
+
+        private void SaveAccessTokenToSessionStorage(string token) =>
+            _sessionStorage.SetItem("accessToken", token);
+
+        private void SaveRefreshTokenToLocalStorage(string token) =>
+            _localStorage.SetItem("refreshToken", token);
+
+
+        private bool IsAccessTokenValid(string? token, out Dictionary<string, object>? payload)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                payload = null;
                 return false;
             }
 
-            Console.WriteLine("RefreshAuthToken. Setting new tokens");
-
-            var vm = responseDto.ToViewModel();
-            _localStorage.SetItem("refreshToken", vm.RefreshToken);
-            _sessionStorage.SetItem("authToken", vm.AuthToken);
-            _httpClient.SetAuthHeader(vm.AuthToken);
-
-            if (!(await _authProvider.GetAuthenticationStateAsync()).User.Identity.IsAuthenticated)
-            {
-                var user = await GetCurrentUser();
-                _authProvider.User = user;
-            }
-
-            return true;
+            payload = GetJwtPayload(token);
+            payload.TryGetValue("exp", out object expiryObject);
+            var expiry = DateTimeOffset.FromUnixTimeSeconds(int.Parse(expiryObject.ToString())).UtcDateTime;
+            return expiry > DateTime.UtcNow;
         }
 
-        public bool SetAuthTokenFromSession()
+        public Dictionary<string, object> GetJwtPayload(string jwt)
         {
-            string? existingAuthToken = _sessionStorage.GetItem<string>("authToken");
-            if (!string.IsNullOrEmpty(existingAuthToken))
-            {
-                _httpClient.SetAuthHeader(existingAuthToken);
-                return true;
-            }
-            return false;
+            string payload = jwt.Split('.')[1];
+            byte[] jsonBytes = ParseBase64WithoutPadding(payload);
+            return JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
         }
 
-        private async Task<User> GetCurrentUser()
+        private byte[] ParseBase64WithoutPadding(string base64)
         {
-            var response = await _httpClient.GetAsync<GetUserDto>("/users/current");
-            var user = response.ToDomainModel();
-            return user;
+            switch (base64.Length % 4)
+            {
+                case 2: base64 += "=="; break;
+                case 3: base64 += "="; break;
+            }
+            return Convert.FromBase64String(base64);
         }
+
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MoneyManager.Client.Services;
-using MoneyManager.Client.Services.Interfaces;
 using MoneyManager.Client.State;
 using MoneyManager.Models.Domain;
 using MoneyManager.Models.ViewModels;
@@ -16,6 +15,9 @@ namespace MoneyManager.Client.Pages.Accounts
         [Inject]
         protected Store<AppState> Store { get; set; }
 
+        [Inject]
+        protected AccountService AccountService { get; set; }
+
         protected AccountsState AccountsState => Store.State.AccountsState;
 
         protected IList<GetPersonalAccountVm> PersonalAccountsVms { get; private set; } = null!;
@@ -25,7 +27,7 @@ namespace MoneyManager.Client.Pages.Accounts
         protected override async Task OnInitializedAsync()
         {
             IsLoading = true;
-            PersonalAccountsVms = await RESTAccountService.GetAllPersonalAccountsAsync();
+            PersonalAccountsVms = await AccountService.GetAllPersonalAccountsAsync();
             IsLoading = false;
         }
 

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using MoneyManager.Models.Domain;
 using System.Linq;
 using MoneyManager.Models.Mappers;
@@ -10,34 +8,52 @@ using MoneyManager.Models.DTO;
 
 namespace MoneyManager.Client.Services
 {
-    public static class CategoryService
+    public class CategoryService
     {
-        private static System.Net.Http.HttpClient _httpClient = new System.Net.Http.HttpClient()
-        {
-            BaseAddress = new Uri("https://localhost:5501")
-        };
-        
+        private readonly HttpClient _httpClient;
 
-
-        public static async Task<List<Category>> GetAllCategoriesAsync()
+        public CategoryService(HttpClient httpClient)
         {
-            var dtos = await _httpClient.GetJsonAsync<List<GetCategoryDTO>>("api/categories");
-            var items = dtos.Select(item => item.ToDomainModel()).ToList();
+            _httpClient = httpClient;
+        }
+
+        public async Task<List<Category>?> GetAllCategoriesAsync()
+        {
+            List<GetCategoryDTO> response;
+            try
+            {
+                response = await _httpClient.GetAsync<List<GetCategoryDTO>>("/categories");
+            }
+            catch (HttpException ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+                return null;
+            }
+            var items = response.Select(t => t.ToDomainModel()).ToList();
             return items;
         }
 
-        public static async Task<Category> GetCategoryAsync(int id)
-        {
-            var dto = await _httpClient.GetJsonAsync<GetCategoryDTO>("api/categories/" + id);
-            var item = dto.ToDomainModel();
-            return item;
-        }
+        //public async Task<Category> GetCategoryAsync(int id)
+        //{
+        //    var dto = await _httpClient.GetJsonAsync<GetCategoryDTO>("api/categories/" + id);
+        //    var item = dto.ToDomainModel();
+        //    return item;
+        //}
 
-        public static async Task<Category> CreateCategoryAsync(Category givenItem)
+        public async Task<Category?> CreateCategoryAsync(Category givenItem)
         {
-            var sendDto = givenItem.ToEditCategoryDTO();
-            var dto = await _httpClient.PostJsonAsync<GetCategoryDTO>("api/categories", sendDto);
-            return dto.ToDomainModel();
+            GetCategoryDTO response;
+            try
+            {
+                response = await _httpClient.PostAsync<GetCategoryDTO>("/categories", givenItem.ToEditCategoryDTO());
+            }
+            catch (HttpException ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+                return null;
+            }
+            var item = response.ToDomainModel();
+            return item;
         }
     }
 }

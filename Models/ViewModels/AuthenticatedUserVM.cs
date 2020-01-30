@@ -7,14 +7,14 @@ namespace MoneyManager.Models.ViewModels
     {
         public User User { get; private set; }
 
-        public string AuthToken { get; private set; }
+        public string AccessToken { get; private set; }
 
         public string RefreshToken { get; private set; }
 
-        public AuthenticatedUserVm(User user, string authToken, string refreshToken)
+        public AuthenticatedUserVm(User user, string accessToken, string refreshToken)
         {
             User = user;
-            AuthToken = authToken;
+            AccessToken = accessToken;
             RefreshToken = refreshToken;
         }
     }
@@ -23,7 +23,7 @@ namespace MoneyManager.Models.ViewModels
     {
         public GetUserDto User { get; set; } = null!;
 
-        public string AuthToken { get; set; } = null!;
+        public string AccessToken { get; set; } = null!;
 
         public string RefreshToken { get; set; } = null!;
         
@@ -31,10 +31,10 @@ namespace MoneyManager.Models.ViewModels
         {
         }
 
-        public AuthenticatedUserVmDto(GetUserDto user, string authToken, string refreshToken)
+        public AuthenticatedUserVmDto(GetUserDto user, string accessToken, string refreshToken)
         {
             User = user;
-            AuthToken = authToken;
+            AccessToken = accessToken;
             RefreshToken = refreshToken;
         }
     }

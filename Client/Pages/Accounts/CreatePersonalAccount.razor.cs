@@ -16,17 +16,22 @@ namespace MoneyManager.Client.Pages.Accounts
 {
     public class CreatePersonalAccountBase : ComponentBase
     {
-        [Parameter]
-        public int? AccountId { get; set; }
-        protected bool IsNew => AccountId == null;
-
-        protected EditPersonalAccountVm FormModel { get; set; } = new EditPersonalAccountVm();
-
+        #region Injections
         [Inject]
         protected Store<AppState> Store { get; set; } = null!;
 
         [Inject]
         protected NavigationManager NavManager { get; set; } = null!;
+
+        [Inject]
+        protected AccountService AccountService { get; set; } = null!;
+        #endregion
+
+        [Parameter]
+        public int? AccountId { get; set; }
+        protected bool IsNew => AccountId == null;
+
+        protected EditPersonalAccountVm FormModel { get; set; } = new EditPersonalAccountVm();
 
         protected IList<Currency> Currencies => Store.State.CurrencyState.Currencies;
 
@@ -40,7 +45,7 @@ namespace MoneyManager.Client.Pages.Accounts
 
             if (!IsNew)
             {
-                var viewModels = await RESTAccountService.GetAllPersonalAccountsAsync();
+                var viewModels = await AccountService.GetAllPersonalAccountsAsync();
                 var existingVm = viewModels.Where(vm => vm.Account.Id == AccountId).FirstOrDefault();
                 if (existingVm == null)
                 {
@@ -75,7 +80,7 @@ namespace MoneyManager.Client.Pages.Accounts
             }
 
             IsSavingAccount = true;
-            var savedVm = await RESTAccountService.CreatePersonalAccountAsync(FormModel);
+            var savedVm = await AccountService.CreatePersonalAccountAsync(FormModel);
             Store.Dispath(new AccountActions.Add(savedVm.Account));
             IsSavingAccount = false;
         }

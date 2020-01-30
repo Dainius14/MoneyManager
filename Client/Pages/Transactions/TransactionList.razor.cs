@@ -29,6 +29,9 @@ namespace MoneyManager.Client.Pages.Transactions
         [Inject]
         protected Store<AppState> Store { get; set; } = null!;
 
+        [Inject]
+        protected TransactionService TransactionService { get; set; } = null!;
+
         protected TransactionState TransactionState => Store.State.TransactionState;
 
         protected IList<Transaction> Transactions => TransactionState.Transactions;
@@ -48,6 +51,17 @@ namespace MoneyManager.Client.Pages.Transactions
             StateHasChanged();
         }
 
+        protected async Task HandleRefreshClick()
+        {
+            var transactions = await TransactionService.GetAllTransactionsAsync();
+
+            if (transactions != null)
+            {
+                Store.Dispath(new TransactionActions.AddRange(transactions));
+            }
+
+        }
+
         protected void HandleRowDelete(Transaction transaction)
         {
             var options = new ModalOptions(
@@ -58,6 +72,7 @@ namespace MoneyManager.Client.Pages.Transactions
                 );
             ModalService.Show(options);
         }
+
         protected async Task OnConfirmDelete(Transaction transaction)
         {
             if (_isDeletingTransaction)

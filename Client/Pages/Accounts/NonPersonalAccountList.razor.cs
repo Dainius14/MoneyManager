@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MoneyManager.Client.Services;
-using MoneyManager.Client.Services.Interfaces;
 using MoneyManager.Client.State;
-using MoneyManager.Models.Domain;
 using MoneyManager.Models.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Pages.Accounts
@@ -15,6 +12,10 @@ namespace MoneyManager.Client.Pages.Accounts
     {
         [Inject]
         protected Store<AppState> Store { get; set; }
+
+        [Inject]
+        protected AccountService AccountService { get; set; }
+
 
         protected AccountsState AccountsState => Store.State.AccountsState;
 
@@ -25,7 +26,7 @@ namespace MoneyManager.Client.Pages.Accounts
         protected override async Task OnInitializedAsync()
         {
             IsLoading = true;
-            NonPersonalAccountsVms = await RESTAccountService.GetAllNonPersonalAccountsAsync();
+            NonPersonalAccountsVms = await AccountService.GetAllNonPersonalAccountsAsync() ?? new List<GetNonPersonalAccountVm>();
             IsLoading = false;
         }
 

@@ -32,8 +32,14 @@ namespace MoneyManager.Client.Pages
         protected bool CanLogin =>
             !string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(Password);
 
+        protected override void OnInitialized()
+        {
+            Console.WriteLine("login init");
+        }
+
         protected override async Task OnInitializedAsync()
         {
+            Console.WriteLine("login init async");
             var authState = await _authStateTask;
             Console.WriteLine("authState.User.Identity.IsAuthenticated: " + authState.User.Identity.IsAuthenticated);
             if (authState.User.Identity.IsAuthenticated)
@@ -66,6 +72,7 @@ namespace MoneyManager.Client.Pages
 
             if (await AuthService.AuthenticateAsync(Email, Password))
             {
+                Console.WriteLine("Logged in!");
                 Bootstrapper.GetData();
                 NavManager.NavigateTo("/transactions");
             }
