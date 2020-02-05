@@ -12,11 +12,16 @@ namespace MoneyManager.Models.Domain
         [Column]
         public string? Description { get; set; }
         [Column]
-        public DateTime Date { get; set; } = DateTime.Now.Date;
+        public DateTime Date { get; set; } = DateTime.UtcNow.Date;
         [Column]
         public DateTime CreatedAt { get; set; }
         [Column]
         public DateTime? UpdatedAt { get; set; }
+
+        [Column]
+        public int UserId { get; set; }
+
+        public User User { get; set; } = null!;
 
         public double Amount
         {

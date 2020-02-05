@@ -12,19 +12,22 @@ namespace MoneyManager.Core.Services
     public class AccountService : IAccountService
     {
         private readonly IUnitOfWork _uow;
+        private readonly int _currentUserId;
 
-        public AccountService(IUnitOfWork unitOfWork)
+        public AccountService(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
         {
             _uow = unitOfWork;
+            _currentUserId = currentUser.Id;
         }
 
         public async Task<IEnumerable<Account>> ListAsync()
         {
-            return await _uow.AccountRepo.GetAllAsync();
+            return (await _uow.AccountRepo.GetAllAsync())
+                .Where(x => x.UserId == _currentUserId);
         }
         public async Task<IEnumerable<GetPersonalAccountVm>> ListPersonalAsync()
         {
-            var accounts = await _uow.AccountRepo.GetAllAsync();
+            var accounts = await ListAsync();
             var personalAccounts = accounts.Where(a => a.IsPersonal);
 
             var currency = await _uow.CurrencyRepo.GetAsync(1);
@@ -34,7 +37,7 @@ namespace MoneyManager.Core.Services
         }
         public async Task<IEnumerable<GetNonPersonalAccountVm>> ListNonPersonalAsync()
         {
-            var accounts = await _uow.AccountRepo.GetAllAsync();
+            var accounts = await ListAsync();
             var personalAccounts = accounts.Where(a => !a.IsPersonal);
 
             var currency = await _uow.CurrencyRepo.GetAsync(1);
@@ -81,7 +84,8 @@ namespace MoneyManager.Core.Services
                 {
                     Name = vm.Name,
                     IsPersonal = true,
-                    CreatedAt = createdAt
+                    CreatedAt = createdAt,
+                    UserId = _currentUserId,
                 };
                 int accountId = await _uow.AccountRepo.InsertAsync(account);
 
@@ -90,6 +94,7 @@ namespace MoneyManager.Core.Services
                 {
                     Date = vm.InitialDate,
                     CreatedAt = createdAt,
+                    UserId = _currentUserId,
                 };
                 int transactionId = await _uow.TransactionRepo.InsertAsync(transaction);
 
@@ -128,7 +133,8 @@ namespace MoneyManager.Core.Services
                 {
                     Name = vm.Name,
                     IsPersonal = false,
-                    CreatedAt = createdAt
+                    CreatedAt = createdAt,
+                    UserId = _currentUserId,
                 };
                 int accountId = await _uow.AccountRepo.InsertAsync(account);
 

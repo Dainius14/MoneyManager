@@ -26,6 +26,7 @@ namespace MoneyManager.Models.Mappers
             return new GetUserDto((int)user.Id!, user.Email);
         }
 
+
         public static AuthenticatedUserVmDto ToDto(this AuthenticatedUserVm vm)
         {
             return new AuthenticatedUserVmDto(vm.User.ToGetUserDto(), vm.AccessToken, vm.RefreshToken);
@@ -34,6 +35,17 @@ namespace MoneyManager.Models.Mappers
         public static AuthenticatedUserVm ToViewModel(this AuthenticatedUserVmDto dto)
         {
             return new AuthenticatedUserVm(dto.User.ToDomainModel(), dto.AccessToken, dto.RefreshToken);
+        }
+
+
+        public static RegisterUserVmDto ToDto(this RegisterUserVm vm)
+        {
+            return new RegisterUserVmDto { Email = vm.Email, Password = vm.Password };
+        }
+
+        public static RegisterUserVm ToViewModel(this RegisterUserVmDto dto)
+        {
+            return new RegisterUserVm { Email = dto.Email , Password = dto.Password };
         }
     }
 }

@@ -21,10 +21,11 @@ namespace MoneyManager.Client
 
         protected override void OnInitialized()
         {
-            AuthService.OnAuthenticated += (_) =>
+            AuthService.OnAuthenticated += async (_) =>
             {
-                Bootstrapper.GetData();
+                await Bootstrapper.GetData();
             };
         }
+        
     }
 }

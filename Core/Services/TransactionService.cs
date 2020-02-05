@@ -11,16 +11,19 @@ namespace MoneyManager.Core.Services
     public class TransactionService : ITransactionService
     {
         private readonly IUnitOfWork _uow;
+        private readonly int _currentUserId;
 
-        public TransactionService(IUnitOfWork unitOfWork)
+        public TransactionService(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
         {
             _uow = unitOfWork;
+            _currentUserId = currentUser.Id;
         }
 
         public async Task<Response<IEnumerable<Transaction>>> ListAsync()
         {
             var transactions = (await _uow.TransactionRepo.GetAllAsync())
-                .Where(t => t.TransactionDetails.FirstOrDefault().FromAccount != null);
+                .Where(t => t.TransactionDetails.FirstOrDefault().FromAccount != null
+                    && t.UserId == _currentUserId);
             return new Response<IEnumerable<Transaction>>(transactions);
         }
 
@@ -47,6 +50,7 @@ namespace MoneyManager.Core.Services
                 var createdTransaction = new Transaction
                 {
                     Id = transactionId,
+                    UserId = _currentUserId,
                     Description = transaction.Description,
                     Date = transaction.Date,
                     TransactionDetails = transactionDetails,

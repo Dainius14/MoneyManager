@@ -41,9 +41,9 @@ namespace MoneyManager.Migrations
                 .WithColumn("TransactionId").AsInt32().NotNullable().ForeignKey("Transaction", "Id")
                 .WithColumn("Amount").AsDouble().NotNullable()
                 .WithColumn("CurrencyId").AsInt32().NotNullable().ForeignKey("Currency", "Id")
-                .WithColumn("FromAccountId").AsInt32().NotNullable().ForeignKey("Account", "Id")
+                .WithColumn("FromAccountId").AsInt32().Nullable().ForeignKey("Account", "Id")
                 .WithColumn("ToAccountId").AsInt32().NotNullable().ForeignKey("Account", "Id")
-                .WithColumn("CategoryId").AsInt32().NotNullable().ForeignKey("Category", "Id");
+                .WithColumn("CategoryId").AsInt32().Nullable().ForeignKey("Category", "Id");
         }
 
         public override void Down()

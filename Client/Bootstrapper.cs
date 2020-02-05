@@ -2,7 +2,9 @@
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
+using MoneyManager.Models.Domain;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client
@@ -25,16 +27,14 @@ namespace MoneyManager.Client
             _categoryService = categoryService;
         }
 
-        public void GetData()
+        public async Task GetData()
         {
             if (!_gotData)
-            {
-                Parallel.Invoke(
-                      //async () => await GetCurrenciesAsync(),
-                      //async () => await GetAccountsAsync(),
-                      //async () => await GetCategoriesAsync(),
-                      async () => await GetTransactionsAsync()
-                  );
+            { 
+                var transactionsTask = GetTransactionsAsync();
+                var currenciesTask = GetCurrenciesAsync();
+                await transactionsTask;
+                await currenciesTask;
             }
         }
 
@@ -69,7 +69,7 @@ namespace MoneyManager.Client
         {
             _store.Dispath(new TransactionActions.SetProperty(nameof(TransactionState.IsLoading), true));
             var items = await _transactionService.GetAllTransactionsAsync();
-            _store.Dispath(new TransactionActions.AddRange(items));
+            _store.Dispath(new TransactionActions.AddRange(items ?? new List<Transaction>()));
             _store.Dispath(new TransactionActions.SetProperty(nameof(TransactionState.IsFirstLoadComplete), true));
             _store.Dispath(new TransactionActions.SetProperty(nameof(TransactionState.IsLoading), false));
         }

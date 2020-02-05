@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,6 +12,7 @@ using MoneyManager.Core.Data;
 using MoneyManager.Core.Repositories;
 using MoneyManager.Core.Services;
 using System;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,6 +43,9 @@ namespace MoneyManager.Web
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IUserService, UserService>();
 
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+
             var appSetingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSetingsSection);
 
@@ -58,13 +63,20 @@ namespace MoneyManager.Web
                     OnTokenValidated = async context =>
                     {
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                        var userId = int.Parse(context.Principal.Identity.Name ?? "");
+                        Claim? userIdClaim = context.Principal.FindFirst(ClaimTypes.NameIdentifier);
 
-                        var user = await userService.GetOne(userId);
-                        if (user == null)
+                        if (userIdClaim != null)
                         {
-                            context.Fail("Unauthorized");
+                            if (int.TryParse(userIdClaim.Value, out int userId))
+                            {
+                                if ((await userService.GetOne(userId)) != null)
+                                {
+                                    return;
+                                }
+                            }
                         }
+
+                        context.Fail("Unauthorized");
                     }, 
                     OnAuthenticationFailed = context =>
                     {

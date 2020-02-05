@@ -20,6 +20,11 @@ namespace MoneyManager.Models.Domain
         [Column]
         public DateTime? UpdatedAt { get; set; }
 
+        [Column]
+        public int UserId { get; set; }
+
+        public User User { get; set; } = null!;
+
 
         public Category? Parent { get; set; }
 

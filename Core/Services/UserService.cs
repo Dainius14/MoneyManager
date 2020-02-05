@@ -4,7 +4,7 @@ using MoneyManager.Core.Services.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using MoneyManager.Models.ViewModels;
 
 namespace MoneyManager.Core.Services
 {
@@ -17,28 +17,31 @@ namespace MoneyManager.Core.Services
             _uow = unitOfWork;
         }
 
-        public async Task<bool> Create(User user)
+        public async Task<User> Create(RegisterUserVm registerVm)
         {
-            if (string.IsNullOrWhiteSpace(user.Email))
+            if (string.IsNullOrWhiteSpace(registerVm.Email))
             {
                 throw new Exception("Email is required");
             }
-            if (string.IsNullOrWhiteSpace(user.Password))
+            if (string.IsNullOrWhiteSpace(registerVm.Password))
             {
                 throw new Exception("Password is required");
             }
 
-            byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(user.Password, out passwordHash, out passwordSalt);
+            CreatePasswordHash(registerVm.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-            user.CreatedAt = DateTime.UtcNow;
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
+            var user = new User
+            {
+                Email = registerVm.Email,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                CreatedAt = DateTime.UtcNow,
+            };
 
-            await _uow.UserRepo.InsertAsync(user);
+            int userId = await _uow.UserRepo.InsertAsync(user);
             _uow.Commit();
-
-            return true;
+            user.Id = userId;
+            return user;
         }
 
         public async Task<User> Authenticate(string email, string password)

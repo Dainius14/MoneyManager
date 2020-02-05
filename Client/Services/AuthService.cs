@@ -138,6 +138,19 @@ namespace MoneyManager.Client.Services
             return responseDto.ToViewModel();
         }
 
+        public async Task<bool> RegisterAsync(RegisterUserVm registerUserVm)
+        {
+            var responseDto = await _httpClient.PostAsync<AuthenticatedUserVmDto>("/users/register", registerUserVm.ToDto());
+            var authenticatedUserVm = responseDto.ToViewModel();
+
+            SaveAccessTokenToSessionStorage(authenticatedUserVm.AccessToken);
+            SaveRefreshTokenToLocalStorage(authenticatedUserVm.RefreshToken);
+            _httpClient.SetAuthHeader(authenticatedUserVm.AccessToken);
+            FireOnAuthenticatedEvent(authenticatedUserVm.AccessToken);
+
+            return true;
+        }
+
         private void FireOnAuthenticatedEvent(string accessToken)
         {
             var payload = GetJwtPayload(accessToken);

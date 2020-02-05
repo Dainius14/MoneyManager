@@ -50,7 +50,8 @@ namespace MoneyManager.Web.Controllers
 
             var claims = new Claim[]
             {
-                new Claim(ClaimTypes.Name, user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email)
             };
             string accessToken = AuthHelper.GenerateAccessToken(claims, _appSettings.Secret);
             string refreshToken = AuthHelper.GenerateRefreshToken();
@@ -62,21 +63,25 @@ namespace MoneyManager.Web.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody]EditUserDto vm)
+        public async Task<IActionResult> RegisterAsync([FromBody]RegisterUserVmDto vm)
         {
-            var user = vm.ToDomainModel();
+            var user = vm.ToViewModel();
 
             try
             {
-                bool result = await _userService.Create(user);
-                if (result)
+                var createdUser = await _userService.Create(user);
+
+                var claims = new Claim[]
                 {
-                    return NoContent();
-                }
-                else
-                {
-                    return BadRequest("bbz");
-                }
+                    new Claim(ClaimTypes.NameIdentifier, createdUser.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email)
+                };
+                string accessToken = AuthHelper.GenerateAccessToken(claims, _appSettings.Secret);
+                string refreshToken = AuthHelper.GenerateRefreshToken();
+
+                await _userService.SaveRefreshToken((int)createdUser.Id!, refreshToken);
+
+                return Ok(new AuthenticatedUserVm(createdUser, accessToken, refreshToken).ToDto());
             }
             catch (Exception ex)
             {
@@ -119,7 +124,7 @@ namespace MoneyManager.Web.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            int userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
+            int userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var user = await _userService.GetOne(userId);
             return Ok(user.ToGetUserDto());
         }
