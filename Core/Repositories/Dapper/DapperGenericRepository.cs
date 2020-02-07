@@ -26,7 +26,23 @@ namespace MoneyManager.Core.Repositories.Dapper
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await Connection.QueryAsync<T>(
-                @$"SELECT * FROM ""{TableName}""",
+                @$"
+                SELECT *
+                FROM ""{TableName}""
+                ",
+                transaction: Transaction
+            );
+        }
+
+        public async Task<IEnumerable<T>> GetAllByUserAsync(int userId)
+        {
+            return await Connection.QueryAsync<T>(
+                @$"
+                SELECT *
+                FROM ""{TableName}""
+                WHERE UserId=@userId
+                ",
+                new { userId },
                 transaction: Transaction
             );
         }
@@ -34,11 +50,29 @@ namespace MoneyManager.Core.Repositories.Dapper
         public async Task<T> GetAsync(int id)
         {
             return await Connection.QuerySingleOrDefaultAsync<T>(
-                @$"SELECT * FROM ""{TableName}"" WHERE Id=@id",
+                @$"
+                SELECT *
+                FROM ""{TableName}""
+                WHERE Id=@id
+                ",
                 new { id },
                 Transaction
             );
         }
+
+        public async Task<T> GetByUserAsync(int userId, int id)
+        {
+            return await Connection.QuerySingleOrDefaultAsync<T>(
+                @$"
+                SELECT *
+                FROM ""{TableName}""
+                WHERE UserId=@userId AND Id=@id
+                ",
+                new { userId, id },
+                Transaction
+            );
+        }
+
         public async Task<int> InsertAsync(T t)
         {
             var insertQuery = GenerateInsertQuery();

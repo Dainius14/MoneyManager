@@ -6,8 +6,10 @@ namespace MoneyManager.Core.Repositories
     public interface IGenericRepository<T>
     {
         public Task<IEnumerable<T>> GetAllAsync();
+        public Task<IEnumerable<T>> GetAllByUserAsync(int userId);
 
         public Task<T> GetAsync(int id);
+        public Task<T> GetByUserAsync(int userId, int id);
 
         public Task<int> SaveRangeAsync(IEnumerable<T> list);
 

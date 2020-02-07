@@ -6,7 +6,7 @@ namespace MoneyManager.Models.Domain
     public class RefreshToken
     {
         [Column]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Column]
         public int UserId { get; set; }

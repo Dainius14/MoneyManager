@@ -73,7 +73,6 @@ namespace MoneyManager.Client.Pages
             if (await AuthService.AuthenticateAsync(Email, Password))
             {
                 Console.WriteLine("Logged in!");
-                await Bootstrapper.GetData();
                 NavManager.NavigateTo("/transactions");
             }
         }

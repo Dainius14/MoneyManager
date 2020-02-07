@@ -22,9 +22,9 @@ namespace MoneyManager.Core.Services
 
         public async Task<IEnumerable<Account>> ListAsync()
         {
-            return (await _uow.AccountRepo.GetAllAsync())
-                .Where(x => x.UserId == _currentUserId);
+            return (await _uow.AccountRepo.GetAllByUserAsync(_currentUserId));
         }
+
         public async Task<IEnumerable<GetPersonalAccountVm>> ListPersonalAsync()
         {
             var accounts = await ListAsync();
@@ -50,7 +50,7 @@ namespace MoneyManager.Core.Services
         {
             try
             {
-                var account = await _uow.AccountRepo.GetAsync(accountId);
+                var account = await _uow.AccountRepo.GetByUserAsync(_currentUserId, accountId);
                 return new Response<Account>(account);
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace MoneyManager.Core.Services
 
                 var transaction = new Transaction
                 {
-                    Date = vm.InitialDate,
+                    Date = vm.InitialDate.Date,
                     CreatedAt = createdAt,
                     UserId = _currentUserId,
                 };

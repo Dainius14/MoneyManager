@@ -10,15 +10,17 @@ namespace MoneyManager.Core.Services
     public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork _uow;
+        private readonly int _currentUserId;
 
-        public CategoryService(IUnitOfWork unitOfWork)
+        public CategoryService(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
         {
             _uow = unitOfWork;
+            _currentUserId = currentUser.Id;
         }
 
         public async Task<IEnumerable<Category>> ListAsync()
         {
-            return (await _uow.CategoryRepo.GetAllAsync());
+            return await _uow.CategoryRepo.GetAllByUserAsync(_currentUserId);
         }
 
         public async Task<Response<Category>> CreateAsync(Category category)
@@ -41,7 +43,8 @@ namespace MoneyManager.Core.Services
                     Name = category.Name,
                     Parent = parent,
                     ParentId = parent?.Id,
-                    CreatedAt = category.CreatedAt
+                    CreatedAt = category.CreatedAt,
+                    UserId = _currentUserId,
                 };
 
                 return new Response<Category>(createdCategory);

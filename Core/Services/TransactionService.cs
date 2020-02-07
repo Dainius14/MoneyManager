@@ -21,9 +21,8 @@ namespace MoneyManager.Core.Services
 
         public async Task<Response<IEnumerable<Transaction>>> ListAsync()
         {
-            var transactions = (await _uow.TransactionRepo.GetAllAsync())
-                .Where(t => t.TransactionDetails.FirstOrDefault().FromAccount != null
-                    && t.UserId == _currentUserId);
+            var transactions = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+                .Where(t => t.TransactionDetails.FirstOrDefault().FromAccount != null);
             return new Response<IEnumerable<Transaction>>(transactions);
         }
 

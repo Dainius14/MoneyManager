@@ -6,10 +6,12 @@ using MoneyManager.Web.Extensions;
 using MoneyManager.Core.Services;
 using MoneyManager.Models.Mappers;
 using MoneyManager.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MoneyManager.Web.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class AccountsController : ControllerBase
     {

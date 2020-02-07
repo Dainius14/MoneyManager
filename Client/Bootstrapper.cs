@@ -13,18 +13,20 @@ namespace MoneyManager.Client
     {
         private readonly Store<AppState> _store;
         private readonly CategoryService _categoryService;
+        private readonly AccountService _accountService;
         private readonly CurrencyService _currencyService;
         private readonly TransactionService _transactionService;
 
         private bool _gotData = false;
 
         public Bootstrapper(Store<AppState> store, TransactionService transactionService,
-            CurrencyService currencyService, CategoryService categoryService)
+            CurrencyService currencyService, CategoryService categoryService, AccountService accountService)
         {
             _store = store;
             _transactionService = transactionService;
             _currencyService = currencyService;
             _categoryService = categoryService;
+            _accountService = accountService;
         }
 
         public async Task GetData()
@@ -33,19 +35,22 @@ namespace MoneyManager.Client
             { 
                 var transactionsTask = GetTransactionsAsync();
                 var currenciesTask = GetCurrenciesAsync();
+                var categoriesTask = GetCategoriesAsync();
+
                 await transactionsTask;
                 await currenciesTask;
+                await categoriesTask;
             }
         }
 
-        //private async Task GetAccountsAsync()
-        //{
-        //    _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), true));
-        //    var items = await AccountService.GetAllAccountsAsync();
-        //    _store.Dispath(new AccountActions.AddRange(items));
-        //    _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsFirstLoadComplete), true));
-        //    _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), false));
-        //}
+        private async Task GetAccountsAsync()
+        {
+            //_store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), true));
+            //var personalItems = await _accountService.GetAllPersonalAccountsAsync();
+            //_store.Dispath(new AccountActions.AddRange(items));
+            //_store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsFirstLoadComplete), true));
+            //_store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), false));
+        }
 
         private async Task GetCurrenciesAsync()
         {
