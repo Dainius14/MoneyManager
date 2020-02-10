@@ -59,21 +59,6 @@ namespace MoneyManager.Core.Services
             }
         }
 
-        public async Task<Response<Account>> CreateAsync(Account account)
-        {
-            account.CreatedAt = DateTime.UtcNow;
-            try
-            {
-                await _uow.AccountRepo.InsertAsync(account);
-                _uow.Commit();
-
-                return new Response<Account>(account);
-            }
-            catch (Exception ex)
-            {
-                return new Response<Account>($"An error occurred when saving the category: {ex.Message}");
-            }
-        }
         public async Task<Response<GetPersonalAccountVm>> CreateAsync(EditPersonalAccountVm vm)
         {
             try
@@ -103,7 +88,7 @@ namespace MoneyManager.Core.Services
                     FromAccountId = null,
                     ToAccountId = accountId,
                     Amount = vm.InitialBalance,
-                    CurrencyId = (int)vm.CurrencyId!,
+                    CurrencyId = 1,  // TODO remove with currency support I guess
                     TransactionId = transactionId,
                     CreatedAt = createdAt
                 };

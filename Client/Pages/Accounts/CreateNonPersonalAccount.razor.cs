@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using MoneyManager.Client.Components.FomanticUI.Message;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
@@ -7,6 +8,7 @@ using MoneyManager.Models.ViewModels;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Pages.Accounts
@@ -14,6 +16,9 @@ namespace MoneyManager.Client.Pages.Accounts
     public class CreateNonPersonalAccountBase : ComponentBase
     {
         #region Injections
+        [Inject]
+        protected MessageService MessageService { get; set; } = null!;
+
         [Inject]
         protected Store<AppState> Store { get; set; } = null!;
 
@@ -73,7 +78,18 @@ namespace MoneyManager.Client.Pages.Accounts
 
             IsSavingAccount = true;
             var savedVm = await AccountService.CreateNonPersonalAccountAsync(FormModel);
-            Store.Dispath(new AccountActions.Add(savedVm.Account));
+            if (savedVm != null)
+            {
+                NavManager.NavigateTo("/accounts/nonpersonal");
+                var accountCreatedMsg = new FomanticMessageBuilder(builder => builder
+                    .SetHeader("Nonpersonal account created")
+                    .SetContent($"Nonpersonal account <b><a href=\"/accounts/{savedVm.Account.Id}\">{SecurityElement.Escape(savedVm.Account.Name)}</a></b> has been successfully created")
+                    .SetEmphasis(EmphasisEnum.Success)
+                    .SetIcon("check")
+                ).GetMessage();
+                MessageService.Show(accountCreatedMsg);
+                Store.Dispath(new AccountActions.Add(savedVm.Account));
+            }
             IsSavingAccount = false;
         }
         #endregion

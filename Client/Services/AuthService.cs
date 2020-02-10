@@ -133,8 +133,6 @@ namespace MoneyManager.Client.Services
                 return null;
             }
 
-            Console.WriteLine("AuthService RefreshAccessTokenAsync()  Ok");
-
             return responseDto.ToViewModel();
         }
 

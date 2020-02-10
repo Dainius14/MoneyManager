@@ -1,4 +1,5 @@
 ﻿using MoneyManager.Models.Domain;
+using MoneyManager.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 
@@ -7,6 +8,11 @@ namespace MoneyManager.Client.State
     public class AccountsState : ICloneable
     {
         public IList<Account> Accounts { get; set; } = new List<Account>();
+        //public IList<GetPersonalAccountVm> PersonalDetails { get; set; } = new List<GetPersonalAccountVm>();
+        //public IList<GetNonPersonalAccountVm> NonPersonalDetails { get; set; } = new List<GetNonPersonalAccountVm>();
+
+
+
         public bool IsLoading { get; set; } = false;
         public bool IsFirstLoadComplete { get; set; } = false;
 

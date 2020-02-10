@@ -30,7 +30,7 @@ else
     }
 
 
-    <div class="field required @(IsFormValidString(editContext, () => FormModel.Description))">
+    <div class="field @(IsFormValidString(editContext, () => FormModel.Description))">
         <label>Description</label>
         <InputText @bind-Value=FormModel.Description></InputText>
     </div>
@@ -110,7 +110,7 @@ else
 
                 <div class="column">
                     <div class="field">
-                        <FomanticDropdown @bind-SelectedItem=detail.Currency
+                        @*<FomanticDropdown @bind-SelectedItem=detail.Currency
                                           TItem=Currency
                                           GivenItems=Store.State.CurrencyState.Currencies
                                           PlaceholderText="Currency"
@@ -118,7 +118,8 @@ else
                             <SelectedItemTemplate>
                                 @context.Name
                             </SelectedItemTemplate>
-                        </FomanticDropdown>
+                        </FomanticDropdown>*@
+                        Euros
                     </div>
                 </div>
 

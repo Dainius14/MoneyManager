@@ -2,7 +2,7 @@
 
 namespace MoneyManager.Migrations
 {
-    [Migration(2)]
+    [Migration(1)]
     public class AddRefreshToken : Migration
     {
         public override void Up()

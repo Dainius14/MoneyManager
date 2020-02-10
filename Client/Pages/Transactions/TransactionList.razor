@@ -55,7 +55,16 @@
             {
                 <tr>
                     <td>
-                        <NavLink href=@($"transactions/{t.Id}/edit")>@t.Description</NavLink>
+                        <NavLink href=@($"transactions/{t.Id}/edit")>
+                        @if (string.IsNullOrEmpty(t.Description))
+                        {
+                            <i>No description</i>
+                        }
+                        else
+                        {
+                            @t.Description
+                        }
+                        </NavLink>
                     </td>
                     <td>
                         <span class="ui text @(GetTransactionAmountColor(t))">

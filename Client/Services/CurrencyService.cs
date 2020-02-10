@@ -26,7 +26,6 @@ namespace MoneyManager.Client.Services
             try
             {
                 response = await _httpClient.GetAsync<List<GetCurrencyDTO>>("/currencies");
-                Console.WriteLine(response.Count);
             }
             catch (HttpException ex)
             {
@@ -34,7 +33,6 @@ namespace MoneyManager.Client.Services
                 return null;
             }
             var items = response.Select(t => t.ToDomainModel()).ToList();
-            Console.WriteLine(items.Count);
             return items;
         }
     }

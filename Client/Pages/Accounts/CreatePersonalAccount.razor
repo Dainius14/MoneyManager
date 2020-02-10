@@ -37,14 +37,15 @@ else
 
     <div class="field required @(IsFormValidString(editContext, () => FormModel.Currency))">
         <label>Currency</label>
-        <FomanticDropdown TItem=@Currency
+        @*<FomanticDropdown TItem=@Currency
                           @bind-SelectedItem=FormModel.Currency
                           PlaceholderText="Select currency"
                           GivenItems=Currencies>
             <SelectedItemTemplate>
                 @context.Name
             </SelectedItemTemplate>
-        </FomanticDropdown>
+        </FomanticDropdown>*@
+        Euros
     </div>
 
     <div class="field required @(IsFormValidString(editContext, () => FormModel.InitialDate))">

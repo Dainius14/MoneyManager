@@ -7,15 +7,24 @@ namespace MoneyManager.Migrations
     {
         public override void Up()
         {
+            Create.Table("User")
+                .WithIdColumn()
+                .WithTimeStamps()
+                .WithColumn("Email").AsString(255).NotNullable()
+                .WithColumn("PasswordHash").AsBinary().NotNullable()
+                .WithColumn("PasswordSalt").AsBinary().NotNullable();
+
             Create.Table("Account")
                 .WithIdColumn()
                 .WithTimeStamps()
+                .WithUserId()
                 .WithColumn("Name").AsString(255).NotNullable()
                 .WithColumn("IsPersonal").AsBoolean().NotNullable();
 
             Create.Table("Category")
                 .WithIdColumn()
                 .WithTimeStamps()
+                .WithUserId()
                 .WithColumn("Name").AsString(255).NotNullable()
                 .WithColumn("ParentId").AsInt32().Nullable().ForeignKey("Category", "Id");
 
@@ -32,6 +41,7 @@ namespace MoneyManager.Migrations
             Create.Table("Transaction")
                 .WithIdColumn()
                 .WithTimeStamps()
+                .WithUserId()
                 .WithColumn("Description").AsString(255).Nullable()
                 .WithColumn("Date").AsDate().NotNullable();
 
@@ -53,6 +63,7 @@ namespace MoneyManager.Migrations
             Delete.Table("Category");
             Delete.Table("Currency");
             Delete.Table("Account");
+            Delete.Table("User");
         }
 
     }

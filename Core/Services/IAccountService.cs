@@ -12,7 +12,6 @@ namespace MoneyManager.Core.Services
         Task<IEnumerable<GetPersonalAccountVm>> ListPersonalAsync();
         Task<IEnumerable<GetNonPersonalAccountVm>> ListNonPersonalAsync();
         Task<Response<Account>> GetById(int id);
-        Task<Response<Account>> CreateAsync(Account account);
         Task<Response<GetPersonalAccountVm>> CreateAsync(EditPersonalAccountVm vm);
         Task<Response<GetNonPersonalAccountVm>> CreateAsync(EditNonPersonalAccountVm vm);
         Task<Response<Account>> UpdateAsync(int id, Account account);

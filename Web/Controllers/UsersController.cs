@@ -113,7 +113,7 @@ namespace MoneyManager.Web.Controllers
             var newAccessToken = AuthHelper.GenerateAccessToken(principal.Claims, _appSettings.Secret);
             var newRefreshToken = AuthHelper.GenerateRefreshToken();
 
-            var userId = Convert.ToInt32(principal.Identity.Name);
+            var userId = Convert.ToInt32(principal.FindFirst(ClaimTypes.NameIdentifier).Value);
             await _userService.InvalidateRefreshToken(requestTokens.RefreshToken);
             await _userService.SaveRefreshToken(userId, newRefreshToken);
             var user = await _userService.GetOne(userId);

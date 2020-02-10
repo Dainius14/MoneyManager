@@ -32,36 +32,17 @@ namespace MoneyManager.Client.Pages
         protected bool CanLogin =>
             !string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(Password);
 
-        protected override void OnInitialized()
-        {
-            Console.WriteLine("login init");
-        }
 
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("login init async");
             var authState = await _authStateTask;
-            Console.WriteLine("authState.User.Identity.IsAuthenticated: " + authState.User.Identity.IsAuthenticated);
             if (authState.User.Identity.IsAuthenticated)
             {
                 NavManager.NavigateTo("/transactions");
             }
 
-            //AuthProvider.AuthenticationStateChanged += async (authStateTask) =>
-            //    await AuthProvider_AuthenticationStateChanged(authStateTask);
-
         }
 
-        //private async Task AuthProvider_AuthenticationStateChanged(Task<AuthenticationState> authStateTask)
-        //{
-        //    var authState = await authStateTask;
-        //    Console.WriteLine("authState.User.Identity.IsAuthenticated: " + authState.User.Identity.IsAuthenticated);
-        //    if (authState.User.Identity.IsAuthenticated)
-        //    {
-        //        NavManager.NavigateTo("/transactions");
-        //    }
-
-        //}
 
         protected async Task HandleLoginClick()
         {
@@ -72,7 +53,6 @@ namespace MoneyManager.Client.Pages
 
             if (await AuthService.AuthenticateAsync(Email, Password))
             {
-                Console.WriteLine("Logged in!");
                 NavManager.NavigateTo("/transactions");
             }
         }

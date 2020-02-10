@@ -9,7 +9,6 @@ namespace MoneyManager.Models.ViewModels
         public int? Id { get; set; } = null;
 
         [Required]
-        [MinLength(5)]
         public string Name { get; set; } = string.Empty;
 
         [Required]
@@ -17,7 +16,7 @@ namespace MoneyManager.Models.ViewModels
         public double InitialBalance { get; set; } = 0;
 
         [Required]
-        public Currency? Currency { get; set; }
+        public Currency? Currency { get; set; } = new Currency { Id = 1 };
         public int? CurrencyId { get; set; }
 
         [Required]

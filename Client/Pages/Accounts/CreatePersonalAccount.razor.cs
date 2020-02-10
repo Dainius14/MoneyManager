@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using MoneyManager.Client.Components.FomanticUI.Message;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Actions;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Pages.Accounts
@@ -17,6 +19,9 @@ namespace MoneyManager.Client.Pages.Accounts
     public class CreatePersonalAccountBase : ComponentBase
     {
         #region Injections
+        [Inject]
+        protected MessageService MessageService { get; set; } = null!;
+
         [Inject]
         protected Store<AppState> Store { get; set; } = null!;
 
@@ -81,7 +86,19 @@ namespace MoneyManager.Client.Pages.Accounts
 
             IsSavingAccount = true;
             var savedVm = await AccountService.CreatePersonalAccountAsync(FormModel);
-            Store.Dispath(new AccountActions.Add(savedVm.Account));
+            if (savedVm != null)
+            {
+                Store.Dispath(new AccountActions.Add(savedVm.Account));
+
+                NavManager.NavigateTo("/accounts/personal");
+                var accountCreatedMsg = new FomanticMessageBuilder(builder => builder
+                    .SetHeader("Personal account created")
+                    .SetContent($"Personal account <b><a href=\"/accounts/{savedVm.Account.Id}\">{SecurityElement.Escape(savedVm.Account.Name)}</a></b> has been successfully created")
+                    .SetEmphasis(EmphasisEnum.Success)
+                    .SetIcon("check")
+                ).GetMessage();
+                MessageService.Show(accountCreatedMsg);
+            }
             IsSavingAccount = false;
         }
         #endregion

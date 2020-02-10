@@ -26,6 +26,7 @@ namespace MoneyManager.Core.Services
         public async Task<Response<Category>> CreateAsync(Category category)
         {
             category.CreatedAt = DateTime.UtcNow;
+            category.UserId = _currentUserId;
             try
             {
                 int categoryId = await _uow.CategoryRepo.InsertAsync(category);

@@ -148,6 +148,7 @@ namespace MoneyManager.Core.Repositories.Dapper
 
             return updateQuery.ToString();
         }
+
         public async Task DeleteAsync(int id)
         {
             await Connection.ExecuteAsync(

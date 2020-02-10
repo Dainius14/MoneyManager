@@ -23,5 +23,12 @@ namespace MoneyManager.Migrations
                 .WithColumn("CreatedAt").AsDateTime().NotNullable()
                 .WithColumn("UpdatedAt").AsDateTime().Nullable();
         }
+
+        public static ICreateTableColumnOptionOrWithColumnSyntax WithUserId(this ICreateTableWithColumnSyntax tableWithColumnSyntax)
+        {
+            return tableWithColumnSyntax
+                .WithColumn("UserId").AsInt32().NotNullable().ForeignKey("User", "Id");
+        }
+
     }
 }

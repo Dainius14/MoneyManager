@@ -5,6 +5,7 @@ using MoneyManager.Client.State.Actions;
 using MoneyManager.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MoneyManager.Client
@@ -33,10 +34,12 @@ namespace MoneyManager.Client
         {
             if (!_gotData)
             { 
+                var accountsTask = GetAccountsAsync();
                 var transactionsTask = GetTransactionsAsync();
                 var currenciesTask = GetCurrenciesAsync();
                 var categoriesTask = GetCategoriesAsync();
 
+                await accountsTask;
                 await transactionsTask;
                 await currenciesTask;
                 await categoriesTask;
@@ -45,11 +48,13 @@ namespace MoneyManager.Client
 
         private async Task GetAccountsAsync()
         {
-            //_store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), true));
-            //var personalItems = await _accountService.GetAllPersonalAccountsAsync();
-            //_store.Dispath(new AccountActions.AddRange(items));
-            //_store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsFirstLoadComplete), true));
-            //_store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), false));
+            _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), true));
+            var personalAccounts = await _accountService.GetAllPersonalAccountsAsync();
+            var nonPersonalAccounts = await _accountService.GetAllNonPersonalAccountsAsync();
+            var accounts = personalAccounts.Select(x => x.Account).Concat(nonPersonalAccounts.Select(x => x.Account));
+            _store.Dispath(new AccountActions.AddRange(accounts));
+            _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsFirstLoadComplete), true));
+            _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), false));
         }
 
         private async Task GetCurrenciesAsync()

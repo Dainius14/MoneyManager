@@ -34,27 +34,21 @@ namespace MoneyManager.Core.Services
                 DateTime createdAt = DateTime.UtcNow;
 
                 transaction.CreatedAt = createdAt;
-                int transactionId = await _uow.TransactionRepo.InsertAsync(transaction);
+                transaction.UserId = _currentUserId;
+                transaction.Id = await _uow.TransactionRepo.InsertAsync(transaction);
 
-                var transactionDetails = await Task.WhenAll(transaction.TransactionDetails.Select(async (transactionDetail) =>
+                transaction.TransactionDetails = await Task.WhenAll(transaction.TransactionDetails.Select(async (transactionDetail) =>
                 {
+                    transactionDetail.CurrencyId = 1;  // TODO remove at some point I guess
                     transactionDetail.CreatedAt = createdAt;
-                    transactionDetail.TransactionId = transactionId;
+                    transactionDetail.TransactionId = (int)transaction.Id;
                     var detailId = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);
                     return await _uow.TransactionDetailsRepo.GetAsync(detailId);
                 }));
 
                 _uow.Commit();
 
-                var createdTransaction = new Transaction
-                {
-                    Id = transactionId,
-                    UserId = _currentUserId,
-                    Description = transaction.Description,
-                    Date = transaction.Date,
-                    TransactionDetails = transactionDetails,
-                };
-                return new Response<Transaction>(createdTransaction);
+                return new Response<Transaction>(transaction);
             }
             catch (Exception ex)
             {
