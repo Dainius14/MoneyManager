@@ -49,7 +49,7 @@ namespace MoneyManager.Migrations
                 .WithIdColumn()
                 .WithTimeStamps()
                 .WithColumn("TransactionId").AsInt32().NotNullable().ForeignKey("Transaction", "Id")
-                .WithColumn("Amount").AsDouble().NotNullable()
+                .WithColumn("Amount").AsCustom("REAL").NotNullable()
                 .WithColumn("CurrencyId").AsInt32().NotNullable().ForeignKey("Currency", "Id")
                 .WithColumn("FromAccountId").AsInt32().Nullable().ForeignKey("Account", "Id")
                 .WithColumn("ToAccountId").AsInt32().NotNullable().ForeignKey("Account", "Id")
