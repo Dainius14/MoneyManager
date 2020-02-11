@@ -1,10 +1,16 @@
 ﻿using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using MoneyManager.Client;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.State;
 using MoneyManager.Client.State.Reducers;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace MoneyManager
@@ -15,17 +21,15 @@ namespace MoneyManager
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+            builder.AddConfiguration();
+            builder.Services.ConfigureServices();
             builder.RootComponents.Add<App>("app");
-            ConfigureServices(builder.Services);
-
             
             var host = builder.Build();
-            //host.Configuration.
-            
             await host.RunAsync();
         }
 
-        public static void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(this IServiceCollection services)
         {
             services.AddOptions();
 
@@ -54,6 +58,17 @@ namespace MoneyManager
             services.AddScoped<CurrencyService>();
             services.AddScoped<CategoryService>();
             services.AddScoped<TransactionService>();
+        }
+
+        private static void AddConfiguration(this WebAssemblyHostBuilder builder)
+        {
+            builder.Configuration
+                .AddJsonFile(
+                    provider: new EmbeddedFileProvider(Assembly.GetExecutingAssembly()),
+                    path: "appsettings.json",
+                    optional: true,
+                    reloadOnChange: false
+                );
         }
     }
 }

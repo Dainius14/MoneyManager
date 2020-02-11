@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -44,11 +45,15 @@ namespace MoneyManager.Client.Services
             PropertyNameCaseInsensitive = true
         };
 
-        private readonly string _baseUrl = "https://localhost:5501/api";
-
+        private readonly string _baseUrl;
 
         public delegate Task<bool> AccessTokenExpiredHandler();
         public event AccessTokenExpiredHandler? AccessTokenExpired;
+
+        public HttpClient(IConfiguration configuration)
+        {
+            _baseUrl = configuration.GetSection("BaseUrl").Value;
+        }
         
 
         public async Task<T> GetAsync<T>(string resource) =>
