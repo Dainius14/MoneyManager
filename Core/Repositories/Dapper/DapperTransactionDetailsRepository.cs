@@ -22,8 +22,6 @@ namespace MoneyManager.Core.Repositories.Dapper
 			        on td.FromAccountId = accFrom.Id
 		        LEFT OUTER JOIN Account as accTo
 			        on td.ToAccountId = accTo.Id
-		        LEFT OUTER JOIN Currency as crnc
-			        on td.CurrencyId = crnc.Id
 		        LEFT OUTER JOIN Category as cat
 			        on td.CategoryId = cat.Id
 			        LEFT OUTER JOIN Category as catParent
@@ -32,15 +30,14 @@ namespace MoneyManager.Core.Repositories.Dapper
             ";
 
 
-            var item = await Connection.QueryAsync<TransactionDetails, Account, Account, Currency,
+            var item = await Connection.QueryAsync<TransactionDetails, Account, Account, 
                 Category, Category, TransactionDetails> (
                 sql,
                 param: new { id },
-                map: (td, fromAccount, toAccount, currency, category, categoryParent) =>
+                map: (td, fromAccount, toAccount, category, categoryParent) =>
                 {
-                    td.FromAccount = fromAccount.Id != default ? fromAccount : null;
+                    td.FromAccount = fromAccount;
                     td.ToAccount = toAccount;
-                    td.Currency = currency;
                     td.Category = category;
 
                     if (categoryParent != null)
@@ -50,7 +47,6 @@ namespace MoneyManager.Core.Repositories.Dapper
 
                     return td;
                 },
-                splitOn: "Id,Id,Id,Id,Id",
                 transaction: Transaction
             );
             return item.FirstOrDefault();

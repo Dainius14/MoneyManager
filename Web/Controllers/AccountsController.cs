@@ -15,9 +15,9 @@ namespace MoneyManager.Web.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountService _accountService;
+        private readonly AccountService _accountService;
 
-        public AccountsController(IAccountService accountService)
+        public AccountsController(AccountService accountService)
         {
             _accountService = accountService;
         }
@@ -25,134 +25,49 @@ namespace MoneyManager.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var acounts = await _accountService.ListAsync();
+            var acounts = await _accountService.ListAsyncNew();
             var accountDtos = acounts.Select(d => d.ToGetAccountDTO());
             return Ok(accountDtos);
         }
 
-        [HttpGet("personal")]
-        public async Task<IActionResult> GetAllPersonal()
+
+        [HttpPost]
+        public async Task<IActionResult> PostAccount([FromBody] CreateAccountVm item)
         {
-            var acounts = await _accountService.ListPersonalAsync();
-            var accountDtos = acounts.Select(d => d.ToDto());
-            return Ok(accountDtos);
-        }
-
-        [HttpGet("nonpersonal")]
-        public async Task<IActionResult> GetAllNonPersonal()
-        {
-            var acounts = await _accountService.ListNonPersonalAsync();
-            var accountDtos = acounts.Select(d => d.ToDto());
-            return Ok(accountDtos);
-        }
-
-        [HttpPost("personal")]
-        public async Task<IActionResult> PostPersonalAccount([FromBody] EditPersonalAccountVmDto dto)
-        {
-            var vm = dto.ToViewModel();
-
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState.GetErrorMessages());
             }
 
-            var response = await _accountService.CreateAsync(vm);
-
-            if (!response.Success)
+            try
             {
-                return BadRequest(response.Message);
+                var createdAccount = await _accountService.CreateAccountAsync(item);
+                return Ok(createdAccount.ToGetAccountDTO());
             }
-
-            return Ok(response.Item!.ToDto());
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPost("nonpersonal")]
-        public async Task<IActionResult> PostPersonalAccount([FromBody] EditNonPersonalAccountVmDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAccount(int id, [FromBody] EditAccountVm item)
         {
-            var vm = dto.ToViewModel();
-
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState.GetErrorMessages());
             }
 
-            var response = await _accountService.CreateAsync(vm);
-
-            if (!response.Success)
+            try
             {
-                return BadRequest(response.Message);
+                var createdAccount = await _accountService.EditAccountAsync(id, item);
+                return Ok(createdAccount.ToGetAccountDTO());
             }
-
-            return Ok(response.Item!.ToDto());
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-
-
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne(int id)
-        {
-            var result = await _accountService.GetById(id);
-
-            if (!result.Success)
-            {
-                return BadRequest(result.Message);
-            }
-
-            if (result.Item == null)
-            {
-                return NotFound(id);
-            }
-
-            var accountDto = result.Item!.ToGetAccountDTO();
-            return Ok(accountDto);
-        }
-
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutAccount(int id, [FromBody] EditPersonalAccountVmDto resource)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState.GetErrorMessages());
-        //    }
-
-        //    var account = resource.ToDomainModel();
-        //    var result = await _accountService.UpdateAsync(id, account);
-
-        //    if (!result.Success)
-        //    {
-        //        return BadRequest(result.Message);
-        //    }
-
-        //    if (result.Item == null)
-        //    {
-        //        return NotFound(id);
-        //    }
-
-        //    var accountDto = result.Item!.ToGetAccountDTO();
-        //    return Ok(accountDto);
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> PostAccount([FromBody] EditPersonalAccountDTO dto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState.GetErrorMessages());
-        //    }
-
-        //    var account = dto.ToDomainModel();
-        //    var response = await _accountService.CreateAsync(account);
-
-        //    if (!response.Success)
-        //    {
-        //        return BadRequest(ModelState.GetErrorMessages());
-        //    }
-
-        //    var accountDto = response.Item!.ToGetAccountDTO();
-        //    return Ok(accountDto);
-        //}
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

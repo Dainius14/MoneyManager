@@ -34,8 +34,22 @@ namespace MoneyManager.Models.Mappers
                 Id = (int)domain.Id!,
                 Name = domain.Name,
                 IsPersonal = domain.IsPersonal,
-                CreatedAt = domain.CreatedAt,
-                UpdatedAt = domain.UpdatedAt,
+                CreatedAt = domain.CreatedAt.ToISOString(),
+                UpdatedAt = domain.UpdatedAt?.ToISOString(),
+            };
+        }
+        public static GetAccountDTO ToGetAccountDTO(this AccountVm vm)
+        {
+            return new GetAccountDTO
+            {
+                Id = (int)vm.Id!,
+                Name = vm.Name,
+                IsPersonal = vm.IsPersonal,
+                CreatedAt = vm.CreatedAt.ToISOString(),
+                UpdatedAt = vm.UpdatedAt?.ToISOString(),
+                CurrentBalance = vm.CurrentBalance,
+                OpeningBalance = vm.OpeningBalance,
+                OpeningDate = vm.OpeningDate.ToISODateString(),
             };
         }
 

@@ -45,5 +45,17 @@ namespace MoneyManager.Client.State.Actions
                 NewValue = value;
             }
         }
+
+        public class SetCurrentBalance
+        {
+            public int AccountId { get; private set; }
+            public double Balance { get; private set; }
+            public SetCurrentBalance(int accountId, double balance)
+            {
+                AccountId = accountId;
+                Balance = balance;
+            }
+
+        }
     }
 }

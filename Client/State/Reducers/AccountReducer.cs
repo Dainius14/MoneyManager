@@ -33,6 +33,10 @@ namespace MoneyManager.Client.State.Reducers
                     newState.GetType().GetProperty(a.PropertyName).SetValue(newState, a.NewValue);
                     return newState;
 
+                case AccountActions.SetCurrentBalance a:
+                    newState.CurrentBalances.Add(a.AccountId, a.Balance);
+                    return newState;
+
                 default:
                     return newState;
             }

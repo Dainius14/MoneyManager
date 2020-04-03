@@ -39,7 +39,6 @@ namespace MoneyManager.Core.Services
 
                 transaction.TransactionDetails = await Task.WhenAll(transaction.TransactionDetails.Select(async (transactionDetail) =>
                 {
-                    transactionDetail.CurrencyId = 1;  // TODO remove at some point I guess
                     transactionDetail.CreatedAt = createdAt;
                     transactionDetail.TransactionId = (int)transaction.Id;
                     var detailId = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);

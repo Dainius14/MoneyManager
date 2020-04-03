@@ -22,10 +22,6 @@ namespace MoneyManager.Core.Repositories
         private ICategoryRepository? _categoryRepo;
         public ICategoryRepository CategoryRepo =>
             _categoryRepo ?? (_categoryRepo = new DapperCategoryRepository(Transaction));
-
-        private ICurrencyRepository? _currencyRepo;
-        public ICurrencyRepository CurrencyRepo =>
-            _currencyRepo ?? (_currencyRepo = new DapperCurrencyRepository(Transaction));
        
         private IRefreshTokenRepository? _refreshTokenRepo;
         public IRefreshTokenRepository RefreshTokenRepo =>
@@ -81,7 +77,6 @@ namespace MoneyManager.Core.Repositories
         {
             _accountRepo = null;
             _categoryRepo = null;
-            _currencyRepo = null;
             _refreshTokenRepo = null;
             _transactionRepo = null;
             _transactionDetailsRepo = null;

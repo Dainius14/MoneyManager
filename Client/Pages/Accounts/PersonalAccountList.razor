@@ -43,7 +43,7 @@
                     <td>
                         <NavLink href=@($"accounts/personal/{vm.Account.Id}/edit")>@vm.Account.Name</NavLink>
                     </td>
-                    <td>N/A</td>
+                    <td>@vm.CurrentBalance</td>
                     <td>N/A</td>
                     <td>
                         <span class="ui red text">Delete</span>

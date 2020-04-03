@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace MoneyManager.Core.Services
 {
-    public class AccountService : IAccountService
+    public class AccountService
     {
         private readonly IUnitOfWork _uow;
         private readonly int _currentUserId;
@@ -20,147 +20,98 @@ namespace MoneyManager.Core.Services
             _currentUserId = currentUser.Id;
         }
 
-        public async Task<IEnumerable<Account>> ListAsync()
+        public async Task<IEnumerable<AccountVm>> ListAsyncNew()
         {
-            return (await _uow.AccountRepo.GetAllByUserAsync(_currentUserId));
+            var accounts = await _uow.AccountRepo.GetAllByUserAsync(_currentUserId);
+            return accounts.Select(account =>
+            {
+                return new AccountVm(account)
+                {
+                    CurrentBalance = 5
+                };
+            });
         }
 
-        public async Task<IEnumerable<GetPersonalAccountVm>> ListPersonalAsync()
+        public async Task<AccountVm> CreateAccountAsync(CreateAccountVm vm)
         {
-            var accounts = await ListAsync();
-            var personalAccounts = accounts.Where(a => a.IsPersonal);
+            try
+            {
+                var createdAt = DateTime.UtcNow;
 
-            var currency = await _uow.CurrencyRepo.GetAsync(1);
+                var account = new Account
+                {
+                    Name = vm.Name!,
+                    IsPersonal = (bool)vm.IsPersonal!,
+                    OpeningBalance = (double)vm.OpeningBalance!,
+                    OpeningDate = (DateTime)vm.OpeningDate!,
+                    CreatedAt = createdAt,
+                    UserId = _currentUserId,
+                };
+                int accountId = await _uow.AccountRepo.InsertAsync(account);
 
-            var viewModels = personalAccounts.Select(a => new GetPersonalAccountVm(a, 69, currency));
-            return viewModels;
+                _uow.Commit();
+
+                var accountInserted = await _uow.AccountRepo.GetAsync(accountId);
+
+                var createdVm = new AccountVm(accountInserted);
+
+                return createdVm;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred when saving the account: {ex.Message}");
+            }
         }
-        public async Task<IEnumerable<GetNonPersonalAccountVm>> ListNonPersonalAsync()
-        {
-            var accounts = await ListAsync();
-            var personalAccounts = accounts.Where(a => !a.IsPersonal);
 
-            var currency = await _uow.CurrencyRepo.GetAsync(1);
-
-            var viewModels = personalAccounts.Select(a => new GetNonPersonalAccountVm(a, 696, currency));
-            return viewModels;
-        }
-
-        public async Task<Response<Account>> GetById(int accountId)
+        public async Task<AccountVm> EditAccountAsync(int accountId, EditAccountVm vm)
         {
             try
             {
                 var account = await _uow.AccountRepo.GetByUserAsync(_currentUserId, accountId);
-                return new Response<Account>(account);
-            }
-            catch (Exception ex)
-            {
-                return new Response<Account>($"An error occurred when getting the account: {ex.Message}");
-            }
-        }
-
-        public async Task<Response<GetPersonalAccountVm>> CreateAsync(EditPersonalAccountVm vm)
-        {
-            try
-            {
-                var createdAt = DateTime.UtcNow;
-
-                var account = new Account
+                if (account == null)
                 {
-                    Name = vm.Name,
-                    IsPersonal = true,
-                    CreatedAt = createdAt,
-                    UserId = _currentUserId,
-                };
-                int accountId = await _uow.AccountRepo.InsertAsync(account);
+                    throw new Exception($"User with Id {accountId} does not exist");
+                }
 
+                if (vm.Name != null) account.Name = vm.Name!;
+                if (vm.OpeningBalance != null) account.OpeningBalance = (double)vm.OpeningBalance!;
+                if (vm.OpeningDate != null) account.OpeningDate = (DateTime)vm.OpeningDate!;
+                account.UpdatedAt = DateTime.UtcNow;
 
-                var transaction = new Transaction
-                {
-                    Date = vm.InitialDate.Date,
-                    CreatedAt = createdAt,
-                    UserId = _currentUserId,
-                };
-                int transactionId = await _uow.TransactionRepo.InsertAsync(transaction);
-
-                var transactionDetail = new TransactionDetails
-                {
-                    FromAccountId = null,
-                    ToAccountId = accountId,
-                    Amount = vm.InitialBalance,
-                    CurrencyId = 1,  // TODO remove with currency support I guess
-                    TransactionId = transactionId,
-                    CreatedAt = createdAt
-                };
-                int transactionDetailsId = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);
+                await _uow.AccountRepo.UpdateAsync(account);
 
                 _uow.Commit();
 
-                var accountInserted = await _uow.AccountRepo.GetAsync(accountId);
-                var currency = await _uow.CurrencyRepo.GetAsync((int)vm.CurrencyId);
+                var createdVm = new AccountVm(account);
 
-                var createdVm = new GetPersonalAccountVm(accountInserted, vm.InitialBalance, currency);
-
-                return new Response<GetPersonalAccountVm>(createdVm);
+                return createdVm;
             }
             catch (Exception ex)
             {
-                return new Response<GetPersonalAccountVm>($"An error occurred when saving the category: {ex.Message}");
+                throw new Exception($"An error occurred when saving the account: {ex.Message}");
             }
         }
-        public async Task<Response<GetNonPersonalAccountVm>> CreateAsync(EditNonPersonalAccountVm vm)
-        {
-            try
-            {
-                var createdAt = DateTime.UtcNow;
 
-                var account = new Account
+        private async Task<double> GetCurrentBalanceAsync(int accountId)
+        {
+            var transactions = await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId);
+            return transactions.Aggregate(0.0, (result, transaction) =>
+            {
+                double transactionSum = transaction.TransactionDetails.Aggregate(0.0, (transactionSum, td) =>
                 {
-                    Name = vm.Name,
-                    IsPersonal = false,
-                    CreatedAt = createdAt,
-                    UserId = _currentUserId,
-                };
-                int accountId = await _uow.AccountRepo.InsertAsync(account);
+                    if (td.FromAccount?.Id == accountId)
+                    {
+                        transactionSum -= td.Amount;
+                    }
+                    else if (td.ToAccount.Id == accountId)
+                    {
+                        transactionSum += td.Amount;
+                    }
+                    return transactionSum;
 
-                _uow.Commit();
-
-                var accountInserted = await _uow.AccountRepo.GetAsync(accountId);
-                var currency = await _uow.CurrencyRepo.GetAsync(1);
-
-                var createdVm = new GetNonPersonalAccountVm(accountInserted, 0, currency);
-
-                return new Response<GetNonPersonalAccountVm>(createdVm);
-            }
-            catch (Exception ex)
-            {
-                return new Response<GetNonPersonalAccountVm>($"An error occurred when saving the category: {ex.Message}");
-            }
-        }
-
-        public async Task<Response<Account>> UpdateAsync(int id, Account account)
-        {
-            var existingAccount = await _uow.AccountRepo.GetAsync(id);
-            if (existingAccount == null)
-            {
-                return new Response<Account>("Category not found");
-            }
-
-            existingAccount.Name = account.Name;
-            existingAccount.IsPersonal = account.IsPersonal;
-            existingAccount.UpdatedAt = DateTime.UtcNow;
-
-            try
-            {
-                await _uow.AccountRepo.UpdateAsync(existingAccount);
-                _uow.Commit();
-
-                return new Response<Account>(existingAccount);
-            }
-            catch (Exception ex)
-            {
-                return new Response<Account>($"An error occurred when updating the category: {ex.Message}");
-            }
+                });
+                return result += transactionSum;
+            });
         }
 
         public async Task<Response<Account>> DeleteAsync(int id)

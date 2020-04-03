@@ -14,9 +14,7 @@ namespace MoneyManager.Models.Domain
         [Column]
         public double Amount { get; set; }
         [Column]
-        public int CurrencyId { get; set; }
-        [Column]
-        public int? FromAccountId { get; set; }
+        public int FromAccountId { get; set; }
         [Column]
         public int ToAccountId { get; set; }
         [Column]
@@ -28,9 +26,8 @@ namespace MoneyManager.Models.Domain
         public DateTime? UpdatedAt { get; set; }
 
         public Transaction Transaction { get; set; } = null!;
-        public Account? FromAccount { get; set; } = new Account();
+        public Account FromAccount { get; set; } = new Account();
         public Account ToAccount { get; set; } = new Account();
-        public Currency Currency { get; set; } = new Currency()!;
         public Category? Category { get; set; } = new Category();
 
     }

@@ -8,9 +8,8 @@ namespace MoneyManager.Client.State
     public class AccountsState : ICloneable
     {
         public IList<Account> Accounts { get; set; } = new List<Account>();
-        //public IList<GetPersonalAccountVm> PersonalDetails { get; set; } = new List<GetPersonalAccountVm>();
-        //public IList<GetNonPersonalAccountVm> NonPersonalDetails { get; set; } = new List<GetNonPersonalAccountVm>();
 
+        public Dictionary<int, double> CurrentBalances { get; set; } = new Dictionary<int, double>();
 
 
         public bool IsLoading { get; set; } = false;
@@ -50,18 +49,6 @@ namespace MoneyManager.Client.State
         public IList<Transaction> Transactions { get; set; } = new List<Transaction>();
         public bool IsLoading { get; set; } = false;
         public bool IsFirstLoadComplete { get; set; } = false;
-
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-    }
-
-    public class UserState : ICloneable
-    {
-        public User? User { get; set; } = null;
-
-        public bool IsAuthenticated => User != null;
 
         public object Clone()
         {

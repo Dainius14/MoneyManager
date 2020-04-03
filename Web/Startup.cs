@@ -36,10 +36,10 @@ namespace MoneyManager.Web
                 opt.ConnectionString = Configuration.GetConnectionString("MoneyContext")
             );
 
+            services.AddScoped<AccountService>();
             services.AddScoped<IUnitOfWork, DapperUnitOfWork>();
-            services.AddScoped<IAccountService, AccountService>();
+            //services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<ICurrencyService, CurrencyService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IUserService, UserService>();
 
@@ -112,7 +112,8 @@ namespace MoneyManager.Web
             
             app.UseCors(builder =>
             {
-                builder.WithOrigins("http://localhost:5000", "https://localhost:5001")
+                //builder.WithOrigins("http://localhost:5000", "https://localhost:5001", "http://localhost:8080")
+                builder.AllowAnyOrigin()
                        .WithMethods("GET", "POST", "PUT", "DELETE")
                        .WithExposedHeaders("Token-Expired")
                        .AllowAnyHeader();

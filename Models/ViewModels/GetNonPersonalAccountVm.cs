@@ -11,14 +11,11 @@ namespace MoneyManager.Models.ViewModels
 
         public string CurrentBalanceStr => string.Format("{0:0,0.00}", CurrentBalance);
 
-        public Currency Currency { get; set; }
 
-
-        public GetNonPersonalAccountVm(Account account, double currentBalance, Currency currency)
+        public GetNonPersonalAccountVm(Account account, double currentBalance)
         {
             Account = account;
             CurrentBalance = currentBalance;
-            Currency = currency;
         }
     }
     public class GetNonPersonalAccountVmDto
@@ -27,17 +24,14 @@ namespace MoneyManager.Models.ViewModels
 
         public double CurrentBalance { get; set; }
 
-        public GetCurrencyDTO Currency { get; set; } = null!;
-
         public GetNonPersonalAccountVmDto()
         {
         }
 
-        public GetNonPersonalAccountVmDto(GetAccountDTO account, double currentBalance, GetCurrencyDTO currency)
+        public GetNonPersonalAccountVmDto(GetAccountDTO account, double currentBalance)
         {
             Account = account;
             CurrentBalance = currentBalance;
-            Currency = currency;
         }
     }
 }

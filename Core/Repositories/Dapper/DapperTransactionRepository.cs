@@ -25,8 +25,6 @@ namespace MoneyManager.Core.Repositories.Dapper
 			        on td.FromAccountId = accFrom.Id
 		        LEFT JOIN Account as accTo
 			        on td.ToAccountId = accTo.Id
-		        LEFT  JOIN Currency as crnc
-			        on td.CurrencyId = crnc.Id
 		        LEFT JOIN Category as cat
 			        on td.CategoryId = cat.Id
 			        LEFT JOIN Category as catParent
@@ -38,9 +36,9 @@ namespace MoneyManager.Core.Repositories.Dapper
             var transactionsDict = new Dictionary<int, Transaction>();
 
             var items = await Connection.QueryAsync<Transaction, TransactionDetails, Account,
-                Account, Currency, Category, Category, Transaction>(
+                Account, Category, Category, Transaction>(
                 sql,
-                map: (t, td, fromAccount, toAccount, currency, category, categoryParent) =>
+                map: (t, td, fromAccount, toAccount, category, categoryParent) =>
                 {
                     Transaction? transaction;
 
@@ -52,7 +50,6 @@ namespace MoneyManager.Core.Repositories.Dapper
                     }
                     td.FromAccount = fromAccount;
                     td.ToAccount = toAccount;
-                    td.Currency = currency;
                     td.Category = category;
 
                     if (categoryParent != null)
@@ -80,8 +77,6 @@ namespace MoneyManager.Core.Repositories.Dapper
 			        on td.FromAccountId = accFrom.Id
 		        LEFT JOIN Account as accTo
 			        on td.ToAccountId = accTo.Id
-		        LEFT  JOIN Currency as crnc
-			        on td.CurrencyId = crnc.Id
 		        LEFT JOIN Category as cat
 			        on td.CategoryId = cat.Id
 			        LEFT JOIN Category as catParent
@@ -92,9 +87,9 @@ namespace MoneyManager.Core.Repositories.Dapper
             var transactionsDict = new Dictionary<int, Transaction>();
 
             var items = await Connection.QueryAsync<Transaction, TransactionDetails, Account,
-                Account, Currency, Category, Category, Transaction>(
+                Account, Category, Category, Transaction>(
                 sql,
-                map: (t, td, fromAccount, toAccount, currency, category, categoryParent) =>
+                map: (t, td, fromAccount, toAccount, category, categoryParent) =>
                 {
                     Transaction? transaction;
 
@@ -106,7 +101,6 @@ namespace MoneyManager.Core.Repositories.Dapper
                     }
                     td.FromAccount = fromAccount;
                     td.ToAccount = toAccount;
-                    td.Currency = currency;
                     td.Category = category;
 
                     if (categoryParent != null)
@@ -118,7 +112,6 @@ namespace MoneyManager.Core.Repositories.Dapper
 
                     return transaction;
                 },
-                splitOn: "Id,Id,Id,Id,Id,Id",
                 transaction: Transaction
             );
             return items.Distinct().ToList();

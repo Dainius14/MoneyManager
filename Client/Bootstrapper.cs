@@ -52,6 +52,7 @@ namespace MoneyManager.Client
             var personalAccounts = await _accountService.GetAllPersonalAccountsAsync();
             var nonPersonalAccounts = await _accountService.GetAllNonPersonalAccountsAsync();
             var accounts = personalAccounts.Select(x => x.Account).Concat(nonPersonalAccounts.Select(x => x.Account));
+            personalAccounts!.ForEach(a => _store.Dispath(new AccountActions.SetCurrentBalance((int)a.Account.Id!, a.CurrentBalance)));
             _store.Dispath(new AccountActions.AddRange(accounts));
             _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsFirstLoadComplete), true));
             _store.Dispath(new AccountActions.SetProperty(nameof(AccountsState.IsLoading), false));
