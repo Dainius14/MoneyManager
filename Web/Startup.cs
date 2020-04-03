@@ -37,14 +37,13 @@ namespace MoneyManager.Web
             );
 
             services.AddScoped<AccountService>();
+            services.AddScoped<CategoryService>();
+            services.AddScoped<TransactionService>();
+            services.AddScoped<UserService>();
+            services.AddScoped<CurrentUserService>();
             services.AddScoped<IUnitOfWork, DapperUnitOfWork>();
-            //services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<ITransactionService, TransactionService>();
-            services.AddScoped<IUserService, UserService>();
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             var appSetingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSetingsSection);
@@ -62,7 +61,7 @@ namespace MoneyManager.Web
                 {
                     OnTokenValidated = async context =>
                     {
-                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+                        var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
                         Claim? userIdClaim = context.Principal.FindFirst(ClaimTypes.NameIdentifier);
 
                         if (userIdClaim != null)

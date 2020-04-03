@@ -7,6 +7,7 @@ using MoneyManager.Core.Services;
 using MoneyManager.Models.Mappers;
 using MoneyManager.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using MoneyManager.Core.Services.Exceptions;
 
 namespace MoneyManager.Web.Controllers
 {
@@ -72,13 +73,19 @@ namespace MoneyManager.Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _accountService.DeleteAsync(id);
-
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.Message);
+                await _accountService.DeleteAsync(id);
+                return NoContent();
             }
-            return NoContent();
+            catch (NotFoundException ex)
+            { 
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

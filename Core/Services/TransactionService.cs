@@ -1,32 +1,32 @@
 ﻿using MoneyManager.Models.Domain;
 using MoneyManager.Core.Repositories;
-using MoneyManager.Core.Services.Communication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MoneyManager.Core.Services.Exceptions;
 
 namespace MoneyManager.Core.Services
 {
-    public class TransactionService : ITransactionService
+    public class TransactionService
     {
         private readonly IUnitOfWork _uow;
         private readonly int _currentUserId;
 
-        public TransactionService(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
+        public TransactionService(IUnitOfWork unitOfWork, CurrentUserService currentUser)
         {
             _uow = unitOfWork;
             _currentUserId = currentUser.Id;
         }
 
-        public async Task<Response<IEnumerable<Transaction>>> ListAsync()
+        public async Task<IEnumerable<Transaction>> ListAsync()
         {
             var transactions = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
                 .Where(t => t.TransactionDetails.FirstOrDefault().FromAccount != null);
-            return new Response<IEnumerable<Transaction>>(transactions);
+            return transactions;
         }
 
-        public async Task<Response<Transaction>> CreateAsync(Transaction transaction)
+        public async Task<Transaction> CreateAsync(Transaction transaction)
         {
             
             try
@@ -46,21 +46,20 @@ namespace MoneyManager.Core.Services
                 }));
 
                 _uow.Commit();
-
-                return new Response<Transaction>(transaction);
+                return transaction;
             }
             catch (Exception ex)
             {
-                return new Response<Transaction>($"An error occurred when saving the category: {ex.Message}");
+                throw new Exception($"An error occurred when saving the category: {ex.Message}");
             }
         }
 
-        public async Task<Response<Transaction>> UpdateAsync(int id, Transaction transaction)
+        public async Task<Transaction> UpdateAsync(int id, Transaction transaction)
         {
             var existingTransactionData = await _uow.TransactionRepo.GetAsync(id);
             if (existingTransactionData == null)
             {
-                return new Response<Transaction>("Transaction not found");
+                throw new NotFoundException("Transaction not found");
             }
 
             var existingTransaction = existingTransactionData;
@@ -100,33 +99,30 @@ namespace MoneyManager.Core.Services
                 await _uow.TransactionRepo.UpdateAsync(existingTransactionNewData);
                 _uow.Commit();
                 var updatedTransaction = await _uow.TransactionRepo.GetAsync(id);
-
-                return new Response<Transaction>(updatedTransaction);
+                return updatedTransaction;
             }
             catch (Exception ex)
             {
-                return new Response<Transaction>($"An error occurred when updating the transaction: {ex.Message}");
+                throw new Exception($"An error occurred when updating the transaction: {ex.Message}");
             }
         }
 
-        public async Task<Response<Transaction>> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var existingTransaction = await _uow.TransactionRepo.GetAsync(id);
             if (existingTransaction == null)
             {
-                return new Response<Transaction>("Transaction not found");
+                throw new NotFoundException("Transaction not found");
             }
 
             try
             {
                 await _uow.TransactionRepo.DeleteAsync(id);
                 _uow.Commit();
-
-                return new Response<Transaction>(existingTransaction);
             }
             catch (Exception ex)
             {
-                return new Response<Transaction>($"An error occurred when deleting the transaction: {ex.Message}");
+                throw new Exception($"An error occurred when deleting the transaction: {ex.Message}");
             }
         }
     }

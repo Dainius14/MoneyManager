@@ -8,7 +8,7 @@ using MoneyManager.Models.ViewModels;
 
 namespace MoneyManager.Core.Services
 {
-    public class UserService : IUserService
+    public class UserService
     {
         private readonly IUnitOfWork _uow;
 

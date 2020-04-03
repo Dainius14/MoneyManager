@@ -21,10 +21,10 @@ namespace MoneyManager.Web.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private IUserService _userService;
+        private UserService _userService;
         private readonly AppSettings _appSettings;
 
-        public UsersController(IUserService userService, IOptions<AppSettings> appSettings)
+        public UsersController(UserService userService, IOptions<AppSettings> appSettings)
         {
             _userService = userService;
             _appSettings = appSettings.Value;

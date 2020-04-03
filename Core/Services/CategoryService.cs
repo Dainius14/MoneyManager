@@ -1,18 +1,18 @@
 ﻿using MoneyManager.Core.Repositories;
-using MoneyManager.Core.Services.Communication;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MoneyManager.Models.Domain;
+using MoneyManager.Core.Services.Exceptions;
 
 namespace MoneyManager.Core.Services
 {
-    public class CategoryService : ICategoryService
+    public class CategoryService
     {
         private readonly IUnitOfWork _uow;
         private readonly int _currentUserId;
 
-        public CategoryService(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
+        public CategoryService(IUnitOfWork unitOfWork, CurrentUserService currentUser)
         {
             _uow = unitOfWork;
             _currentUserId = currentUser.Id;
@@ -23,7 +23,7 @@ namespace MoneyManager.Core.Services
             return await _uow.CategoryRepo.GetAllByUserAsync(_currentUserId);
         }
 
-        public async Task<Response<Category>> CreateAsync(Category category)
+        public async Task<Category> CreateAsync(Category category)
         {
             category.CreatedAt = DateTime.UtcNow;
             category.UserId = _currentUserId;
@@ -48,20 +48,20 @@ namespace MoneyManager.Core.Services
                     UserId = _currentUserId,
                 };
 
-                return new Response<Category>(createdCategory);
+                return createdCategory;
             }
             catch (Exception ex)
             {
-                return new Response<Category>($"An error occurred when saving the category: {ex.Message}");
+                throw new Exception($"An error occurred when saving the category: {ex.Message}");
             }
         }
 
-        public async Task<Response<Category>> UpdateAsync(int id, Category category)
+        public async Task<Category> UpdateAsync(int id, Category category)
         {
             var existingCategory = await _uow.CategoryRepo.GetAsync(id);
             if (existingCategory == null)
             {
-                return new Response<Category>("Category not found");
+                throw new NotFoundException("Category not found");
             }
 
             existingCategory.Name = category.Name;
@@ -71,33 +71,30 @@ namespace MoneyManager.Core.Services
             {
                 await _uow.CategoryRepo.UpdateAsync(existingCategory);
                 _uow.Commit();
-
-                return new Response<Category>(existingCategory);
+                return existingCategory;
             }
             catch (Exception ex)
             {
-                return new Response<Category>($"An error occurred when updating the category: {ex.Message}");
+                throw new Exception($"An error occurred when updating the category: {ex.Message}");
             }
         }
 
-        public async Task<Response<Category>> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var existingCategory = await _uow.CategoryRepo.GetAsync(id);
             if (existingCategory == null)
             {
-                return new Response<Category>("Category not found");
+                throw new NotFoundException("Category not found");
             }
 
             try
             {
                 await _uow.CategoryRepo.DeleteAsync(id);
                 _uow.Commit();
-
-                return new Response<Category>(existingCategory);
             }
             catch (Exception ex)
             {
-                return new Response<Category>($"An error occurred when deleting the category: {ex.Message}");
+                throw new Exception($"An error occurred when deleting the category: {ex.Message}");
             }
         }
     }

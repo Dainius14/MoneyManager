@@ -1,11 +1,11 @@
 ﻿using MoneyManager.Core.Repositories;
-using MoneyManager.Core.Services.Communication;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MoneyManager.Models.Domain;
 using MoneyManager.Models.ViewModels;
 using System.Linq;
+using MoneyManager.Core.Services.Exceptions;
 
 namespace MoneyManager.Core.Services
 {
@@ -14,7 +14,7 @@ namespace MoneyManager.Core.Services
         private readonly IUnitOfWork _uow;
         private readonly int _currentUserId;
 
-        public AccountService(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
+        public AccountService(IUnitOfWork unitOfWork, CurrentUserService currentUser)
         {
             _uow = unitOfWork;
             _currentUserId = currentUser.Id;
@@ -70,7 +70,7 @@ namespace MoneyManager.Core.Services
                 var account = await _uow.AccountRepo.GetByUserAsync(_currentUserId, accountId);
                 if (account == null)
                 {
-                    throw new Exception($"User with Id {accountId} does not exist");
+                    throw new NotFoundException($"User with Id {accountId} does not exist");
                 }
 
                 if (vm.Name != null) account.Name = vm.Name!;
@@ -114,24 +114,22 @@ namespace MoneyManager.Core.Services
             });
         }
 
-        public async Task<Response<Account>> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var existingAccount = await _uow.AccountRepo.GetAsync(id);
             if (existingAccount == null)
             {
-                return new Response<Account>("Account not found");
+                throw new NotFoundException("Account not found");
             }
 
             try
             {
                 await _uow.AccountRepo.DeleteAsync(id);
                 _uow.Commit();
-
-                return new Response<Account>(existingAccount);
             }
             catch (Exception ex)
             {
-                return new Response<Account>($"An error occurred when deleting the category: {ex.Message}");
+                throw new Exception($"An error occurred when deleting account: {ex.Message}");
             }
         }
     }

@@ -6,6 +6,8 @@ using System.Linq;
 using MoneyManager.Models.Mappers;
 using MoneyManager.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System;
+using MoneyManager.Core.Services.Exceptions;
 
 namespace money_backend.Controllers
 {
@@ -14,9 +16,9 @@ namespace money_backend.Controllers
     [ApiController]
     public class TransactionsController : ControllerBase
     {
-        private readonly ITransactionService _transactionsService;
+        private readonly TransactionService _transactionsService;
 
-        public TransactionsController(ITransactionService transactionService)
+        public TransactionsController(TransactionService transactionService)
         {
             _transactionsService = transactionService;
         }
@@ -24,10 +26,17 @@ namespace money_backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var transactions = await _transactionsService.ListAsync();
+            try
+            {
+                var transactions = await _transactionsService.ListAsync();
+                var transactionsDto = transactions.Select(t => t.ToGetTransactionDTO());
+                return Ok(transactionsDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
-            var transactionsDto = transactions.Item!.Select(t => t.ToGetTransactionDTO());
-            return Ok(transactionsDto);
         }
 
         [HttpPost]
@@ -37,16 +46,22 @@ namespace money_backend.Controllers
             {
                 return BadRequest(ModelState.GetErrorMessages());
             }
+
             var transaction = inputDto.ToDomainModel();
-            var response = await _transactionsService.CreateAsync(transaction);
-
-            if (!response.Success)
+            try
             {
-                return BadRequest(ModelState.GetErrorMessages());
+                var created = await _transactionsService.CreateAsync(transaction);
+                var transactionDto = created.ToGetTransactionDTO();
+                return Ok(transactionDto);
             }
-
-            var transactionDto = response.Item!.ToGetTransactionDTO();
-            return Ok(transactionDto);
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -58,29 +73,39 @@ namespace money_backend.Controllers
             }
 
             var transaction = inputDto.ToDomainModel();
-            var result = await _transactionsService.UpdateAsync(id, transaction);
-
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.Message);
+                var updated = await _transactionsService.UpdateAsync(id, transaction);
+                var transactionDto = updated.ToGetTransactionDTO();
+                return Ok(transactionDto);
             }
-
-            var transactionDto = result.Item!.ToGetTransactionDTO();
-            return Ok(transactionDto);
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _transactionsService.DeleteAsync(id);
-
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.Message);
+                await _transactionsService.DeleteAsync(id);
+                return NoContent();
             }
-
-            return NoContent();
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

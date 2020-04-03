@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoneyManager.Core.Services;
+using MoneyManager.Core.Services.Exceptions;
 using MoneyManager.Models.DTO;
 using MoneyManager.Models.Mappers;
 using MoneyManager.Web.Extensions;
@@ -14,9 +16,9 @@ namespace MoneyManager.Web.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly CategoryService _categoryService;
 
-        public CategoriesController(ICategoryService categoryService)
+        public CategoriesController(CategoryService categoryService)
         {
             _categoryService = categoryService;
         }
@@ -39,19 +41,22 @@ namespace MoneyManager.Web.Controllers
             }
 
             var category = inputDto.ToDomainModel();
-            var result = await _categoryService.UpdateAsync(id, category);
 
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.Message);
+                var result = await _categoryService.UpdateAsync(id, category);
+                var outputDto = result.ToGetCategoryDTO();
+                return Ok(outputDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
 
-            var outputDto = result.Item!.ToGetCategoryDTO();
-            return Ok(outputDto);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PostCategory([FromBody] EditCategoryDTO inputDto)
+        [HttpPost("{id}")]
+        public async Task<IActionResult> PostCategory(int id, [FromBody] EditCategoryDTO inputDto)
         {
             if (!ModelState.IsValid)
             {
@@ -59,27 +64,38 @@ namespace MoneyManager.Web.Controllers
             }
 
             var category = inputDto.ToDomainModel();
-            var result = await _categoryService.CreateAsync(category);
-
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.Message);
+                var result = await _categoryService.UpdateAsync(id, category);
+                var outputDto = result.ToGetCategoryDTO();
+                return Ok(outputDto);
             }
-
-            var outputDto = result.Item!.ToGetCategoryDTO();
-            return Ok(outputDto);
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _categoryService.DeleteAsync(id);
-
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.Message);
+                await _categoryService.DeleteAsync(id);
+                return NoContent();
             }
-            return NoContent();
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

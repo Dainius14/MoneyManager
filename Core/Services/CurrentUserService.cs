@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace MoneyManager.Core.Services
 {
-    public class CurrentUserService : ICurrentUserService
+    public class CurrentUserService
     {
         public int Id { get; }
 
