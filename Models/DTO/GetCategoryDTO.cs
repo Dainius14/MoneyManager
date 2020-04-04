@@ -7,8 +7,8 @@ namespace MoneyManager.Models.DTO
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public GetCategoryDTO? Parent { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public string CreatedAt { get; set; } = null!;
+        public string? UpdatedAt { get; set; }
 
         public GetCategoryDTO()
         {
@@ -19,8 +19,8 @@ namespace MoneyManager.Models.DTO
             Id = id;
             Name = name;
             Parent = parent;
-            CreatedAt = createdAt;
-            UpdatedAt = updatedAt;
+            CreatedAt = createdAt.ToISOString();
+            UpdatedAt = updatedAt?.ToISOString();
         }
     }
 }

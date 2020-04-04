@@ -56,14 +56,12 @@ namespace MoneyManager.Core.Services
 
         public async Task<Transaction> UpdateAsync(int id, Transaction transaction)
         {
-            var existingTransactionData = await _uow.TransactionRepo.GetAsync(id);
-            if (existingTransactionData == null)
+            var existingTransaction = await _uow.TransactionRepo.GetAsync(id);
+            if (existingTransaction == null)
             {
                 throw new NotFoundException("Transaction not found");
             }
-
-            var existingTransaction = existingTransactionData;
-
+            
             existingTransaction.UpdatedAt = DateTime.UtcNow;
             existingTransaction.Description = transaction.Description;
             existingTransaction.Date = transaction.Date;
@@ -98,7 +96,9 @@ namespace MoneyManager.Core.Services
                 var existingTransactionNewData = existingTransaction;
                 await _uow.TransactionRepo.UpdateAsync(existingTransactionNewData);
                 _uow.Commit();
-                var updatedTransaction = await _uow.TransactionRepo.GetAsync(id);
+                var updatedTransaction = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+                    .Where(t => t.Id == id)
+                    .First();  // TODO get one with SQL
                 return updatedTransaction;
             }
             catch (Exception ex)

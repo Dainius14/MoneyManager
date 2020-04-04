@@ -30,25 +30,8 @@ namespace MoneyManager.Core.Services
             try
             {
                 int categoryId = await _uow.CategoryRepo.InsertAsync(category);
-                _uow.Commit();
-
-                Category? parent = null;
-                if (category.ParentId != null)
-                {
-                    parent = await _uow.CategoryRepo.GetAsync((int)category.ParentId);
-                }
-
-                var createdCategory = new Category
-                {
-                    Id = categoryId,
-                    Name = category.Name,
-                    Parent = parent,
-                    ParentId = parent?.Id,
-                    CreatedAt = category.CreatedAt,
-                    UserId = _currentUserId,
-                };
-
-                return createdCategory;
+                category.Id = categoryId;
+                return category;
             }
             catch (Exception ex)
             {
@@ -58,7 +41,7 @@ namespace MoneyManager.Core.Services
 
         public async Task<Category> UpdateAsync(int id, Category category)
         {
-            var existingCategory = await _uow.CategoryRepo.GetAsync(id);
+            var existingCategory = await _uow.CategoryRepo.GetByUserAsync(_currentUserId, id);
             if (existingCategory == null)
             {
                 throw new NotFoundException("Category not found");

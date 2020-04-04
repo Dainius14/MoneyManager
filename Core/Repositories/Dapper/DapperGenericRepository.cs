@@ -132,7 +132,7 @@ namespace MoneyManager.Core.Repositories.Dapper
 
         private string GenerateUpdateQuery()
         {
-            var updateQuery = new StringBuilder($"UPDATE {TableName} SET ");
+            var updateQuery = new StringBuilder(@$"UPDATE ""{TableName}"" SET ");
             var properties = GenerateListOfProperties(GetProperties);
 
             properties.ForEach(property =>

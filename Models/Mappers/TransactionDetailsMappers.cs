@@ -34,10 +34,10 @@ namespace MoneyManager.Models.Mappers
             return new TransactionDetails
             {
                 Id = dto.Id,
-                FromAccountId = dto.FromAccount,
-                ToAccountId = dto.ToAccount,
-                CategoryId = dto.Category,
-                Amount = dto.Amount,
+                FromAccountId = (int)dto.FromAccount!,
+                ToAccountId = (int)dto.ToAccount!,
+                CategoryId = (int)dto.Category!,
+                Amount = (double)dto.Amount!,
             };
         }
         public static TransactionDetails ToDomainModel(this GetTransactionDetailsDTO dto)

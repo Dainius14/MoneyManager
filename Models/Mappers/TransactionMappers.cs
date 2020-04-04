@@ -1,5 +1,6 @@
 ﻿using MoneyManager.Models.Domain;
 using MoneyManager.Models.DTO;
+using System;
 using System.Linq;
 
 namespace MoneyManager.Models.Mappers
@@ -34,7 +35,7 @@ namespace MoneyManager.Models.Mappers
             {
                 Id = dto.Id,
                 Description = dto.Description,
-                Date = dto.Date,
+                Date = (DateTime)dto.Date!,
                 TransactionDetails = dto.TransactionDetails.Select(td => td.ToDomainModel()).ToList(),
             };
         }

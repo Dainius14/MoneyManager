@@ -1,11 +1,22 @@
-﻿namespace MoneyManager.Models.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MoneyManager.Models.DTO
 {
     public class EditTransactionDetailsDTO
     {
+        [Required]
         public int? Id { get; set; }
-        public double Amount { get; set; }
+
+        [Required]
+        public double? Amount { get; set; }
+
+        [Required]
         public int? Category { get; set; }
-        public int FromAccount { get; set; }
-        public int ToAccount { get; set; }
+
+        [Required]
+        public int? FromAccount { get; set; }
+
+        [Required]
+        public int? ToAccount { get; set; }
     }
 }

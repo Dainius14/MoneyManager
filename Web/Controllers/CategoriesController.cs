@@ -55,8 +55,8 @@ namespace MoneyManager.Web.Controllers
 
         }
 
-        [HttpPost("{id}")]
-        public async Task<IActionResult> PostCategory(int id, [FromBody] EditCategoryDTO inputDto)
+        [HttpPost]
+        public async Task<IActionResult> PostCategory([FromBody] EditCategoryDTO inputDto)
         {
             if (!ModelState.IsValid)
             {
@@ -66,7 +66,7 @@ namespace MoneyManager.Web.Controllers
             var category = inputDto.ToDomainModel();
             try
             {
-                var result = await _categoryService.UpdateAsync(id, category);
+                var result = await _categoryService.CreateAsync(category);
                 var outputDto = result.ToGetCategoryDTO();
                 return Ok(outputDto);
             }
