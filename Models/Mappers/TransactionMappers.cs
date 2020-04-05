@@ -12,8 +12,10 @@ namespace MoneyManager.Models.Mappers
             return new GetTransactionDTO
             {
                 Id = (int)transaction.Id!,
-                Date = transaction.Date,
+                Date = transaction.Date.ToISODateString(),
                 Description = transaction.Description,
+                CreatedAt = transaction.CreatedAt.ToISOString(),
+                UpdatedAt= transaction.UpdatedAt?.ToISOString(),
                 TransactionDetails = transaction.TransactionDetails.Select(td => td.ToGetTransactionDetailsDTO()),
             };
         }
@@ -46,7 +48,7 @@ namespace MoneyManager.Models.Mappers
             {
                 Id = dto.Id,
                 Description = dto.Description,
-                Date = dto.Date,
+                Date = DateTime.Parse(dto.Date),
                 TransactionDetails = dto.TransactionDetails.Select(td => td.ToDomainModel()).ToList(),
             };
         }

@@ -1,7 +1,6 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using MoneyManager.Core.Data;
 using MoneyManager.Core.Repositories;
 using MoneyManager.Core.Services;
-using System;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;

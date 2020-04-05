@@ -4,7 +4,6 @@ namespace MoneyManager.Models.DTO
 {
     public class EditTransactionDetailsDTO
     {
-        [Required]
         public int? Id { get; set; }
 
         [Required]
