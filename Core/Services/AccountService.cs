@@ -22,12 +22,13 @@ namespace MoneyManager.Core.Services
 
         public async Task<IEnumerable<AccountVm>> ListAsyncNew()
         {
+            var transactions = await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId);
             var accounts = await _uow.AccountRepo.GetAllByUserAsync(_currentUserId);
             return accounts.Select(account =>
             {
                 return new AccountVm(account)
                 {
-                    CurrentBalance = 5
+                    CurrentBalance = GetCurrentBalanceAsync((int)account.Id!, transactions)
                 };
             });
         }
@@ -92,28 +93,6 @@ namespace MoneyManager.Core.Services
             }
         }
 
-        private async Task<double> GetCurrentBalanceAsync(int accountId)
-        {
-            var transactions = await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId);
-            return transactions.Aggregate(0.0, (result, transaction) =>
-            {
-                double transactionSum = transaction.TransactionDetails.Aggregate(0.0, (transactionSum, td) =>
-                {
-                    if (td.FromAccount?.Id == accountId)
-                    {
-                        transactionSum -= td.Amount;
-                    }
-                    else if (td.ToAccount.Id == accountId)
-                    {
-                        transactionSum += td.Amount;
-                    }
-                    return transactionSum;
-
-                });
-                return result += transactionSum;
-            });
-        }
-
         public async Task DeleteAsync(int id)
         {
             var existingAccount = await _uow.AccountRepo.GetAsync(id);
@@ -131,6 +110,27 @@ namespace MoneyManager.Core.Services
             {
                 throw new Exception($"An error occurred when deleting account: {ex.Message}");
             }
+        }
+
+        private double GetCurrentBalanceAsync(int accountId, IEnumerable<Transaction> transactions)
+        {
+            return transactions.Aggregate(0.0, (result, transaction) =>
+            {
+                double transactionSum = transaction.TransactionDetails.Aggregate(0.0, (transactionSum, td) =>
+                {
+                    if (td.FromAccount?.Id == accountId)
+                    {
+                        transactionSum -= td.Amount;
+                    }
+                    else if (td.ToAccount.Id == accountId)
+                    {
+                        transactionSum += td.Amount;
+                    }
+                    return transactionSum;
+
+                });
+                return result += transactionSum;
+            });
         }
     }
 }

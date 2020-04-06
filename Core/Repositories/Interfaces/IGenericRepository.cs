@@ -10,6 +10,7 @@ namespace MoneyManager.Core.Repositories
 
         public Task<T> GetAsync(int id);
         public Task<T> GetByUserAsync(int userId, int id);
+        public Task<T> GetByUserAsync(int userId, string col, string value);
 
         public Task<int> SaveRangeAsync(IEnumerable<T> list);
 

@@ -72,6 +72,18 @@ namespace MoneyManager.Core.Repositories.Dapper
                 Transaction
             );
         }
+        public async Task<T> GetByUserAsync(int userId, string col, string value)
+        {
+            return await Connection.QuerySingleOrDefaultAsync<T>(
+                @$"
+                SELECT *
+                FROM ""{TableName}""
+                WHERE UserId=@userId AND {col}=@value
+                ",
+                new { userId, value },
+                Transaction
+            );
+        }
 
         public async Task<int> InsertAsync(T t)
         {

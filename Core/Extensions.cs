@@ -8,5 +8,10 @@ namespace MoneyManager.Core
         {
             return dt.ToString("u").Replace(' ', 'T');
         }
+
+        public static string ToISODateString(this DateTime dt)
+        {
+            return dt.ToString("yyyy-MM-dd");
+        }
     }
 }

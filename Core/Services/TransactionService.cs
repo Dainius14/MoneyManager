@@ -50,7 +50,7 @@ namespace MoneyManager.Core.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred when saving the category: {ex.Message}");
+                throw new Exception($"An error occurred when saving the transaction: {ex.Message}");
             }
         }
 

@@ -8,6 +8,9 @@ using MoneyManager.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using MoneyManager.Core.Services.Exceptions;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace money_backend.Controllers
 {
@@ -17,10 +20,12 @@ namespace money_backend.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly TransactionService _transactionsService;
+        private readonly CsvTransactionImportService _csvTransactionImportService;
 
-        public TransactionsController(TransactionService transactionService)
+        public TransactionsController(TransactionService transactionService, CsvTransactionImportService csvTransactionImportService)
         {
             _transactionsService = transactionService;
+            _csvTransactionImportService = csvTransactionImportService;
         }
 
         [HttpGet]
@@ -105,6 +110,17 @@ namespace money_backend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("import")]
+        public async Task<IActionResult> PostImportAsync([FromForm] IFormFile file)
+        {
+            using (var sr = new StreamReader(file.OpenReadStream()))
+            {
+                var content = await sr.ReadToEndAsync();
+                var results = await _csvTransactionImportService.Import(content);
+                return Ok(results);
             }
         }
     }
