@@ -56,7 +56,10 @@ namespace MoneyManager.Core.Services
 
         public async Task<Transaction> UpdateAsync(int id, Transaction transaction)
         {
-            var existingTransaction = await _uow.TransactionRepo.GetAsync(id);
+            // TODO SQL
+            var existingTransaction = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+                .FirstOrDefault(t => t.Id == id);
+
             if (existingTransaction == null)
             {
                 throw new NotFoundException("Transaction not found");
@@ -65,36 +68,42 @@ namespace MoneyManager.Core.Services
             existingTransaction.UpdatedAt = DateTime.UtcNow;
             existingTransaction.Description = transaction.Description;
             existingTransaction.Date = transaction.Date;
+            existingTransaction.TransactionDetails[0].Amount = transaction.TransactionDetails[0].Amount;
+            existingTransaction.TransactionDetails[0].FromAccountId = transaction.TransactionDetails[0].FromAccountId;
+            existingTransaction.TransactionDetails[0].ToAccountId = transaction.TransactionDetails[0].ToAccountId;
+            existingTransaction.TransactionDetails[0].CategoryId = transaction.TransactionDetails[0].CategoryId;
 
-            var comparator = new TransactionDetailsIDComparator();
-            var existingDetails = from existing in existingTransaction.TransactionDetails
-                                  join given in transaction.TransactionDetails on existing.Id equals given.Id
-                                  select new { Existing = existing, Given = given };
-            var newDetails = transaction.TransactionDetails.Except(existingTransaction.TransactionDetails, comparator);
-            var removedDetails = existingTransaction.TransactionDetails.Except(transaction.TransactionDetails, comparator);
+            //var comparator = new TransactionDetailsIDComparator();
+            //var existingDetails = from existing in existingTransaction.TransactionDetails
+            //                      join given in transaction.TransactionDetails on existing.Id equals given.Id
+            //                      select new { Existing = existing, Given = given };
+            //var newDetails = transaction.TransactionDetails.Except(existingTransaction.TransactionDetails, comparator);
+            //var removedDetails = existingTransaction.TransactionDetails.Except(transaction.TransactionDetails, comparator);
 
-            foreach (var split in existingDetails)
-            {
-                split.Existing.Amount = split.Given.Amount;
-                split.Existing.FromAccountId = split.Given.FromAccountId;
-                split.Existing.ToAccountId = split.Given.ToAccountId;
-                split.Existing.CategoryId = split.Given.CategoryId;
-            }
+            //foreach (var split in existingDetails)
+            //{
+            //    split.Existing.Amount = split.Given.Amount;
+            //    split.Existing.FromAccountId = split.Given.FromAccountId;
+            //    split.Existing.ToAccountId = split.Given.ToAccountId;
+            //    split.Existing.CategoryId = split.Given.CategoryId;
+            //}
 
-            foreach (var split in newDetails)
-            {
-                existingTransaction.TransactionDetails.Add(split);
-            }
+            //foreach (var split in newDetails)
+            //{
+            //    existingTransaction.TransactionDetails.Add(split);
+            //}
 
-            foreach (var split in removedDetails.ToList())
-            {
-                existingTransaction.TransactionDetails.Remove(split);
-            }
+            //foreach (var split in removedDetails.ToList())
+            //{
+            //    existingTransaction.TransactionDetails.Remove(split);
+            //}
+
+
 
             try
             {
-                var existingTransactionNewData = existingTransaction;
-                await _uow.TransactionRepo.UpdateAsync(existingTransactionNewData);
+                await _uow.TransactionRepo.UpdateAsync(existingTransaction);
+                await _uow.TransactionDetailsRepo.UpdateAsync(existingTransaction.TransactionDetails[0]);
                 _uow.Commit();
                 var updatedTransaction = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
                     .Where(t => t.Id == id)

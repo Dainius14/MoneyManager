@@ -9,7 +9,6 @@ namespace MoneyManager.Models.DTO
         [Required]
         public double? Amount { get; set; }
 
-        [Required]
         public int? Category { get; set; }
 
         [Required]

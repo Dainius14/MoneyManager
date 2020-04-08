@@ -30,6 +30,23 @@ namespace MoneyManager.Models.Domain
         public Account ToAccount { get; set; } = new Account();
         public Category? Category { get; set; } = new Category();
 
+        public double AdjustedAmount
+        {
+            get
+            {
+                if (FromAccount == null || ToAccount == null)
+                {
+                    return 0;
+                }
+
+                if (FromAccount.IsPersonal)
+                {
+                    return -Amount;
+                }
+                return Amount;
+            }
+        }
+
     }
 
     public class TransactionDetailsIDComparator : IEqualityComparer<TransactionDetails>

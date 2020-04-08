@@ -36,7 +36,7 @@ namespace MoneyManager.Models.Mappers
                 Id = dto.Id,
                 FromAccountId = (int)dto.FromAccount!,
                 ToAccountId = (int)dto.ToAccount!,
-                CategoryId = (int)dto.Category!,
+                CategoryId = dto.Category,
                 Amount = (double)dto.Amount!,
             };
         }

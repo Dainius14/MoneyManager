@@ -116,5 +116,25 @@ namespace MoneyManager.Core.Repositories.Dapper
             );
             return items.Distinct().ToList();
         }
+
+        //public Task<int> GetCount()
+        //{
+
+        //    string sql = @"
+        //    SELECT * FROM ""transaction"" AS t
+	       //     LEFT JOIN TransactionDetails as td
+		      //      ON td.TransactionId = t.Id
+		      //  LEFT JOIN  Account as accFrom
+			     //   on td.FromAccountId = accFrom.Id
+		      //  LEFT JOIN Account as accTo
+			     //   on td.ToAccountId = accTo.Id
+		      //  LEFT JOIN Category as cat
+			     //   on td.CategoryId = cat.Id
+			     //   LEFT JOIN Category as catParent
+				    //    on cat.ParentId = catParent.Id
+        //    ORDER BY t.Date DESC
+        //    ";
+
+        //}
     }
 }

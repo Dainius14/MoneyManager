@@ -36,6 +36,7 @@ namespace MoneyManager.Web
 
             services.AddScoped<AccountService>();
             services.AddScoped<CategoryService>();
+            services.AddScoped<DashboardService>();
             services.AddScoped<TransactionService>();
             services.AddScoped<CsvTransactionImportService>();
             services.AddScoped<UserService>();
