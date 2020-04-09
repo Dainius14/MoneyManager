@@ -1,0 +1,43 @@
+﻿html > body {
+    background-image: linear-gradient( 109.6deg, rgb(231, 243, 253) 11.2%, rgb(237, 246, 250) 100% );
+}
+
+.ui.main.container {
+    padding-top: 5em;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+.mm-transaction-edit-details > .row:first-child {
+    padding-bottom: 0 !important;
+    padding-top: 1.2em !important;
+}
+
+.mm-transaction-edit-details > .row:first-child label {
+    margin-bottom: 0 !important; 
+}
+
+.mm-login {
+    height: 100%;
+}
+
+.mm-login > .column {
+    align-self: center;
+}

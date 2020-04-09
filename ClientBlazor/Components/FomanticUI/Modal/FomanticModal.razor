@@ -1,0 +1,30 @@
+﻿@inherits FomanticModalBase
+
+
+<div class=@DimmerClassName>
+    @if (IsVisible)
+    {
+        <div class="ui mini modal active visible">
+            <div class="header">
+                @Options!.Header
+            </div>
+
+            <div class="content">
+                @((MarkupString)Options!.Content)
+            </div>
+
+            <div class="actions">
+                <FomanticButton Emphasis=ButtonEmphasisEnum.Negative
+                                OnClick=HandleNoClick>
+                    No
+                </FomanticButton>
+                <FomanticButton Emphasis=ButtonEmphasisEnum.Positive
+                                IsLoading=IsActionLoading
+                                OnClick=HandleYesClick>
+                    Yes
+                </FomanticButton>
+            </div>
+        </div>
+    }
+
+</div>

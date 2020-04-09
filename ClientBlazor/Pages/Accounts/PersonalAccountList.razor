@@ -1,0 +1,55 @@
+﻿@inherits PersonalAccountListBase
+@page "/accounts/personal"
+@attribute [Authorize]
+
+
+<h1 class="ui header">Personal accounts</h1>
+
+<NavLink class="ui primary button"
+         type="button"
+         href="accounts/personal/create">
+    Create new personal account
+</NavLink>
+
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Current balance</th>
+            <th>Last activity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (IsLoading)
+        {
+            <tr>
+                <td colspan="4">
+                    <div class="ui active centered inline loader"></div>
+                </td>
+            </tr>
+        }
+        else
+        {
+            if (PersonalAccountsVms.Count == 0)
+            {
+                <tr>
+                    <td colspan="4">You have no personal accounts! :(</td>
+                </tr>
+            }
+            @foreach (var vm in PersonalAccountsVms)
+            {
+                <tr>
+                    <td>
+                        <NavLink href=@($"accounts/personal/{vm.Account.Id}/edit")>@vm.Account.Name</NavLink>
+                    </td>
+                    <td>@vm.CurrentBalance</td>
+                    <td>N/A</td>
+                    <td>
+                        <span class="ui red text">Delete</span>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

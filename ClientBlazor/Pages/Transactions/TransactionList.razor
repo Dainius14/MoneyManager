@@ -1,0 +1,88 @@
+﻿@inherits TransactionListBase
+@using Models.Domain
+@attribute [Authorize]
+@page "/transactions"
+@attribute [Authorize]
+
+
+<h1 class="ui header">Transactions</h1>
+
+<FomanticButton HtmlElement=ButtonHtmlElementEnum.Anchor
+                Emphasis=ButtonEmphasisEnum.Primary
+                Href="transactions/create">
+    Create a new Transaction
+</FomanticButton>
+
+<FomanticButton HtmlElement=ButtonHtmlElementEnum.Button
+                Emphasis=ButtonEmphasisEnum.Secondary
+                OnClick=HandleRefreshClick>
+    Refresh
+</FomanticButton>
+
+
+
+
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (IsLoading)
+        {
+            <tr>
+                <td colspan="6">
+                    <div class="ui active centered inline loader"></div>
+                </td>
+            </tr>
+        }
+        else
+        {
+            if (Transactions.Count == 0)
+            {
+                <tr>
+                    <td colspan="6">There are no transactions! :(</td>
+                </tr>
+            }
+            @foreach (var t in Transactions)
+            {
+                <tr>
+                    <td>
+                        <NavLink href=@($"transactions/{t.Id}/edit")>
+                        @if (string.IsNullOrEmpty(t.Description))
+                        {
+                            <i>No description</i>
+                        }
+                        else
+                        {
+                            @t.Description
+                        }
+                        </NavLink>
+                    </td>
+                    <td>
+                        <span class="ui text @(GetTransactionAmountColor(t))">
+                            @GetTransactionAmountText(t)
+                        </span>
+                    </td>
+                    <td>@t.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@t.FromAccountName</td>
+                    <td>@t.ToAccountName</td>
+                    <td>@t.CategoryName</td>
+                    <td>
+                        <span style="color: red; cursor: pointer"
+                              @onclick=@(() => HandleRowDelete(t))>
+                            Delete
+                        </span>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

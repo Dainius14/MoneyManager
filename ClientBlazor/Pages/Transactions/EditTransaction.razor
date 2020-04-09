@@ -1,0 +1,153 @@
+﻿@inherits EditTransactionBase
+@page "/transactions/create"
+@page "/transactions/{TransactionId:int}/edit"
+@using MoneyManager.Models.Domain
+@attribute [Authorize]
+
+
+@if (IsNew)
+{
+    <h1 class="ui header">Create a new transaction</h1>
+}
+else
+{
+    <h1 class="ui header">Edit transaction</h1>
+}
+
+<EditForm class="ui form"
+          Model=FormModel
+          OnValidSubmit=HandleValidSubmit
+          Context=editContext>
+
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+    @if (IsLoading)
+    {
+        <div class="ui active inverted dimmer">
+            <div class="ui text loader">Loading</div>
+        </div>
+    }
+
+
+    <div class="field @(IsFormValidString(editContext, () => FormModel.Description))">
+        <label>Description</label>
+        <InputText @bind-Value=FormModel.Description></InputText>
+    </div>
+
+    <div class="field required @(IsFormValidString(editContext, () => FormModel.Description))">
+        <label>Date</label>
+        <InputDate @bind-Value=FormModel.Date></InputDate>
+    </div>
+
+    <div class="ui five column grid compact mm-transaction-edit-details">
+        <div class="row">
+            <div class="column field required">
+                <label>From account</label>
+            </div>
+            <div class="column field required">
+                <label>To account</label>
+            </div>
+            <div class="column field required">
+                <label>Amount</label>
+            </div>
+            <div class="column field required">
+                <label>Currency</label>
+            </div>
+            <div class="column field">
+                <label>Category</label>
+            </div>
+        </div>
+        @for (int i = 0; i < FormModel.TransactionDetails.Count; i++)
+        {
+            var detail = FormModel.TransactionDetails[i];
+
+            <div class="row">
+                <div class="column">
+                    @if (i == 0)
+                    {
+                        <FomanticDropdown PlaceholderText="From account"
+                                          TItem=Account
+                                          SearchFunction=SuggestFromAccount
+                                          @bind-SelectedItem=detail.FromAccount
+                                          IsClearable=true>
+                            <SelectedItemTemplate>
+                                @context.Name
+                            </SelectedItemTemplate>
+                            <ResultItemTemplate>
+                                @context.Name <i style="color: darkgray">@(context.IsPersonal ? "Personal" : "Nonpersonal")</i>
+                            </ResultItemTemplate>
+                        </FomanticDropdown>
+                    }
+                    else
+                    {
+                        <input disabled value=@FormModel.TransactionDetails.FirstOrDefault()?.FromAccount?.Name />
+                    }
+                </div>
+
+
+                <div class="column">
+                    <FomanticDropdown PlaceholderText="To account"
+                                      TItem=Account
+                                      SearchFunction=SuggestToAccount
+                                      @bind-SelectedItem=detail.ToAccount
+                                      IsClearable=true>
+                        <SelectedItemTemplate>
+                            @context.Name
+                        </SelectedItemTemplate>
+                        <ResultItemTemplate>
+                            @context.Name <i style="color: darkgray">@(context.IsPersonal ? "Personal" : "Nonpersonal")</i>
+                        </ResultItemTemplate>
+                    </FomanticDropdown>
+                </div>
+
+                <div class="column">
+                    <div class="field">
+                        <InputNumber @bind-Value=detail.Amount
+                                     PlaceholderText="Amount" />
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="field">
+                        @*<FomanticDropdown @bind-SelectedItem=detail.Currency
+                                          TItem=Currency
+                                          GivenItems=Store.State.CurrencyState.Currencies
+                                          PlaceholderText="Currency"
+                                          IsClearable=true>
+                            <SelectedItemTemplate>
+                                @context.Name
+                            </SelectedItemTemplate>
+                        </FomanticDropdown>*@
+                        Euros
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="field">
+                        <FomanticDropdown @bind-SelectedItem=detail.Category
+                                          TItem=Category
+                                          SearchFunction=SuggestCategory
+                                          PlaceholderText="Category">
+                            <SelectedItemTemplate>
+                                @context.Name
+                            </SelectedItemTemplate>
+                        </FomanticDropdown>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="row">
+            <FomanticButton OnClick=AddDetailsRow>
+                Add new row
+            </FomanticButton>
+
+            <FomanticButton HtmlType=ButtonHtmlTypeEnum.Submit
+                            Emphasis=ButtonEmphasisEnum.Primary
+                            IsLoading=IsSaving>
+                @(IsNew ? "Create" : "Save")
+            </FomanticButton>
+
+        </div>
+    </div>
+</EditForm>
