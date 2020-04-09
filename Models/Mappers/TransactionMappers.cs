@@ -16,6 +16,8 @@ namespace MoneyManager.Models.Mappers
                 Description = transaction.Description,
                 CreatedAt = transaction.CreatedAt.ToISOString(),
                 UpdatedAt= transaction.UpdatedAt?.ToISOString(),
+                Type = transaction.Type,
+                Amount = transaction.Amount,
                 TransactionDetails = transaction.TransactionDetails.Select(td => td.ToGetTransactionDetailsDTO()),
             };
         }

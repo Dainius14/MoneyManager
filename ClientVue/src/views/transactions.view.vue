@@ -23,7 +23,9 @@
             {{ item.transactionDetails.map(td => td.category && td.category.name ).join(', ') }}
         </template>
         <template #item.amount="{ item }">
-            {{ item | getTransactionSign }} {{ item.transactionDetails.reduce((sum, td) => sum + td.amount, 0) | currency }}
+            <span :class="item.type">
+                {{ item | transactionSign }} {{ item.amount | currency }}
+            </span>
         </template>
 
         <template #edit-dialog-content="item">
@@ -42,7 +44,7 @@ import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
 import { EditDialogField } from '@/components/list/list.component';
 import { TransactionsModule } from '@/store/modules/transactions-module.store';
-import { Transaction } from '../models/transaction.model';
+import { Transaction, TransactionType } from '../models/transaction.model';
 import CreateTransaction from '@/components/create-transaction.component.vue';
 
 @Component({
@@ -51,11 +53,11 @@ import CreateTransaction from '@/components/create-transaction.component.vue';
         CreateTransaction
     },
     filters: {
-        getTransactionSign(transaction: Transaction) {
-            if (transaction.transactionDetails[0].toAccount!.isPersonal) {
-                return '';
+        transactionSign(transaction: Transaction) {
+            if (transaction.type === TransactionType.Expense) {
+                return '-';
             }
-            return '-';
+            return '';
         },
     }
 })
@@ -182,3 +184,16 @@ export default class CategoriesView extends Vue {
 
 }
 </script>
+
+<style scoped>
+    .expense {
+        color: darkred;
+    }
+    .income {
+        color: green;
+    }
+    .transfer {
+        color: darkblue;
+    }
+    
+</style>

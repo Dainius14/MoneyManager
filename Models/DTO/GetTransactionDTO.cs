@@ -9,6 +9,7 @@ namespace MoneyManager.Models.DTO
         public string Date { get; set; } = null!;
         public string? Description { get; set; }
         public double Amount { get; set; }
+        public string Type { get; set; } = null!;
         public string CreatedAt { get; set; } = null!;
         public string? UpdatedAt { get; set; }
         public IEnumerable<GetTransactionDetailsDTO> TransactionDetails { get; set; } = null!;

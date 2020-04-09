@@ -50,8 +50,6 @@ namespace MoneyManager.Core.Services
                 createdPersonalAccounts += res.Item1;
                 createdOtherAccounts += res.Item2;
                 createdCategories += res.Item3;
-
-                if (createdTransactions == 10) break;
             }
             return new ImportResults(createdTransactions, createdPersonalAccounts, createdOtherAccounts, createdCategories);
         }

@@ -1,6 +1,6 @@
 import { Account, GetAccountDto, PostAccountDto } from './account.model';
 import { GetCategoryDto, Category, PostCategoryDto } from './category.model';
-import { GetTransactionDto, Transaction, PostTransactionDto } from './transaction.model';
+import { GetTransactionDto, Transaction, PostTransactionDto, TransactionType } from './transaction.model';
 
 export class AccountMapper {
     static fromGetAccountDto(dto: GetAccountDto): Account {
@@ -49,6 +49,8 @@ export class TransactionMapper {
         transaction.date = dto.date;
         transaction.createdAt = new Date(dto.createdAt);
         transaction.updatedAt = dto.updatedAt ? new Date(dto.updatedAt!) : undefined;
+        transaction.amount = dto.amount;
+        transaction.type = dto.type as TransactionType;
         transaction.transactionDetails = dto.transactionDetails.map(detail => ({
             id: detail.id,
             amount: detail.amount,
@@ -68,7 +70,7 @@ export class TransactionMapper {
                 amount: detail.amount,
                 fromAccount: detail.fromAccount!.id,
                 toAccount: detail.toAccount!.id,
-                category: detail.category?.id ?? null,
+                category: (detail.category && detail.category.id !== -1) ? detail.category.id : null,
             }))
         };
     }

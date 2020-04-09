@@ -5,7 +5,8 @@
         >
             {{ btn.label }}
         </v-btn>
-        <highcharts :options="chartOptions" ref="hcInstance"></highcharts>
+        <highcharts :options="expensesPerCategoryOptions" :ref="refs.expensesPerCategory"></highcharts>
+        <highcharts :options="amountsPerMonthOptions" :ref="refs.amountsPerMonth"></highcharts>
     </div>
 </template>
 
@@ -14,7 +15,7 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import Highcharts, { SeriesPieOptions } from 'highcharts';
 import { Chart } from 'highcharts-vue';
 import { DashboardApi } from '@/services/dashboard.api';
-import { startOfMonth, sub, endOfMonth } from 'date-fns';
+import { startOfMonth, sub, endOfMonth, getMonth, format } from 'date-fns';
 
 @Component({
     components: {
@@ -22,7 +23,12 @@ import { startOfMonth, sub, endOfMonth } from 'date-fns';
     }
 })
 export default class DashboardView extends Vue {
-    chartOptions: Highcharts.Options = {
+    refs = {
+        expensesPerCategory: 'expensesPerCategory',
+        amountsPerMonth: 'amountsPerMonth'
+    };
+
+    expensesPerCategoryOptions: Highcharts.Options = {
         credits: {
             enabled: false
         },
@@ -45,17 +51,39 @@ export default class DashboardView extends Vue {
             } as SeriesPieOptions
         ]
     };
+
+    amountsPerMonthOptions: Highcharts.Options = {
+        credits: {
+            enabled: false
+        },
+        title: {
+            text: 'Expenses and income per month'
+        },
+        plotOptions: {
+            series: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{y:.0f} €'
+                }
+            }
+        },
+        series: [
+            {
+                name: 'Expenses',
+                type: 'column',
+                color: 'darkred'
+            },
+            {
+                name: 'Income',
+                type: 'column',
+                color: 'darkgreen'
+            },
+        ]
+    };
+
     hcInstance: any = {};
 
     buttons: any = [];
-
-    data: any = {};
-
-    @Watch('data')
-    onDataChanged() {
-        const chart = this.getChart(this.$refs.hcInstance);
-        chart.series[0].setData(this.data, true);
-    }
 
     async created() {
         this.createButtons();
@@ -63,7 +91,10 @@ export default class DashboardView extends Vue {
     }
 
     async mounted() {
-        this.$nextTick(() => this.getChart(this.$refs.hcInstance).reflow());
+        this.$nextTick(() => {
+            this.getChart(this.refs.expensesPerCategory).reflow();
+            this.getChart(this.refs.amountsPerMonth).reflow();
+        });
     }
 
     private createButtons() {
@@ -80,14 +111,28 @@ export default class DashboardView extends Vue {
     }
 
     private async getNewData(from: Date, to: Date) {
-        const receivedData = await DashboardApi.getData(from, to);
-        this.data = receivedData.amountsPerCategory
+        const data = await DashboardApi.getData(from, to);
+
+        const expensesPerCategory = data.expensesPerCategory
             .filter(x => x.amount !== 0)
             .map(x => ({ name: x.category?.name ?? 'n/a', y: x.amount }));
+        this.getChart(this.refs.expensesPerCategory).series[0].setData(expensesPerCategory);
+
+
+        const amountsPerMonth = ['expenses', 'income'].map(seriesName => 
+            data.amountsPerMonth.map(x => (x as any)[seriesName])
+        );
+        this.getChart(this.refs.amountsPerMonth).xAxis[0].setCategories(
+            data.amountsPerMonth.map(x => format(new Date(x.month), 'MMMM'))
+        );
+        this.getChart(this.refs.amountsPerMonth).series[0].setData(amountsPerMonth[0]);
+        this.getChart(this.refs.amountsPerMonth).series[1].setData(amountsPerMonth[1]);
     }
 
-    private getChart(ref: any): Highcharts.Chart {
-        return ref.chart as Highcharts.Chart;
+    private getChart(chartName: string): Highcharts.Chart {
+        return (this.$refs[chartName] as any).chart as Highcharts.Chart;
     }
+
+
 }
 </script>

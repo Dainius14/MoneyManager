@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace MoneyManager.Models.Domain
 {
-    public class TransactionDetails : IAudited
+    public class TransactionDetails
     {
         [Column]
         public int? Id { get; set; }
@@ -19,11 +19,7 @@ namespace MoneyManager.Models.Domain
         public int ToAccountId { get; set; }
         [Column]
         public int? CategoryId { get; set; }
-        [Column]
-        public DateTime CreatedAt { get; set; }
 
-        [Column]
-        public DateTime? UpdatedAt { get; set; }
 
         public Transaction Transaction { get; set; } = null!;
         public Account FromAccount { get; set; } = new Account();

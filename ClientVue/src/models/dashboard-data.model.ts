@@ -1,5 +1,6 @@
 import { Category } from './category.model';
 
 export class DashboardData {
-    amountsPerCategory: { amount: number; category: Category }[] = [];
+    expensesPerCategory: { amount: number; category: Category }[] = [];
+    amountsPerMonth: { expenses: number; income: number; month: string }[] = [];
 }

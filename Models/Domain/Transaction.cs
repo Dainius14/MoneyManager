@@ -17,9 +17,10 @@ namespace MoneyManager.Models.Domain
         public DateTime CreatedAt { get; set; }
         [Column]
         public DateTime? UpdatedAt { get; set; }
-
         [Column]
         public int UserId { get; set; }
+        [Column]
+        public string Type { get; set; } = null!;
 
         public User User { get; set; } = null!;
 
@@ -28,61 +29,16 @@ namespace MoneyManager.Models.Domain
             get => TransactionDetails.Sum(td => td.Amount);
         }
 
-        public string AmountStr => string.Format("{0:0.00}", Amount);
-
-        public string FromAccountName =>
-            TransactionDetails.FirstOrDefault()?.FromAccount?.Name ?? string.Empty;
-
-        public string ToAccountName =>
-            string.Join(", ", TransactionDetails.Select(td => td.ToAccount.Name));
-
-        public string CategoryName =>
-            string.Join(", ", TransactionDetails.Select(td => td.Category?.Name).Where(c => !string.IsNullOrEmpty(c)));
-
         public IList<TransactionDetails> TransactionDetails { get; set; } = new List<TransactionDetails>()
         {
             new TransactionDetails()
         };
-
-        public TransactionTypeEnum? TransactionType
-        {
-            get
-            {
-                bool? isFromPersonal = TransactionDetails.FirstOrDefault()?.FromAccount?.IsPersonal;
-                bool? isToPersonal = TransactionDetails.FirstOrDefault()?.ToAccount?.IsPersonal;
-
-                if (isFromPersonal == null || isToPersonal == null)
-                {
-                    return null;
-                }
-                else if ((bool)!isToPersonal)
-                {
-                    return TransactionTypeEnum.Expense;
-                }
-                else if ((bool)!isFromPersonal && (bool)isToPersonal)
-                {
-                    return TransactionTypeEnum.Income;
-                }
-                else if ((bool)isFromPersonal && (bool)isToPersonal)
-                {
-                    return TransactionTypeEnum.Transfer;
-                }
-                else
-                {
-                    return TransactionTypeEnum.Invalid;
-                }
-            }
-        }
-
-
     }
-
-    public enum TransactionTypeEnum
+    public class TransactionType
     {
-        Income,
-        Expense,
-        Transfer,
-        Invalid
+        public const string Expense = "expense";
+        public const string Income = "income";
+        public const string Transfer = "transfer";
     }
 
 }

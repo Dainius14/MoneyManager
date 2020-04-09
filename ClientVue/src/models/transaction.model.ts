@@ -1,6 +1,13 @@
 import { Account, GetAccountDto } from './account.model';
 import { Category, GetCategoryDto } from './category.model';
 
+export enum TransactionType {
+    Expense = 'expense',
+    Income = 'income',
+    Transfer = 'transfer',
+    Null = 'null',
+}
+
 export class TransactionDetails {
     id: number = -1;
     amount: number = 0;
@@ -13,6 +20,8 @@ export class Transaction {
     id: number = -1;
     description: string = '';
     date: string = '';
+    amount: number = 0;
+    type: TransactionType = TransactionType.Null;
     transactionDetails: TransactionDetails[] = [new TransactionDetails()];
     createdAt: Date = new Date();
     updatedAt?: Date;
@@ -24,6 +33,8 @@ export interface GetTransactionDto {
     date: string;
     createdAt: Date;
     updatedAt?: Date;
+    type: string;
+    amount: number;
 
     transactionDetails: {
         id: number;

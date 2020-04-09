@@ -28,25 +28,27 @@ namespace MoneyManager.Core.Services
 
         public async Task<Transaction> CreateAsync(Transaction transaction)
         {
-            
+
             try
             {
+                var fromAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].FromAccountId);
+                var toAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].ToAccountId);
                 DateTime createdAt = DateTime.UtcNow;
 
+                transaction.Type = GetTransactionType(fromAccount, toAccount);
                 transaction.CreatedAt = createdAt;
                 transaction.UserId = _currentUserId;
                 transaction.Id = await _uow.TransactionRepo.InsertAsync(transaction);
 
                 transaction.TransactionDetails = await Task.WhenAll(transaction.TransactionDetails.Select(async (transactionDetail) =>
                 {
-                    transactionDetail.CreatedAt = createdAt;
                     transactionDetail.TransactionId = (int)transaction.Id;
-                    var detailId = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);
-                    return await _uow.TransactionDetailsRepo.GetAsync(detailId);
+                    transactionDetail.Id = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);
+                    return transactionDetail;
                 }));
 
                 _uow.Commit();
-                return transaction;
+                return (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId)).First(t => t.Id == transaction.Id);
             }
             catch (Exception ex)
             {
@@ -64,10 +66,14 @@ namespace MoneyManager.Core.Services
             {
                 throw new NotFoundException("Transaction not found");
             }
-            
+
+            var fromAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].FromAccountId);
+            var toAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].ToAccountId);
+
             existingTransaction.UpdatedAt = DateTime.UtcNow;
             existingTransaction.Description = transaction.Description;
             existingTransaction.Date = transaction.Date;
+            existingTransaction.Type = GetTransactionType(fromAccount, toAccount);
             existingTransaction.TransactionDetails[0].Amount = transaction.TransactionDetails[0].Amount;
             existingTransaction.TransactionDetails[0].FromAccountId = transaction.TransactionDetails[0].FromAccountId;
             existingTransaction.TransactionDetails[0].ToAccountId = transaction.TransactionDetails[0].ToAccountId;
@@ -134,5 +140,28 @@ namespace MoneyManager.Core.Services
                 throw new Exception($"An error occurred when deleting the transaction: {ex.Message}");
             }
         }
+
+
+
+        private string GetTransactionType(Account fromAccount, Account toAccount)
+        {
+            bool isFromPersonal = fromAccount.IsPersonal;
+            bool isToPersonal = toAccount.IsPersonal;
+
+            if (isFromPersonal && !isToPersonal)
+            {
+                return TransactionType.Expense;
+            }
+            else if (!isFromPersonal && isToPersonal)
+            {
+                return TransactionType.Income;
+            }
+            else if (isFromPersonal && isToPersonal)
+            {
+                return TransactionType.Transfer;
+            }
+            throw new Exception($"Invalid transaction type");
+        }
+
     }
 }

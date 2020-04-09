@@ -6,6 +6,38 @@
             :value="date"
             @update:value="onDateChanged"
         ></date-picker>
+
+        <v-autocomplete
+            class="required"
+            v-model="fromAccount"
+            :items="accountItems"
+            :loading="isLoadingAccounts"
+            :search-input.sync="fromAccountSearchTerm"
+            item-text="name"
+            item-value="id"
+            label="From account"
+            return-object
+            clearable
+            @change="onFormChanged"
+            prepend-inner-icon="mdi-account-arrow-right"
+        ></v-autocomplete>
+
+        <v-autocomplete
+            class="required"
+            v-model="toAccount"
+            :items="accountItems"
+            :loading="isLoadingAccounts"
+            :search-input.sync="toAccountSearchTerm"
+            item-text="name"
+            item-value="id"
+            label="To account"
+            return-object
+            clearable
+            @change="onFormChanged"
+            prepend-inner-icon="mdi-account-arrow-left"
+        ></v-autocomplete>
+
+        <p class="font-weight-light" style="font-size: 12px">Creating {{ transactionType }} transaction.</p>
         
         <v-text-field
             class="required"
@@ -20,37 +52,6 @@
         ></v-text-field>
 
         <v-autocomplete
-            class="required"
-            v-model="fromAccount"
-            :items="fromAccountItems"
-            :loading="isLoadingAccounts"
-            :search-input.sync="fromAccountSearchTerm"
-            item-text="name"
-            item-value="id"
-            label="From account"
-            no-filter
-            return-object
-            hide-no-data
-            @change="onFormChanged"
-            prepend-inner-icon="mdi-account-arrow-right"
-        ></v-autocomplete>
-
-        <v-autocomplete
-            class="required"
-            v-model="toAccount"
-            :items="toAccountItems"
-            :loading="isLoadingAccounts"
-            :search-input.sync="toAccountSearchTerm"
-            item-text="name"
-            item-value="id"
-            label="To account"
-            no-filter
-            return-object
-            @change="onFormChanged"
-            prepend-inner-icon="mdi-account-arrow-left"
-        ></v-autocomplete>
-
-        <v-autocomplete
             v-model="category"
             :items="categories"
             :loading="isLoadingCategories"
@@ -60,6 +61,7 @@
             item-value="id"
             label="Category"
             return-object
+            clearable
             @change="onFormChanged"
             prepend-inner-icon="mdi-format-list-bulleted-square"
         ></v-autocomplete>
@@ -104,57 +106,26 @@ export default class CreateTransactionComponent extends Vue {
         return AccountsModule;
     }
 
-    get fromAccountItems() {
-        let items: any[];
-        if (this.toAccount?.id === -1) {
-            items = [
-                { header: 'My accounts' },
-                ...AccountsModule.personalAccounts,
-                { header: 'Other accounts' },
-                ...AccountsModule.otherAccounts,
-            ];
-        }
-        else if (this.toAccount?.isPersonal) {
-            items = [    
-                { header: 'Other accounts' },
-                ...AccountsModule.otherAccounts
-            ];
-        }
-        else {
-            items = [
-                { header: 'My accounts' },
-                ...AccountsModule.personalAccounts
-            ];
-        }
-        return items;
-        // return items.filter((item: Account & { header: string }) =>
-        //     item.header || !this.fromAccountSearchTerm
-        //     || item.name.toLowerCase().includes(this.fromAccountSearchTerm)
-        // );
+    get accountItems() {
+        return [
+            { header: 'My accounts' },
+            ...AccountsModule.personalAccounts,
+            { header: 'Other accounts' },
+            ...AccountsModule.otherAccounts,
+        ];
     }
 
-    get toAccountItems() {
-        let items: any[];
-        if (this.fromAccount?.id === -1 || this.fromAccount?.isPersonal) {
-            items = [
-                { header: 'Other accounts' },
-                ...AccountsModule.otherAccounts,
-                { header: 'My accounts' },
-                ...AccountsModule.personalAccounts,
-            ];
+    get transactionType() {
+        if (this.fromAccount?.isPersonal && this.toAccount?.isPersonal) {
+            return 'a transfer';
         }
-        else {
-            items = [
-                { header: 'My accounts' },
-                ...AccountsModule.personalAccounts,
-            ];
+        else if (this.fromAccount?.isPersonal && !this.toAccount?.isPersonal) {
+            return 'an expense';
         }
-        
-        return items;
-        // return items.filter((item: Account & { header: string }) =>
-        //     item.header || !this.toAccountSearchTerm
-        //     || item.name.toLowerCase().includes(this.toAccountSearchTerm)
-        // );
+        else if (!this.fromAccount?.isPersonal && this.toAccount?.isPersonal) {
+            return 'an income';
+        }
+        return 'an empty';
     }
 
     isLoadingCategories: boolean = false;
