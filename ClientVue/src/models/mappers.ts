@@ -52,6 +52,8 @@ export class TransactionMapper {
         transaction.updatedAt = dto.updatedAt ? new Date(dto.updatedAt!) : undefined;
         transaction.amount = dto.amount;
         transaction.type = dto.type as TransactionType;
+        transaction.fromAccountBalance = dto.fromAccountBalance;
+        transaction.toAccountBalance = dto.toAccountBalance;
         transaction.transactionDetails = dto.transactionDetails.map(detail => ({
             id: detail.id,
             amount: detail.amount,

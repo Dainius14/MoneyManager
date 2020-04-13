@@ -25,6 +25,9 @@ export class Transaction {
     transactionDetails: TransactionDetails[] = [new TransactionDetails()];
     createdAt: Date = new Date();
     updatedAt?: Date;
+
+    fromAccountBalance: number = -1;
+    toAccountBalance: number = -1;
 }
 
 export interface GetTransactionDto {
@@ -35,6 +38,9 @@ export interface GetTransactionDto {
     updatedAt?: Date;
     type: string;
     amount: number;
+
+    fromAccountBalance: number;
+    toAccountBalance: number;
 
     transactionDetails: {
         id: number;

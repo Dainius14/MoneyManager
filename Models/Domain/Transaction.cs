@@ -33,6 +33,13 @@ namespace MoneyManager.Models.Domain
         {
             new TransactionDetails()
         };
+
+
+
+
+
+        public double FromAccountBalance { get; set; }
+        public double ToAccountBalance { get; set; }
     }
     public class TransactionType
     {

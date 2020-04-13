@@ -21,8 +21,16 @@ namespace MoneyManager.Core.Services
 
         public async Task<IEnumerable<Transaction>> ListAsync()
         {
+            var historyEntries = await _uow.BalanceHistoryRepo.GetAllByUserAsync(_currentUserId);
             var transactions = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
-                .Where(t => t.TransactionDetails.FirstOrDefault().FromAccount != null);
+                .OrderByDescending(t => t.Date)
+                .ThenByDescending(t => t.CreatedAt);
+            foreach (var t in transactions)
+            {
+                t.FromAccountBalance = historyEntries.First(x => x.TransactionId == t.Id && x.AccountId == t.TransactionDetails[0].FromAccountId).Balance;
+                t.ToAccountBalance = historyEntries.First(x => x.TransactionId == t.Id && x.AccountId == t.TransactionDetails[0].ToAccountId).Balance;
+            }
+
             return transactions;
         }
 
@@ -46,6 +54,10 @@ namespace MoneyManager.Core.Services
                     transactionDetail.Id = await _uow.TransactionDetailsRepo.InsertAsync(transactionDetail);
                     return transactionDetail;
                 }));
+
+                await CreateBalanceHistoryEntryAsync(transaction, fromAccount, toAccount);
+                await UpdateNewerBalanceHistoryEntriesAsync(transaction, fromAccount, toAccount);
+
 
                 _uow.Commit();
                 return (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId)).First(t => t.Id == transaction.Id);
@@ -110,6 +122,12 @@ namespace MoneyManager.Core.Services
             {
                 await _uow.TransactionRepo.UpdateAsync(existingTransaction);
                 await _uow.TransactionDetailsRepo.UpdateAsync(existingTransaction.TransactionDetails[0]);
+
+                await _uow.BalanceHistoryRepo.DeleteByTransaction(id);
+                await CreateBalanceHistoryEntryAsync(transaction, fromAccount, toAccount);
+                await UpdateNewerBalanceHistoryEntriesAsync(existingTransaction, fromAccount, toAccount);
+
+
                 _uow.Commit();
                 var updatedTransaction = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
                     .Where(t => t.Id == id)
@@ -132,7 +150,15 @@ namespace MoneyManager.Core.Services
 
             try
             {
+                // TODO SQL
+                var transaction = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+                    .FirstOrDefault(t => t.Id == id);
+                var fromAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].FromAccountId);
+                var toAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].ToAccountId);
+
+
                 await _uow.TransactionRepo.DeleteAsync(id);
+                await UpdateNewerBalanceHistoryEntriesAsync(existingTransaction, fromAccount, toAccount);
                 _uow.Commit();
             }
             catch (Exception ex)
@@ -163,5 +189,58 @@ namespace MoneyManager.Core.Services
             throw new Exception($"Invalid transaction type");
         }
 
+
+        private async Task UpdateNewerBalanceHistoryEntriesAsync(Transaction transaction, Account fromAccount, Account toAccount)
+        {
+            var newerTransactions = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+                .Where(x => (x.TransactionDetails[0].FromAccountId == fromAccount.Id || x.TransactionDetails[0].ToAccountId == fromAccount.Id
+                || x.TransactionDetails[0].FromAccountId == toAccount.Id || x.TransactionDetails[0].ToAccountId == toAccount.Id)
+                    && x.Date > transaction.Date)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.CreatedAt);
+            foreach (var newerTransction in newerTransactions)
+            {
+                await _uow.BalanceHistoryRepo.DeleteByTransaction((int)newerTransction.Id!);
+            }
+            foreach (var newerTransction in newerTransactions)
+            {
+                await CreateBalanceHistoryEntryAsync(newerTransction, newerTransction.TransactionDetails[0].FromAccount, newerTransction.TransactionDetails[0].ToAccount);
+            }
+        }
+
+        private async Task CreateBalanceHistoryEntryAsync(Transaction transaction, Account fromAccount, Account toAccount)
+        {
+            var historyEntries = await _uow.BalanceHistoryRepo.GetAllByUserAsync(_currentUserId);
+            var fromAccountHistoryEntry = historyEntries
+                .Where(x => x.AccountId == fromAccount.Id && x.Transaction.Date <= transaction.Date)
+                .OrderBy(x => x.Transaction.Date)
+                .ThenBy(x => x.Transaction.CreatedAt)
+                .FirstOrDefault();
+            var fromAccountLatestBalance = fromAccountHistoryEntry?.Balance ?? fromAccount.OpeningBalance;
+
+            var toAccountHistoryEntry = historyEntries
+                .Where(x => x.AccountId == toAccount.Id && x.Transaction.Date <= transaction.Date)
+                .OrderBy(x => x.Transaction.Date)
+                .ThenBy(x => x.Transaction.CreatedAt)
+                .FirstOrDefault();
+            var toAccountLatestBalance = toAccountHistoryEntry?.Balance ?? toAccount.OpeningBalance;
+
+
+            var fromAccountBalance = new BalanceHistory
+            {
+                TransactionId = (int)transaction.Id!,
+                AccountId = (int)fromAccount.Id!,
+                Balance = fromAccountLatestBalance - transaction.Amount
+            };
+            var toAccountBalance = new BalanceHistory
+            {
+                TransactionId = (int)transaction.Id!,
+                AccountId = (int)toAccount.Id!,
+                Balance = toAccountLatestBalance + transaction.Amount
+            };
+
+            await _uow.BalanceHistoryRepo.InsertAsync(fromAccountBalance);
+            await _uow.BalanceHistoryRepo.InsertAsync(toAccountBalance);
+        }
     }
 }

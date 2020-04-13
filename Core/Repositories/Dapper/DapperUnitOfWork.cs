@@ -11,6 +11,7 @@ namespace MoneyManager.Core.Repositories
     public interface IUnitOfWork
     {
         public IAccountRepository AccountRepo { get; }
+        public IBalanceHistoryRepository BalanceHistoryRepo { get; }
         public ICategoryRepository CategoryRepo { get; }
         public IRefreshTokenRepository RefreshTokenRepo { get; }
         public ITransactionRepository TransactionRepo { get; }
@@ -31,10 +32,14 @@ namespace MoneyManager.Core.Repositories
         public IAccountRepository AccountRepo =>
             _accountRepo ?? (_accountRepo = new DapperAccountRepository(Transaction));
 
+        private IBalanceHistoryRepository? _balanceHistoryRepo;
+        public IBalanceHistoryRepository BalanceHistoryRepo =>
+            _balanceHistoryRepo ?? (_balanceHistoryRepo = new DapperBalanceHistoryRepository(Transaction));
+
         private ICategoryRepository? _categoryRepo;
         public ICategoryRepository CategoryRepo =>
             _categoryRepo ?? (_categoryRepo = new DapperCategoryRepository(Transaction));
-       
+
         private IRefreshTokenRepository? _refreshTokenRepo;
         public IRefreshTokenRepository RefreshTokenRepo =>
             _refreshTokenRepo ?? (_refreshTokenRepo = new DapperRefreshTokenRepository(Transaction));

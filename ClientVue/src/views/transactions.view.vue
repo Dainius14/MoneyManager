@@ -15,10 +15,10 @@
         v-bind:showEditDialog.sync="showEditDialog"
     >
         <template #item.fromAccount="{ item }">
-            {{ item.transactionDetails[0].fromAccount.name }}
+            {{ item.transactionDetails[0].fromAccount.name }} ({{ item.fromAccountBalance | currency }})
         </template>
         <template #item.toAccount="{ item }">
-            {{ item.transactionDetails[0].toAccount.name }}
+            {{ item.transactionDetails[0].toAccount.name }} ({{ item.toAccountBalance | currency }})
         </template>
         <template #item.category="{ item }">
             {{ item.transactionDetails.map(td => td.category && td.category.name ).join(', ') }}

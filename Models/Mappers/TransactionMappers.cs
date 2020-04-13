@@ -19,6 +19,9 @@ namespace MoneyManager.Models.Mappers
                 Type = transaction.Type,
                 Amount = transaction.Amount,
                 TransactionDetails = transaction.TransactionDetails.Select(td => td.ToGetTransactionDetailsDTO()),
+                
+                FromAccountBalance = transaction.FromAccountBalance,
+                ToAccountBalance = transaction.ToAccountBalance
             };
         }
 

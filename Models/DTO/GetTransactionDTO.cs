@@ -13,5 +13,9 @@ namespace MoneyManager.Models.DTO
         public string CreatedAt { get; set; } = null!;
         public string? UpdatedAt { get; set; }
         public IEnumerable<GetTransactionDetailsDTO> TransactionDetails { get; set; } = null!;
+        
+
+        public double FromAccountBalance { get; set; }
+        public double ToAccountBalance { get; set; }
     }
 }
