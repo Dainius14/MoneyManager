@@ -47,6 +47,8 @@ namespace MoneyManager.Web
 
             var appSetingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSetingsSection);
+
+            var secret = Encoding.ASCII.GetBytes(Configuration["App:Secret"]);
 ;
             services.AddAuthentication(options =>
             {
@@ -90,7 +92,7 @@ namespace MoneyManager.Web
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["App:Secret"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(secret),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = true,

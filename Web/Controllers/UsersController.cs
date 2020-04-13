@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MoneyManager.Core.Services;
@@ -21,13 +22,13 @@ namespace MoneyManager.Web.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private UserService _userService;
-        private readonly AppSettings _appSettings;
+        private readonly UserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(UserService userService, IOptions<AppSettings> appSettings)
+        public UsersController(UserService userService, IConfiguration configuration)
         {
             _userService = userService;
-            _appSettings = appSettings.Value;
+            _configuration = configuration;
         }
 
         [AllowAnonymous]
@@ -53,7 +54,7 @@ namespace MoneyManager.Web.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email)
             };
-            string accessToken = AuthHelper.GenerateAccessToken(claims, _appSettings.Secret);
+            string accessToken = AuthHelper.GenerateAccessToken(claims, _configuration["App:Secret"]);
             string refreshToken = AuthHelper.GenerateRefreshToken();
 
             await _userService.SaveRefreshToken((int)user.Id!, refreshToken);
@@ -76,7 +77,7 @@ namespace MoneyManager.Web.Controllers
                     new Claim(ClaimTypes.NameIdentifier, createdUser.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email)
                 };
-                string accessToken = AuthHelper.GenerateAccessToken(claims, _appSettings.Secret);
+                string accessToken = AuthHelper.GenerateAccessToken(claims, _configuration["App:Secret"]);
                 string refreshToken = AuthHelper.GenerateRefreshToken();
 
                 await _userService.SaveRefreshToken((int)createdUser.Id!, refreshToken);
@@ -97,7 +98,7 @@ namespace MoneyManager.Web.Controllers
             ClaimsPrincipal principal;
             try
             {
-                principal = AuthHelper.GetPrincipalFromExpiredToken(dto.AccessToken, _appSettings.Secret);
+                principal = AuthHelper.GetPrincipalFromExpiredToken(dto.AccessToken, _configuration["App:Secret"]);
             }
             catch (SecurityTokenException)
             {
@@ -110,7 +111,7 @@ namespace MoneyManager.Web.Controllers
                 return Unauthorized(new { Message = "Invalid refresh token" });
             }
 
-            var newAccessToken = AuthHelper.GenerateAccessToken(principal.Claims, _appSettings.Secret);
+            var newAccessToken = AuthHelper.GenerateAccessToken(principal.Claims, _configuration["App:Secret"]);
             var newRefreshToken = AuthHelper.GenerateRefreshToken();
 
             var userId = Convert.ToInt32(principal.FindFirst(ClaimTypes.NameIdentifier).Value);
