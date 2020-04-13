@@ -8,6 +8,18 @@ using System.Data.SqlClient;
 
 namespace MoneyManager.Core.Repositories
 {
+    public interface IUnitOfWork
+    {
+        public IAccountRepository AccountRepo { get; }
+        public ICategoryRepository CategoryRepo { get; }
+        public IRefreshTokenRepository RefreshTokenRepo { get; }
+        public ITransactionRepository TransactionRepo { get; }
+        public ITransactionDetailsRepository TransactionDetailsRepo { get; }
+        public IUserRepository UserRepo { get; }
+
+        public void Commit();
+    }
+
     public class DapperUnitOfWork : IUnitOfWork, IDisposable
     {
         private IOptions<DapperDbContext> _dbContext;

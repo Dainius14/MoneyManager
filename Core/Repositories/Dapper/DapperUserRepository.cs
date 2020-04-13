@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Core.Repositories.Dapper
 {
+    public interface IUserRepository : IGenericRepository<User>
+    {
+        Task<User> GetByEmailAsync(string email);
+    }
+
     public class DapperUserRepository : DapperGenericRepository<User>, IUserRepository
     {
         public DapperUserRepository(IDbTransaction transaction)

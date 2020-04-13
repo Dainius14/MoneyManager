@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Core.Repositories.Dapper
 {
+    public interface ITransactionRepository : IGenericRepository<Transaction>
+    {
+    }
+
     public class DapperTransactionRepository : DapperGenericRepository<Transaction>, ITransactionRepository
     {
         public DapperTransactionRepository(IDbTransaction transaction)

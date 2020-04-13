@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Core.Repositories.Dapper
 {
+    public interface IRefreshTokenRepository : IGenericRepository<RefreshToken>
+    {
+        Task<RefreshToken> GetAsync(string refreshToken);
+    }
+
     public class DapperRefreshTokenRepository : DapperGenericRepository<RefreshToken>, IRefreshTokenRepository
     {
         public DapperRefreshTokenRepository(IDbTransaction transaction)
