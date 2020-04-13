@@ -15,9 +15,10 @@
                 :label="label"
                 prepend-inner-icon="mdi-calendar"
                 v-on="on"
+                @keydown.tab="isOpen = false"
             ></v-text-field>
         </template>
-        <v-date-picker :value="value" @input="onValueUpdated" no-title scrollable>
+        <v-date-picker :value="value" @input="onValueUpdated" no-title scrollable first-day-of-week="1">
             <v-spacer></v-spacer>
             <v-btn text color="primary" @click="isOpen = false">Close</v-btn>
             <!-- <v-btn text color="primary" @click="$refs.menu.save(date)">OK</v-btn> -->
@@ -43,6 +44,10 @@ export default class DatePickerComponent extends Vue {
 
     onValueUpdated(value: string) {
         this.$emit('update:value', value);
+    }
+
+    a(e: any) {
+        console.log(e)
     }
 }
 </script>

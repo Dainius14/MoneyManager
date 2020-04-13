@@ -1,6 +1,4 @@
 <template>
-<div>
-        <v-btn @click="deleteAll">Delete all</v-btn>
     <list
         title="Categories"
         :headers="headers"
@@ -13,7 +11,6 @@
         v-bind:showEditDialog.sync="showEditDialog"
     >
     </list>
-    </div>
 </template>
 
 <script lang="ts">

@@ -9,6 +9,8 @@
         <v-btn
             @click="onUploadButtonClicked"
             color="primary"
+            :disabled="file.size === 0"
+            :loading="isUploading"
         >
             <v-icon left>mdi-file-upload</v-icon> Upload
         </v-btn>
@@ -32,13 +34,17 @@ import { ImportTransactionsResults } from '@/models/import-transactions-results.
 
 @Component({})
 export default class ImportTransactionsView extends Vue {
+    isUploading: boolean = false;
     file: File = new File([], '');
     importComplete = false;
     importResults: ImportTransactionsResults = {} as any;
 
     async onUploadButtonClicked() {
+        this.isUploading = true;
         this.importResults = await TransactionsApi.uploadFile(this.file);
         this.importComplete = true;
+        this.isUploading = false;
+        this.file = new File([], '');
     }
 }
 </script>

@@ -22,7 +22,8 @@ namespace MoneyManager.Core.Services
         public async Task<IEnumerable<Transaction>> ListAsync()
         {
             var transactions = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
-                .Where(t => t.TransactionDetails.FirstOrDefault().FromAccount != null);
+                .OrderByDescending(t => t.Date)
+                .OrderByDescending(t => t.CreatedAt);
             return transactions;
         }
 

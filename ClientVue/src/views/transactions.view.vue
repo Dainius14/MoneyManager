@@ -1,6 +1,4 @@
 <template>
-<div>
-        <v-btn @click="deleteAll">Delete all</v-btn>
     <list
         title="Transactions"
         :headers="headers"
@@ -38,7 +36,6 @@
             ></create-transaction>
         </template>
     </list>
-    </div>
 </template>
 
 <script lang="ts">

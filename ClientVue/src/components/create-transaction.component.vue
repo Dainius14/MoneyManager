@@ -18,7 +18,7 @@
                 ></time-picker>
             </v-col>
         </v-row>
-        
+
         <v-autocomplete
             class="required"
             v-model="fromAccount"
@@ -71,7 +71,7 @@
             :items="categories"
             :loading="isLoadingCategories"
             :search-input.sync="categorySearchTerm"
-            hide-no-data
+            auto-select-first
             item-text="name"
             item-value="id"
             label="Category"

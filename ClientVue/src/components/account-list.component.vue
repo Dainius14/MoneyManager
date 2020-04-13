@@ -1,6 +1,4 @@
 <template>
-<div>
-        <v-btn @click="deleteAll">Delete all</v-btn>
     <list
         :title="title"
         :headers="headers"
@@ -16,7 +14,6 @@
             {{ item.currentBalance | currency }}
         </template>
     </list>
-    </div>
 </template>
 
 <script lang="ts">

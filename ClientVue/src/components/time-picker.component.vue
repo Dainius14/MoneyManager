@@ -16,6 +16,7 @@
                 :label="label"
                 prepend-inner-icon="mdi-clock"
                 v-on="on"
+                @keydown.tab="isOpen = false"
             ></v-text-field>
         </template>
         <v-time-picker
