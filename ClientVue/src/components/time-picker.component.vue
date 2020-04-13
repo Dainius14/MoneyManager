@@ -6,6 +6,7 @@
         transition="scale-transition"
         offset-y
         min-width="290px"
+        @input="value => value && $refs.picker && ($refs.picker.selectingHour = true)"
     >
         <template v-slot:activator="{ on }">
             <v-text-field
@@ -18,10 +19,12 @@
             ></v-text-field>
         </template>
         <v-time-picker
+            ref="picker"
             :value="value" @input="onValueUpdated"
             full-width
             format="24hr"
             no-title
+            @change="$refs.menu.save(value)"
         >
             <v-spacer></v-spacer>
             <v-btn text color="primary" @click="isOpen = false">Close</v-btn>

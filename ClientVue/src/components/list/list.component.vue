@@ -27,12 +27,20 @@
                     <create-item-card
                         :title="formTitle"
                         :item="editedItem"
+                        :savingItem="savingItem"
                         @close-clicked="onEditDialogCloseClicked"
                         @save-clicked="onEditDialogSaveClicked"
                     >
                         <slot name="edit-dialog-content" v-bind="editedItem">
                             <div v-for="field in editDialogFields" :key="field.value">
                                 <v-text-field
+                                    v-if="field.type === 'number'"
+                                    :label="field.label"
+                                    v-model.number="editedItem[field.value]"
+                                    type="number"
+                                ></v-text-field>
+                                <v-text-field
+                                    v-else
                                     :label="field.label"
                                     v-model="editedItem[field.value]"
                                 ></v-text-field>

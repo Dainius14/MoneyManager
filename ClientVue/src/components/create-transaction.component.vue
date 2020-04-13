@@ -18,20 +18,22 @@
                 ></time-picker>
             </v-col>
         </v-row>
-
+        
         <v-autocomplete
             class="required"
             v-model="fromAccount"
             :items="accountItems"
             :loading="isLoadingAccounts"
             :search-input.sync="fromAccountSearchTerm"
+            :filter="filterAccount"
+            auto-select-first
+            clearable
             item-text="name"
             item-value="id"
             label="From account"
-            return-object
-            clearable
-            @change="onFormChanged"
             prepend-inner-icon="mdi-account-arrow-right"
+            return-object
+            @change="onFormChanged"
         ></v-autocomplete>
 
         <v-autocomplete
@@ -40,13 +42,15 @@
             :items="accountItems"
             :loading="isLoadingAccounts"
             :search-input.sync="toAccountSearchTerm"
+            :filter="filterAccount"
+            auto-select-first
+            clearable
             item-text="name"
             item-value="id"
             label="To account"
-            return-object
-            clearable
-            @change="onFormChanged"
             prepend-inner-icon="mdi-account-arrow-left"
+            return-object
+            @change="onFormChanged"
         ></v-autocomplete>
 
         <p class="font-weight-light" style="font-size: 12px">Creating {{ transactionType }} transaction.</p>
@@ -58,7 +62,6 @@
             prefix="€"
             type="number"
             v-model="amount"
-            mask="0.00"
             :rules="amountRules"
             @change="onFormChanged"
         ></v-text-field>
@@ -240,6 +243,10 @@ export default class CreateTransactionComponent extends Vue {
         this.toAccount = new Account();
         this.category = new Category();
         this.editedTransaction = new Transaction();
+    }
+
+    filterAccount(item: Account&{ header: string }, queryText: string, itemText: string): boolean {
+        return !!item.header || itemText.toLowerCase().indexOf(queryText.toLowerCase()) !== -1;
     }
 
     onDateChanged(value: string) {

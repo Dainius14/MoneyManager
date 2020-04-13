@@ -94,6 +94,7 @@ export default class AccountList extends Vue {
         {
             label: 'Opening balance',
             value: 'openingBalance',
+            type: 'number'
         },
         {
             label: 'Opening date',

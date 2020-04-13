@@ -8,7 +8,8 @@
         :newItem="newItem"
         :isLoading="isLoading"
         :sortBy="'date'"
-        :sortDesc="true"
+        :savingItem="savingTransaction"
+
         @editDialogSaveClicked="onEditDialogSaveClicked"
         @deleteItemButtonClicked="onDeleteItemButtonClicked($event)"
         v-bind:showEditDialog.sync="showEditDialog"
@@ -49,7 +50,7 @@ import { EditDialogField } from '@/components/list/list.component';
 import { TransactionsModule } from '@/store/modules/transactions-module.store';
 import { Transaction, TransactionType } from '../models/transaction.model';
 import CreateTransaction from '@/components/create-transaction.component.vue';
-import { format } from 'date-fns';
+import { format, isBefore } from 'date-fns';
 
 @Component({
     components: {
@@ -76,6 +77,7 @@ import { format } from 'date-fns';
 })
 export default class CategoriesView extends Vue {
     showEditDialog: boolean = false;
+    savingTransaction: boolean = false;
 
     get transactionsState() {
         return TransactionsModule;
@@ -88,6 +90,7 @@ export default class CategoriesView extends Vue {
             align: 'start',
             sortable: true,
             filterable: false,
+            sort: (a: Date, b: Date) => isBefore(a, b) ? 1 : -1
         },
         {
             text: 'From',
@@ -176,6 +179,7 @@ export default class CategoriesView extends Vue {
     }
 
     async onEditDialogSaveClicked() {
+        this.savingTransaction = true;
         try {
             if (this.editedTransaction.id !== -1) {
                 await TransactionsModule.editTransaction(this.editedTransaction);
@@ -188,13 +192,13 @@ export default class CategoriesView extends Vue {
             ToastService.show(e, { color: 'error' });
             return;
         }
+        this.savingTransaction = false;
         this.showEditDialog = false;
     }
 
     async deleteAll() {
         TransactionsModule.transactions.forEach(async t => await TransactionsModule.removeTransaction(t));
     }
-
 }
 </script>
 

@@ -6,6 +6,7 @@ import CreateItemCard from '@/components/create-item-card.component.vue';
 export interface EditDialogField {
     label: string;
     value: string;
+    type?: string;
     rules?: ((value: string) => (boolean|string))[];
 }
 
@@ -38,8 +39,12 @@ export default class ListComponent extends Vue {
 
     @Prop({ type: String, required: false })
     sortBy?: string;
+    
     @Prop({ type: Boolean, required: false, default: false })
     sortDesc?: boolean;
+    
+    @Prop({ type: Boolean, required: true })
+    savingItem!: boolean;
 
     get formTitle() {
         return this.editedIndex === -1 ? 'New item' : 'Edit item';
