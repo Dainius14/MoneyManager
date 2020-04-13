@@ -19,7 +19,7 @@ export class TransactionDetails {
 export class Transaction {
     id: number = -1;
     description: string = '';
-    date: string = '';
+    date: Date = new Date();
     amount: number = 0;
     type: TransactionType = TransactionType.Null;
     transactionDetails: TransactionDetails[] = [new TransactionDetails()];

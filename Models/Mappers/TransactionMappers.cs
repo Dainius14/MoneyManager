@@ -12,7 +12,7 @@ namespace MoneyManager.Models.Mappers
             return new GetTransactionDTO
             {
                 Id = (int)transaction.Id!,
-                Date = transaction.Date.ToISODateString(),
+                Date = transaction.Date.ToDateTimeString(),
                 Description = transaction.Description,
                 CreatedAt = transaction.CreatedAt.ToISOString(),
                 UpdatedAt= transaction.UpdatedAt?.ToISOString(),

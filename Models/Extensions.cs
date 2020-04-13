@@ -13,5 +13,10 @@ namespace MoneyManager.Models
         {
             return dt.ToString("yyyy-MM-dd");
         }
+
+        public static string ToDateTimeString(this DateTime dt)
+        {
+            return dt.ToString("yyyy-MM-ddTHH:mm");
+        }
     }
 }

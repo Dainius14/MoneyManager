@@ -1,11 +1,23 @@
 <template>
     <div>
-        <date-picker
-            required
-            label="Date"
-            :value="date"
-            @update:value="onDateChanged"
-        ></date-picker>
+        <v-row>
+            <v-col>
+                <date-picker
+                    required
+                    label="Date"
+                    :value="date"
+                    @update:value="onDateChanged"
+                ></date-picker>
+            </v-col>
+            <v-col>
+                <time-picker
+                    required
+                    label="Time"
+                    :value="time"
+                    @update:value="onTimeChanged"
+                ></time-picker>
+            </v-col>
+        </v-row>
 
         <v-autocomplete
             class="required"
@@ -84,12 +96,15 @@ import { Category } from '@/models/category.model';
 import { Account } from '@/models/account.model';
 import { number, positiveNumber } from '@/utils/rules';
 import DatePicker from '@/components/date-picker.component.vue';
+import TimePicker from '@/components/time-picker.component.vue';
 import { toIsoDate } from '../utils/utils';
+import { format } from 'date-fns';
 
 
 @Component({
     components: {
-        DatePicker
+        DatePicker,
+        TimePicker
     }
 })
 export default class CreateTransactionComponent extends Vue {
@@ -132,6 +147,7 @@ export default class CreateTransactionComponent extends Vue {
     isLoadingAccounts: boolean = false;
 
     date: string = '';
+    time: string = '';
     amount: string = '0';
     amountRules = [
         number('Amount must be a number'),
@@ -175,7 +191,7 @@ export default class CreateTransactionComponent extends Vue {
     }
 
     onFormChanged() {
-        this.editedTransaction.date = this.date;
+        this.editedTransaction.date = new Date(this.date + 'T' + this.time);
         this.editedTransaction.description = this.description;
         this.editedTransaction.transactionDetails[0].amount = parseFloat(this.amount);
         this.editedTransaction.transactionDetails[0].fromAccount = this.fromAccount;
@@ -193,7 +209,8 @@ export default class CreateTransactionComponent extends Vue {
         }
         this.editedTransaction.id = transaction.id;
         this.editedTransaction.transactionDetails[0].id = transaction.transactionDetails[0].id;
-        this.date = transaction.date;
+        this.date = format(transaction.date, 'yyyy-MM-dd');
+        this.time = format(transaction.date, 'HH:mm');
         this.description = transaction.description;
         this.amount = transaction.transactionDetails[0].amount.toString() + '';
         this.setCategoryFromStore();
@@ -216,6 +233,7 @@ export default class CreateTransactionComponent extends Vue {
     private resetFields() {
         // TODO when closing new form you can see how fields dissapear
         this.date = toIsoDate(new Date());
+        this.time = '00:00';
         this.amount = '0';
         this.description = '';
         this.fromAccount = new Account();
@@ -226,6 +244,10 @@ export default class CreateTransactionComponent extends Vue {
 
     onDateChanged(value: string) {
         this.date = value;
+        this.onFormChanged();
+    }
+    onTimeChanged(value: string) {
+        this.time = value;
         this.onFormChanged();
     }
 }

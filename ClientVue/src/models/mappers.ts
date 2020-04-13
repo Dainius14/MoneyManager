@@ -1,6 +1,7 @@
 import { Account, GetAccountDto, PostAccountDto } from './account.model';
 import { GetCategoryDto, Category, PostCategoryDto } from './category.model';
 import { GetTransactionDto, Transaction, PostTransactionDto, TransactionType } from './transaction.model';
+import { format } from 'date-fns';
 
 export class AccountMapper {
     static fromGetAccountDto(dto: GetAccountDto): Account {
@@ -46,7 +47,7 @@ export class TransactionMapper {
         const transaction = new Transaction();
         transaction.id = dto.id;
         transaction.description = dto.description;
-        transaction.date = dto.date;
+        transaction.date = new Date(dto.date);
         transaction.createdAt = new Date(dto.createdAt);
         transaction.updatedAt = dto.updatedAt ? new Date(dto.updatedAt!) : undefined;
         transaction.amount = dto.amount;
@@ -63,7 +64,7 @@ export class TransactionMapper {
 
     static toDto(item: Transaction): PostTransactionDto {
         return {
-            date: item.date,
+            date: format(item.date, "yyyy-MM-dd'T'HH:mm"),
             description: item.description,
             transactionDetails: item.transactionDetails.map(detail => ({
                 id: detail.id !== -1 ? detail.id : undefined,

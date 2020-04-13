@@ -27,6 +27,9 @@
                 {{ item | transactionSign }} {{ item.amount | currency }}
             </span>
         </template>
+        <template #item.date="{ item }">
+            {{ item.date | properDate }}
+        </template>
 
         <template #edit-dialog-content="item">
             <create-transaction :transaction="item"
@@ -46,6 +49,7 @@ import { EditDialogField } from '@/components/list/list.component';
 import { TransactionsModule } from '@/store/modules/transactions-module.store';
 import { Transaction, TransactionType } from '../models/transaction.model';
 import CreateTransaction from '@/components/create-transaction.component.vue';
+import { format } from 'date-fns';
 
 @Component({
     components: {
@@ -59,6 +63,15 @@ import CreateTransaction from '@/components/create-transaction.component.vue';
             }
             return '';
         },
+        properDate(date: Date) {
+            const dateStr = format(date, 'yyyy-MM-dd');
+            const timeStr = format(date, 'HH:mm');
+            let str = dateStr;
+            if (timeStr !== '00:00') {
+                str += ' ' + timeStr;
+            }
+            return str;
+        }
     }
 })
 export default class CategoriesView extends Vue {
