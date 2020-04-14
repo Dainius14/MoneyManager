@@ -61,9 +61,9 @@
             prepend-inner-icon="mdi-cash"
             prefix="€"
             type="number"
-            v-model="amount"
+            v-model.number="amount"
             :rules="amountRules"
-            @change="onFormChanged"
+            @input="onFormChanged"
         ></v-text-field>
 
         <v-autocomplete
@@ -151,7 +151,7 @@ export default class CreateTransactionComponent extends Vue {
 
     date: string = '';
     time: string = '';
-    amount: string = '0';
+    amount: number = 0;
     amountRules = [
         number('Amount must be a number'),
         positiveNumber('Amount must be a non-negative number')
@@ -196,10 +196,11 @@ export default class CreateTransactionComponent extends Vue {
     onFormChanged() {
         this.editedTransaction.date = new Date(this.date + 'T' + this.time);
         this.editedTransaction.description = this.description;
-        this.editedTransaction.transactionDetails[0].amount = parseFloat(this.amount);
+        this.editedTransaction.transactionDetails[0].amount = this.amount;
         this.editedTransaction.transactionDetails[0].fromAccount = this.fromAccount;
         this.editedTransaction.transactionDetails[0].toAccount = this.toAccount;
         this.editedTransaction.transactionDetails[0].category = this.category;
+        console.log('update',this.editedTransaction)
         this.$emit('update:editedTransaction', this.editedTransaction);
     }
 
@@ -215,7 +216,7 @@ export default class CreateTransactionComponent extends Vue {
         this.date = format(transaction.date, 'yyyy-MM-dd');
         this.time = format(transaction.date, 'HH:mm');
         this.description = transaction.description;
-        this.amount = transaction.transactionDetails[0].amount.toString() + '';
+        this.amount = transaction.transactionDetails[0].amount;
         this.setCategoryFromStore();
         this.setAccountsFromStore();
         this.onFormChanged();
@@ -237,7 +238,7 @@ export default class CreateTransactionComponent extends Vue {
         // TODO when closing new form you can see how fields dissapear
         this.date = toIsoDate(new Date());
         this.time = '00:00';
-        this.amount = '0';
+        this.amount = 0;
         this.description = '';
         this.fromAccount = new Account();
         this.toAccount = new Account();

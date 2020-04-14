@@ -93,8 +93,8 @@ namespace MoneyManager.Core.Services
                 select new Aggr
                 {
                     Month = tableRow.Month,
-                    Expenses = dataJoin?.Expenses ?? 0,
-                    Income = dataJoin?.Income ?? 0
+                    Expenses = Math.Round(dataJoin?.Expenses ?? 0, 2),
+                    Income = Math.Round(dataJoin?.Income ?? 0, 2)
                 };
                 
 
@@ -115,7 +115,7 @@ namespace MoneyManager.Core.Services
 
             foreach (var transaction in transactions)
             {
-                if (transaction.Date >= fromDate && transaction.Date <= toDate)
+                if (transaction.Type == TransactionType.Expense && transaction.Date >= fromDate && transaction.Date <= toDate)
                 {
                     foreach (var detail in transaction.TransactionDetails)
                     {
@@ -125,13 +125,16 @@ namespace MoneyManager.Core.Services
                             categoryAmounts.Add(categoryId!, 0);
                             categories.Add(categoryId, detail.Category);
                         }
-                        categoryAmounts[categoryId] -= detail.AdjustedAmount;
+                        categoryAmounts[categoryId] += detail.Amount;
                     }
                 }
             }
 
             return categoryAmounts
-                .Select(item => new { Category = categories[item.Key]?.ToGetCategoryDTO(), Amount = item.Value })
+                .Select(item => new {
+                    Category = categories[item.Key]?.ToGetCategoryDTO(),
+                    Amount = Math.Round(item.Value, 2)
+                })
                 .OrderByDescending(item => item.Amount);
         }
     }

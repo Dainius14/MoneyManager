@@ -26,6 +26,7 @@ namespace MoneyManager.Core.Repositories.Dapper
         public Task<int> InsertAsync(T t);
 
         public Task DeleteAsync(int id);
+        public Task<bool> ExistsAsync(int id);
     }
 
     public abstract class DapperGenericRepository<T> : IGenericRepository<T>
@@ -199,8 +200,25 @@ namespace MoneyManager.Core.Repositories.Dapper
         public async Task DeleteAsync(int id)
         {
             await Connection.ExecuteAsync(
-                @$"DELETE FROM ""{TableName}"" WHERE Id=@id",
-                new { id },
+                @$"
+                DELETE
+                FROM ""{TableName}""
+                WHERE UserId=@CurrentUserId AND Id=@id
+                ",
+                new { CurrentUserId, id },
+                Transaction
+            );
+        }
+
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await Connection.ExecuteScalarAsync<bool>(
+                @$"
+                SELECT COUNT(*)
+                FROM ""{TableName}""
+                WHERE UserId=@CurrentUserId AND Id=@id
+                ",
+                new { CurrentUserId, id },
                 Transaction
             );
         }

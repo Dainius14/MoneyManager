@@ -26,7 +26,7 @@ namespace MoneyManager.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var acounts = await _accountService.ListAsyncNew();
+            var acounts = await _accountService.ListAsync();
             var accountDtos = acounts.Select(d => d.ToGetAccountDTO());
             return Ok(accountDtos);
         }

@@ -64,8 +64,7 @@ namespace MoneyManager.Core.Services
 
         public async Task DeleteAsync(int id)
         {
-            var existingCategory = await _uow.CategoryRepo.GetAsync(id);
-            if (existingCategory == null)
+            if (!await _uow.CategoryRepo.ExistsAsync(id))
             {
                 throw new NotFoundException("Category not found");
             }

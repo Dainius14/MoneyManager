@@ -20,7 +20,7 @@ namespace MoneyManager.Core.Services
             _currentUserId = currentUser.Id;
         }
 
-        public async Task<IEnumerable<AccountVm>> ListAsyncNew()
+        public async Task<IEnumerable<AccountVm>> ListAsync()
         {
             var transactions = await _uow.TransactionRepo.GetAllAsync();
             var accounts = await _uow.AccountRepo.GetAllAsync();
@@ -28,7 +28,7 @@ namespace MoneyManager.Core.Services
             {
                 return new AccountVm(account)
                 {
-                    CurrentBalance = GetCurrentBalanceAsync((int)account.Id!, transactions)
+                    CurrentBalance = Math.Round(account.OpeningBalance + GetCurrentBalanceAsync((int)account.Id!, transactions), 2)
                 };
             });
         }
@@ -95,8 +95,7 @@ namespace MoneyManager.Core.Services
 
         public async Task DeleteAsync(int id)
         {
-            var existingAccount = await _uow.AccountRepo.GetAsync(id);
-            if (existingAccount == null)
+            if (!await _uow.AccountRepo.ExistsAsync(id))
             {
                 throw new NotFoundException("Account not found");
             }
@@ -114,9 +113,9 @@ namespace MoneyManager.Core.Services
 
         private double GetCurrentBalanceAsync(int accountId, IEnumerable<Transaction> transactions)
         {
-            return transactions.Aggregate(0.0, (result, transaction) =>
+            return transactions.Aggregate(0d, (result, transaction) =>
             {
-                double transactionSum = transaction.TransactionDetails.Aggregate(0.0, (transactionSum, td) =>
+                double transactionSum = transaction.TransactionDetails.Aggregate(0d, (transactionSum, td) =>
                 {
                     if (td.FromAccount?.Id == accountId)
                     {

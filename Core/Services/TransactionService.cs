@@ -21,10 +21,7 @@ namespace MoneyManager.Core.Services
 
         public async Task<IEnumerable<Transaction>> ListAsync()
         {
-            var transactions = (await _uow.TransactionRepo.GetAllAsync())
-                .OrderByDescending(t => t.Date)
-                .OrderByDescending(t => t.CreatedAt);
-            return transactions;
+            return await _uow.TransactionRepo.GetAllAsync();
         }
 
         public async Task<Transaction> CreateAsync(Transaction transaction)
@@ -60,62 +57,31 @@ namespace MoneyManager.Core.Services
         public async Task<Transaction> UpdateAsync(int id, Transaction transaction)
         {
             // TODO SQL
-            var existingTransaction = (await _uow.TransactionRepo.GetAllAsync())
-                .FirstOrDefault(t => t.Id == id);
+            var existingTransaction = await _uow.TransactionRepo.GetAsync(id);
 
             if (existingTransaction == null)
             {
                 throw new NotFoundException("Transaction not found");
             }
 
-            var fromAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].FromAccountId);
-            var toAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].ToAccountId);
+            var newFromAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].FromAccountId);
+            var newToAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].ToAccountId);
 
             existingTransaction.UpdatedAt = DateTime.UtcNow;
             existingTransaction.Description = transaction.Description;
             existingTransaction.Date = transaction.Date;
-            existingTransaction.Type = GetTransactionType(fromAccount, toAccount);
+            existingTransaction.Type = GetTransactionType(newFromAccount, newToAccount);
             existingTransaction.TransactionDetails[0].Amount = transaction.TransactionDetails[0].Amount;
             existingTransaction.TransactionDetails[0].FromAccountId = transaction.TransactionDetails[0].FromAccountId;
             existingTransaction.TransactionDetails[0].ToAccountId = transaction.TransactionDetails[0].ToAccountId;
             existingTransaction.TransactionDetails[0].CategoryId = transaction.TransactionDetails[0].CategoryId;
-
-            //var comparator = new TransactionDetailsIDComparator();
-            //var existingDetails = from existing in existingTransaction.TransactionDetails
-            //                      join given in transaction.TransactionDetails on existing.Id equals given.Id
-            //                      select new { Existing = existing, Given = given };
-            //var newDetails = transaction.TransactionDetails.Except(existingTransaction.TransactionDetails, comparator);
-            //var removedDetails = existingTransaction.TransactionDetails.Except(transaction.TransactionDetails, comparator);
-
-            //foreach (var split in existingDetails)
-            //{
-            //    split.Existing.Amount = split.Given.Amount;
-            //    split.Existing.FromAccountId = split.Given.FromAccountId;
-            //    split.Existing.ToAccountId = split.Given.ToAccountId;
-            //    split.Existing.CategoryId = split.Given.CategoryId;
-            //}
-
-            //foreach (var split in newDetails)
-            //{
-            //    existingTransaction.TransactionDetails.Add(split);
-            //}
-
-            //foreach (var split in removedDetails.ToList())
-            //{
-            //    existingTransaction.TransactionDetails.Remove(split);
-            //}
-
-
 
             try
             {
                 await _uow.TransactionRepo.UpdateAsync(existingTransaction);
                 await _uow.TransactionDetailsRepo.UpdateAsync(existingTransaction.TransactionDetails[0]);
                 _uow.Commit();
-                var updatedTransaction = (await _uow.TransactionRepo.GetAllAsync())
-                    .Where(t => t.Id == id)
-                    .First();  // TODO get one with SQL
-                return updatedTransaction;
+                return await _uow.TransactionRepo.GetAsync(id);
             }
             catch (Exception ex)
             {
@@ -125,8 +91,7 @@ namespace MoneyManager.Core.Services
 
         public async Task DeleteAsync(int id)
         {
-            var existingTransaction = await _uow.TransactionRepo.GetAsync(id);
-            if (existingTransaction == null)
+            if (!await _uow.TransactionRepo.ExistsAsync(id))
             {
                 throw new NotFoundException("Transaction not found");
             }

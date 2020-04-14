@@ -177,6 +177,7 @@ export default class CategoriesView extends Vue {
 
     async onEditDialogSaveClicked() {
         this.savingTransaction = true;
+        console.log(this.editedTransaction)
         try {
             if (this.editedTransaction.id !== -1) {
                 await TransactionsModule.editTransaction(this.editedTransaction);
