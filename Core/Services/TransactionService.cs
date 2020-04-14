@@ -13,15 +13,15 @@ namespace MoneyManager.Core.Services
         private readonly IUnitOfWork _uow;
         private readonly int _currentUserId;
 
-        public TransactionService(IUnitOfWork unitOfWork, CurrentUserService currentUser)
+        public TransactionService(IUnitOfWork unitOfWork, CurrentUserService currentUserService)
         {
             _uow = unitOfWork;
-            _currentUserId = currentUser.Id;
+            _currentUserId = currentUserService.Id;
         }
 
         public async Task<IEnumerable<Transaction>> ListAsync()
         {
-            var transactions = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+            var transactions = (await _uow.TransactionRepo.GetAllAsync())
                 .OrderByDescending(t => t.Date)
                 .OrderByDescending(t => t.CreatedAt);
             return transactions;
@@ -32,8 +32,8 @@ namespace MoneyManager.Core.Services
 
             try
             {
-                var fromAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].FromAccountId);
-                var toAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].ToAccountId);
+                var fromAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].FromAccountId);
+                var toAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].ToAccountId);
                 DateTime createdAt = DateTime.UtcNow;
 
                 transaction.Type = GetTransactionType(fromAccount, toAccount);
@@ -49,7 +49,7 @@ namespace MoneyManager.Core.Services
                 }));
 
                 _uow.Commit();
-                return (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId)).First(t => t.Id == transaction.Id);
+                return (await _uow.TransactionRepo.GetAllAsync()).First(t => t.Id == transaction.Id);
             }
             catch (Exception ex)
             {
@@ -60,7 +60,7 @@ namespace MoneyManager.Core.Services
         public async Task<Transaction> UpdateAsync(int id, Transaction transaction)
         {
             // TODO SQL
-            var existingTransaction = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+            var existingTransaction = (await _uow.TransactionRepo.GetAllAsync())
                 .FirstOrDefault(t => t.Id == id);
 
             if (existingTransaction == null)
@@ -68,8 +68,8 @@ namespace MoneyManager.Core.Services
                 throw new NotFoundException("Transaction not found");
             }
 
-            var fromAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].FromAccountId);
-            var toAccount = await _uow.AccountRepo.GetByUserAsync(_currentUserId, transaction.TransactionDetails[0].ToAccountId);
+            var fromAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].FromAccountId);
+            var toAccount = await _uow.AccountRepo.GetAsync(transaction.TransactionDetails[0].ToAccountId);
 
             existingTransaction.UpdatedAt = DateTime.UtcNow;
             existingTransaction.Description = transaction.Description;
@@ -112,7 +112,7 @@ namespace MoneyManager.Core.Services
                 await _uow.TransactionRepo.UpdateAsync(existingTransaction);
                 await _uow.TransactionDetailsRepo.UpdateAsync(existingTransaction.TransactionDetails[0]);
                 _uow.Commit();
-                var updatedTransaction = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+                var updatedTransaction = (await _uow.TransactionRepo.GetAllAsync())
                     .Where(t => t.Id == id)
                     .First();  // TODO get one with SQL
                 return updatedTransaction;

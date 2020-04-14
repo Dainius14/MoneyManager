@@ -22,8 +22,8 @@ namespace MoneyManager.Core.Services
 
         public async Task<IEnumerable<AccountVm>> ListAsyncNew()
         {
-            var transactions = await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId);
-            var accounts = await _uow.AccountRepo.GetAllByUserAsync(_currentUserId);
+            var transactions = await _uow.TransactionRepo.GetAllAsync();
+            var accounts = await _uow.AccountRepo.GetAllAsync();
             return accounts.Select(account =>
             {
                 return new AccountVm(account)
@@ -68,7 +68,7 @@ namespace MoneyManager.Core.Services
         {
             try
             {
-                var account = await _uow.AccountRepo.GetByUserAsync(_currentUserId, accountId);
+                var account = await _uow.AccountRepo.GetAsync(accountId);
                 if (account == null)
                 {
                     throw new NotFoundException($"User with Id {accountId} does not exist");

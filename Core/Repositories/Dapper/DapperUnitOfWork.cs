@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using MoneyManager.Core.Data;
 using MoneyManager.Core.Repositories.Dapper;
+using MoneyManager.Core.Services;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -22,38 +23,41 @@ namespace MoneyManager.Core.Repositories
 
     public class DapperUnitOfWork : IUnitOfWork, IDisposable
     {
-        private IOptions<DapperDbContext> _dbContext;
+        private readonly IOptions<DapperDbContext> _dbContext;
+        private readonly CurrentUserService _currentUserService;
+
         public IDbConnection Connection { get; }
         public IDbTransaction Transaction { get; private set; }
 
 
         private IAccountRepository? _accountRepo;
         public IAccountRepository AccountRepo =>
-            _accountRepo ?? (_accountRepo = new DapperAccountRepository(Transaction));
+            _accountRepo ?? (_accountRepo = new DapperAccountRepository(Transaction, _currentUserService));
 
         private ICategoryRepository? _categoryRepo;
         public ICategoryRepository CategoryRepo =>
-            _categoryRepo ?? (_categoryRepo = new DapperCategoryRepository(Transaction));
+            _categoryRepo ?? (_categoryRepo = new DapperCategoryRepository(Transaction, _currentUserService));
        
         private IRefreshTokenRepository? _refreshTokenRepo;
         public IRefreshTokenRepository RefreshTokenRepo =>
-            _refreshTokenRepo ?? (_refreshTokenRepo = new DapperRefreshTokenRepository(Transaction));
+            _refreshTokenRepo ?? (_refreshTokenRepo = new DapperRefreshTokenRepository(Transaction, _currentUserService));
 
         private ITransactionRepository? _transactionRepo;
         public ITransactionRepository TransactionRepo =>
-            _transactionRepo ?? (_transactionRepo = new DapperTransactionRepository(Transaction));
+            _transactionRepo ?? (_transactionRepo = new DapperTransactionRepository(Transaction, _currentUserService));
 
         private ITransactionDetailsRepository? _transactionDetailsRepo;
         public ITransactionDetailsRepository TransactionDetailsRepo =>
-            _transactionDetailsRepo ?? (_transactionDetailsRepo = new DapperTransactionDetailsRepository(Transaction));
+            _transactionDetailsRepo ?? (_transactionDetailsRepo = new DapperTransactionDetailsRepository(Transaction, _currentUserService));
 
         private IUserRepository? _userRepo;
         public IUserRepository UserRepo =>
-            _userRepo ?? (_userRepo = new DapperUserRepository(Transaction));
+            _userRepo ?? (_userRepo = new DapperUserRepository(Transaction, _currentUserService));
 
-        public DapperUnitOfWork(IOptions<DapperDbContext> dbContext)
+        public DapperUnitOfWork(IOptions<DapperDbContext> dbContext, CurrentUserService currentUserService)
         {
             _dbContext = dbContext;
+            _currentUserService = currentUserService;
 
             Connection = new SqliteConnection(_dbContext.Value.ConnectionString);
             Connection.Open();

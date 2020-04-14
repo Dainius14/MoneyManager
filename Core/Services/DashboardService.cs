@@ -59,7 +59,7 @@ namespace MoneyManager.Core.Services
             });
 
 
-            var transactions = (await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId))
+            var transactions = (await _uow.TransactionRepo.GetAllAsync())
                 .Where(t => t.Date >= fromDate)
                 .GroupBy(t => new DateTime(DateTime.Now.Year, t.Date.Month, 1))
                 .Select(group => new
@@ -103,7 +103,7 @@ namespace MoneyManager.Core.Services
 
         private async Task<object> GetExpensesPerCategory(DateTime fromDate, DateTime toDate)
         {
-            var transactions = await _uow.TransactionRepo.GetAllByUserAsync(_currentUserId);
+            var transactions = await _uow.TransactionRepo.GetAllAsync();
             var categoryAmounts = new Dictionary<int, double>()
             {
                 { -1, 0 }

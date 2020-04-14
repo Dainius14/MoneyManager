@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using MoneyManager.Core.Services;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,11 +14,10 @@ namespace MoneyManager.Core.Repositories.Dapper
     public interface IGenericRepository<T>
     {
         public Task<IEnumerable<T>> GetAllAsync();
-        public Task<IEnumerable<T>> GetAllByUserAsync(int userId);
 
         public Task<T> GetAsync(int id);
-        public Task<T> GetByUserAsync(int userId, int id);
-        public Task<T> GetByUserAsync(int userId, string col, string value);
+        public Task<T> GetAsync(string col, string value);
+        public Task<T> GetWithoutUserAsync(int id);
 
         public Task<int> SaveRangeAsync(IEnumerable<T> list);
 
@@ -30,15 +30,18 @@ namespace MoneyManager.Core.Repositories.Dapper
 
     public abstract class DapperGenericRepository<T> : IGenericRepository<T>
     {
+        private readonly CurrentUserService _currentUserService;
+
         protected IDbTransaction Transaction { get; }
         protected IDbConnection Connection { get => Transaction.Connection; }
-
         protected string TableName { get; }
+        protected int CurrentUserId => _currentUserService.Id;
 
-        protected DapperGenericRepository(IDbTransaction transaction, string tableName)
+        protected DapperGenericRepository(IDbTransaction transaction, string tableName, CurrentUserService currentUserService)
         {
             Transaction = transaction;
             TableName = tableName;
+            _currentUserService = currentUserService;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
@@ -47,25 +50,39 @@ namespace MoneyManager.Core.Repositories.Dapper
                 @$"
                 SELECT *
                 FROM ""{TableName}""
+                WHERE UserId=@CurrentUserId
                 ",
+                new { CurrentUserId },
                 transaction: Transaction
             );
         }
 
-        public async Task<IEnumerable<T>> GetAllByUserAsync(int userId)
+        //public async Task<IEnumerable<T>> GetAllAsync(int userId)
+        //{
+        //    return await Connection.QueryAsync<T>(
+        //        @$"
+        //        SELECT *
+        //        FROM ""{TableName}""
+        //        WHERE UserId=@userId
+        //        ",
+        //        new { userId },
+        //        transaction: Transaction
+        //    );
+        //}
+
+        public async Task<T> GetAsync(int id)
         {
-            return await Connection.QueryAsync<T>(
+            return await Connection.QuerySingleOrDefaultAsync<T>(
                 @$"
                 SELECT *
                 FROM ""{TableName}""
-                WHERE UserId=@userId
+                WHERE UserId=@CurrentUserId AND Id=@id
                 ",
-                new { userId },
-                transaction: Transaction
+                new { CurrentUserId, id },
+                Transaction
             );
         }
-
-        public async Task<T> GetAsync(int id)
+        public async Task<T> GetWithoutUserAsync(int id)
         {
             return await Connection.QuerySingleOrDefaultAsync<T>(
                 @$"
@@ -78,27 +95,27 @@ namespace MoneyManager.Core.Repositories.Dapper
             );
         }
 
-        public async Task<T> GetByUserAsync(int userId, int id)
+        //public async Task<T> GetByUserAsync(int userId, int id)
+        //{
+        //    return await Connection.QuerySingleOrDefaultAsync<T>(
+        //        @$"
+        //        SELECT *
+        //        FROM ""{TableName}""
+        //        WHERE UserId=@userId AND Id=@id
+        //        ",
+        //        new { userId, id },
+        //        Transaction
+        //    );
+        //}
+        public async Task<T> GetAsync(string col, string value)
         {
             return await Connection.QuerySingleOrDefaultAsync<T>(
                 @$"
                 SELECT *
                 FROM ""{TableName}""
-                WHERE UserId=@userId AND Id=@id
+                WHERE UserId=@CurrentUserId AND {col}=@value
                 ",
-                new { userId, id },
-                Transaction
-            );
-        }
-        public async Task<T> GetByUserAsync(int userId, string col, string value)
-        {
-            return await Connection.QuerySingleOrDefaultAsync<T>(
-                @$"
-                SELECT *
-                FROM ""{TableName}""
-                WHERE UserId=@userId AND {col}=@value
-                ",
-                new { userId, value },
+                new { CurrentUserId, value },
                 Transaction
             );
         }

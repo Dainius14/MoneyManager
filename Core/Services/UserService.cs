@@ -89,7 +89,7 @@ namespace MoneyManager.Core.Services
 
         public async Task<User> GetOne(int id)
         {
-            return await _uow.UserRepo.GetAsync(id);
+            return await _uow.UserRepo.GetWithoutUserAsync(id);
         }
 
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

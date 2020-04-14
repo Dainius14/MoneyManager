@@ -20,7 +20,7 @@ namespace MoneyManager.Core.Services
 
         public async Task<IEnumerable<Category>> ListAsync()
         {
-            return await _uow.CategoryRepo.GetAllByUserAsync(_currentUserId);
+            return await _uow.CategoryRepo.GetAllAsync();
         }
 
         public async Task<Category> CreateAsync(Category category)
@@ -41,7 +41,7 @@ namespace MoneyManager.Core.Services
 
         public async Task<Category> UpdateAsync(int id, Category category)
         {
-            var existingCategory = await _uow.CategoryRepo.GetByUserAsync(_currentUserId, id);
+            var existingCategory = await _uow.CategoryRepo.GetAsync(id);
             if (existingCategory == null)
             {
                 throw new NotFoundException("Category not found");

@@ -34,14 +34,15 @@ class ApiService {
                     router.push(Routes.Login.path);
                     return Promise.reject(error);
                 }
-                axios.interceptors.response.eject(interceptor);
+                this.axios.interceptors.response.eject(interceptor);
 
                 try {
-                    console.log('refreshing token')
+                    console.log('refreshing token');
                     await this.refreshAccessToken();
                 }
                 catch (ex) {
-                    console.log('refreshing did not succeed', ex)
+                    console.log('refreshing did not succeed', ex);
+                    router.push(Routes.Login.path);
                     return Promise.reject(ex);
                 }
                 finally {
@@ -77,6 +78,10 @@ class ApiService {
             TokenService.saveRefreshToken(response.data.refreshToken);
 
             this.setAuthorizationHeader(response.data.accessToken);
+        }
+        catch (ex) {
+            console.log(ex)
+            throw ex;
         }
         finally {
             this.isRefreshing = false;

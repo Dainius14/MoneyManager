@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using MoneyManager.Core.Services;
 using MoneyManager.Models.Domain;
 using System.Data;
 using System.Linq;
@@ -13,8 +14,8 @@ namespace MoneyManager.Core.Repositories.Dapper
 
     public class DapperRefreshTokenRepository : DapperGenericRepository<RefreshToken>, IRefreshTokenRepository
     {
-        public DapperRefreshTokenRepository(IDbTransaction transaction)
-            : base(transaction, "RefreshToken")
+        public DapperRefreshTokenRepository(IDbTransaction transaction, CurrentUserService currentUserService)
+            : base(transaction, "RefreshToken", currentUserService)
         {
         }
 

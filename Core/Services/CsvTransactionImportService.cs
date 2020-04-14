@@ -105,7 +105,7 @@ namespace MoneyManager.Core.Services
                 }
             }
 
-            var existingCategory = !string.IsNullOrEmpty(row.Category) ? await _uow.CategoryRepo.GetByUserAsync(_currentUserId, "Name", row.Category) : null;
+            var existingCategory = !string.IsNullOrEmpty(row.Category) ? await _uow.CategoryRepo.GetAsync("Name", row.Category) : null;
             if (!string.IsNullOrEmpty(row.Category) && existingCategory == null)
             {
                 var newCategory = new Category

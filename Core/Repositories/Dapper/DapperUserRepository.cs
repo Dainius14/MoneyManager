@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using MoneyManager.Core.Services;
 using MoneyManager.Models.Domain;
 using System.Data;
 using System.Threading.Tasks;
@@ -12,8 +13,8 @@ namespace MoneyManager.Core.Repositories.Dapper
 
     public class DapperUserRepository : DapperGenericRepository<User>, IUserRepository
     {
-        public DapperUserRepository(IDbTransaction transaction)
-            : base(transaction, "User")
+        public DapperUserRepository(IDbTransaction transaction, CurrentUserService currentUserService)
+            : base(transaction, "User", currentUserService)
         {
         }
 

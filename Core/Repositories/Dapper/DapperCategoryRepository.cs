@@ -1,4 +1,5 @@
-﻿using MoneyManager.Models.Domain;
+﻿using MoneyManager.Core.Services;
+using MoneyManager.Models.Domain;
 using System.Data;
 
 namespace MoneyManager.Core.Repositories.Dapper
@@ -9,8 +10,8 @@ namespace MoneyManager.Core.Repositories.Dapper
 
     public class DapperCategoryRepository : DapperGenericRepository<Category>, ICategoryRepository
     {
-        public DapperCategoryRepository(IDbTransaction transaction)
-            : base(transaction, "category")
+        public DapperCategoryRepository(IDbTransaction transaction, CurrentUserService currentUserService)
+            : base(transaction, "category", currentUserService)
         {
         }
     }
