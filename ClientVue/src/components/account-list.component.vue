@@ -6,9 +6,8 @@
         :newItem="newItem"
         :editDialogFields="editDialogFields"
         :isLoading="isLoading"
-        @editDialogSaveClicked="onEditDialogSaveClicked($event)"
-        @deleteItemButtonClicked="onDeleteItemButtonClicked($event)"
-        v-bind:showEditDialog.sync="showEditDialog"
+        @save-item-clicked="onSaveItemClicked"
+        @delete-item-clicked="onDeleteItemClicked"
     >
         <template v-slot:item.currentBalance="{ item }">
             {{ item.currentBalance | currency }}
@@ -24,7 +23,7 @@ import { DataTableHeader } from 'vuetify';
 import { ToastService } from '@/services/snackbar.service';
 import CreateItemCard from '@/components/create-item-card.component.vue';
 import { List } from '@/components/list';
-import { EditDialogField } from './list/list.component';
+import { EditDialogField, ListEventArgs } from './list/list.component';
 
 @Component({
     components: {
@@ -42,8 +41,6 @@ export default class AccountList extends Vue {
     inputRules = {
         positiveNumber: (value: string) => parseFloat(value) >= 0 || 'Must be a positive number'
     };
-
-    showEditDialog = false;
 
     newItem: Account = new Account();
     isLoading = true;
@@ -110,17 +107,21 @@ export default class AccountList extends Vue {
         this.isLoading = false;
     }
 
-    async onDeleteItemButtonClicked(item: Account) {
+    async onDeleteItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Account>) {
+        onStart();
         try {
             await AccountsModule.removeAccount(item);
+            onSuccess();
         }
         catch (e) {
+            onError();
             ToastService.show(e, { color: 'error' });
         }
     }
     
 
-    async onEditDialogSaveClicked(item: Account) {
+    async onSaveItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Account>) {
+        onStart();
         try {
             if (item.id !== -1) {
                 await AccountsModule.editAccount(item);
@@ -128,16 +129,13 @@ export default class AccountList extends Vue {
             else {
                 await AccountsModule.createAccount(item);
             }
+            onSuccess();
         }
         catch (e) {
+            onError();
             ToastService.show(e, { color: 'error' });
             return;
         }
-        
-        this.showEditDialog = false;
-    }
-    async deleteAll() {
-        AccountsModule.accounts.forEach(async t => await AccountsModule.removeAccount(t));
     }
 }
 </script>

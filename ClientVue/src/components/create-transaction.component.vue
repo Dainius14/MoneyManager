@@ -200,7 +200,6 @@ export default class CreateTransactionComponent extends Vue {
         this.editedTransaction.transactionDetails[0].fromAccount = this.fromAccount;
         this.editedTransaction.transactionDetails[0].toAccount = this.toAccount;
         this.editedTransaction.transactionDetails[0].category = this.category;
-        console.log('update',this.editedTransaction)
         this.$emit('update:editedTransaction', this.editedTransaction);
     }
 

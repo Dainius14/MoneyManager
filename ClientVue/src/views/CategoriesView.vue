@@ -6,9 +6,8 @@
         :newItem="newItem"
         :editDialogFields="editDialogFields"
         :isLoading="isLoading"
-        @editDialogSaveClicked="onEditDialogSaveClicked($event)"
-        @deleteItemButtonClicked="onDeleteItemButtonClicked($event)"
-        v-bind:showEditDialog.sync="showEditDialog"
+        @save-item-clicked="onSaveItemClicked"
+        @delete-item-clicked="onDeleteItemClicked"
     >
     </list>
 </template>
@@ -20,7 +19,7 @@ import { ToastService } from '@/services/snackbar.service';
 import { Category } from '@/models/category.model';
 import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
-import { EditDialogField } from '@/components/list/list.component';
+import { EditDialogField, ListEventArgs } from '@/components/list/list.component';
 
 @Component({
     components: {
@@ -28,13 +27,6 @@ import { EditDialogField } from '@/components/list/list.component';
     }
 })
 export default class CategoriesView extends Vue {
-    showEditDialog: boolean = false;
-
-    get categoriesState() {
-        return CategoriesModule;
-    }
-
-    
     headers: DataTableHeader<Category>[] = [
         {
             text: 'Name',
@@ -74,6 +66,11 @@ export default class CategoriesView extends Vue {
     newItem = new Category();
     isLoading = true;
 
+    get categoriesState() {
+        return CategoriesModule;
+    }
+
+
     async created() {
         try {
             await CategoriesModule.getCategories();
@@ -84,16 +81,20 @@ export default class CategoriesView extends Vue {
         this.isLoading = false;
     }
 
-    async onDeleteItemButtonClicked(item: Category) {
+    async onDeleteItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Category>) {
+        onStart();
         try {
             await CategoriesModule.removeCategory(item);
+            onSuccess();
         }
         catch (e) {
             ToastService.show(e, { color: 'error' });
+            onError();
         }
     }
 
-    async onEditDialogSaveClicked(item: Category) {
+    async onSaveItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Category>) {
+        onStart();
         try {
             if (item.id !== -1) {
                 await CategoriesModule.editCategory(item);
@@ -101,12 +102,12 @@ export default class CategoriesView extends Vue {
             else {
                 await CategoriesModule.createCategory(item);
             }
+            onSuccess();
         }
         catch (e) {
             ToastService.show(e, { color: 'error' });
-            return;
+            onError();
         }
-        this.showEditDialog = false;
     }
 
     async deleteAll() {

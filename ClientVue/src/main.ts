@@ -23,7 +23,7 @@ Vue.filter('dateToRelativeDateFromNow', function (value: Date) {
 });
 
 Vue.filter('currency', function(value: number) {
-    return `${value.toFixed(2)} €`;
+    return `${value.toFixed(2)}\xa0€`;  // contains non-breaking space
 })
 
 // Vue.use(toast);

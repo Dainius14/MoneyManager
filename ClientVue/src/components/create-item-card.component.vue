@@ -12,9 +12,22 @@
 
         <v-card-actions>
             <v-spacer></v-spacer>
-
-            <v-btn color="blue darken-1" text @click="$emit('close-clicked')" :disabled="savingItem">Cancel</v-btn>
-            <v-btn color="blue darken-1" text @click="$emit('save-clicked')" :loading="savingItem">Save</v-btn>
+            <v-btn
+                text
+                color="red darken-1"
+                :disabled="savingItem || disableButtons"
+                @click="$emit('close-clicked')"
+            >
+                Cancel
+            </v-btn>
+            <v-btn
+                color="primary"
+                :loading="savingItem"
+                :disabled="disableButtons"
+                @click="$emit('save-clicked')"
+            >
+                Save
+            </v-btn>
         </v-card-actions>
     </v-card>
 </template>
@@ -32,5 +45,8 @@ export default class CreateItemCard extends Vue {
 
     @Prop({ type: Boolean, required: true })
     savingItem!: string;
+
+    @Prop({ type: Boolean, required: true })
+    disableButtons!: string;
 }
 </script>

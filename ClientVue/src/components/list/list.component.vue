@@ -19,7 +19,7 @@
                     vertical
                 ></v-divider>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" dark class="mb-2" v-on:click="onNewItemButtonClicked">New Item</v-btn>
+                <v-btn color="primary" dark class="mb-2" @click="onNewItemButtonClicked">New Item</v-btn>
 
                 <v-dialog v-model="showEditDialog" max-width="500px"
                     :persistent="true">
@@ -28,10 +28,11 @@
                         :title="formTitle"
                         :item="editedItem"
                         :savingItem="savingItem"
+                        :disableButtons="disableEditDialogButtons"
                         @close-clicked="onEditDialogCloseClicked"
                         @save-clicked="onEditDialogSaveClicked"
                     >
-                        <slot name="edit-dialog-content" v-bind="editedItem">
+                        <slot name="edit-dialog-content" v-bind="{ item: editedItem, customUpdate: onCustomUpdate }">
                             <div v-for="field in editDialogFields" :key="field.value">
                                 <v-text-field
                                     v-if="field.type === 'number'"
@@ -86,12 +87,50 @@
             >
                 mdi-pencil
             </v-icon>
-            <v-icon
-                small
-                @click="onDeleteItemClicked(item)"
-            >
-                mdi-delete
-            </v-icon>
+            
+            <v-dialog v-model="showDeleteDialog[item.id]" width="400px">
+                <template v-slot:activator="{ on }">
+                    <v-icon v-on="on" small
+                        @click="disableDeleteDialogButtons = false">
+                        mdi-delete
+                    </v-icon>
+                </template>
+                <v-card>
+                    <v-card-title style="word-break: unset">
+                        <slot name="delete-dialog-title" v-bind="{ item }">
+                            Do you really want to delete this item?
+                        </slot>
+                    </v-card-title>
+
+                    <v-card-text>
+                        <slot name="delete-dialog-text" v-bind="{ item }">
+                            This action is irreversible
+                        </slot>
+                    </v-card-text>
+
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            text
+                            :disabled="deletingItem || disableDeleteDialogButtons"
+                            @click="showDeleteDialog[item.id] = false"
+                        >
+                            No, cancel
+                        </v-btn>
+                        <v-btn
+                            color="red"
+                            :loading="deletingItem"
+                            :disabled="disableDeleteDialogButtons"
+                            @click="onDeleteItemClicked(item)"
+                        >
+                            Yes, delete
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+
+
         </template>
         
         <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">

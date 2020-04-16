@@ -6,11 +6,9 @@
         :newItem="newItem"
         :isLoading="isLoading"
         :sortBy="'date'"
-        :savingItem="savingTransaction"
 
-        @editDialogSaveClicked="onEditDialogSaveClicked"
-        @deleteItemButtonClicked="onDeleteItemButtonClicked($event)"
-        v-bind:showEditDialog.sync="showEditDialog"
+        @save-item-clicked="onSaveItemClicked"
+        @delete-item-clicked="onDeleteItemClicked"
     >
         <template #item.fromAccount="{ item }">
             {{ item.transactionDetails[0].fromAccount.name }}
@@ -30,10 +28,15 @@
             {{ item.date | properDate }}
         </template>
 
-        <template #edit-dialog-content="item">
-            <create-transaction :transaction="item"
-                @update:editedTransaction="editedTransaction = $event"
+        <template #edit-dialog-content="{ item, customUpdate }">
+            <create-transaction
+                :transaction="item"
+                @update:editedTransaction="customUpdate"
             ></create-transaction>
+        </template>
+
+        <template #delete-dialog-title="{ item }">
+            Do you really want to delete this {{ item.amount | currency }} transaction to {{ item.transactionDetails[0].toAccount.name }} at {{ item.date.toLocaleDateString('lt') }}?
         </template>
     </list>
 </template>
@@ -43,7 +46,7 @@ import { Component, Vue } from "vue-property-decorator";
 import { ToastService } from '@/services/snackbar.service';
 import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
-import { EditDialogField } from '@/components/list/list.component';
+import { ListEventArgs } from '@/components/list/list.component';
 import { TransactionsModule } from '@/store/modules/transactions-module.store';
 import { Transaction, TransactionType } from '../models/transaction.model';
 import CreateTransaction from '@/components/create-transaction.component.vue';
@@ -73,13 +76,6 @@ import { format, isBefore } from 'date-fns';
     }
 })
 export default class CategoriesView extends Vue {
-    showEditDialog: boolean = false;
-    savingTransaction: boolean = false;
-
-    get transactionsState() {
-        return TransactionsModule;
-    }
-    
     headers: DataTableHeader<Transaction>[] = [
         {
             text: 'Date',
@@ -145,16 +141,12 @@ export default class CategoriesView extends Vue {
         },
     ];
 
-    editDialogFields: EditDialogField[] = [
-        {
-            label: 'Description',
-            value: 'description'
-        },
-    ];
-
     newItem = new Transaction();
-    editedTransaction = new Transaction();
     isLoading = true;
+
+    get transactionsState() {
+        return TransactionsModule;
+    }
 
     async created() {
         try {
@@ -166,36 +158,33 @@ export default class CategoriesView extends Vue {
         this.isLoading = false;
     }
 
-    async onDeleteItemButtonClicked(item: Transaction) {
+    async onDeleteItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Transaction>) {
+        onStart();
         try {
             await TransactionsModule.removeTransaction(item);
+            onSuccess();
         }
         catch (e) {
             ToastService.show(e, { color: 'error' });
+            onError();
         }
     }
 
-    async onEditDialogSaveClicked() {
-        this.savingTransaction = true;
-        console.log(this.editedTransaction)
+    async onSaveItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Transaction>) {
+        onStart();
         try {
-            if (this.editedTransaction.id !== -1) {
-                await TransactionsModule.editTransaction(this.editedTransaction);
+            if (item.id !== -1) {
+                await TransactionsModule.editTransaction(item);
             }
             else {
-                await TransactionsModule.createTransaction(this.editedTransaction);
+                await TransactionsModule.createTransaction(item);
             }
+            onSuccess();
         }
         catch (e) {
             ToastService.show(e, { color: 'error' });
-            return;
+            onError();
         }
-        this.savingTransaction = false;
-        this.showEditDialog = false;
-    }
-
-    async deleteAll() {
-        TransactionsModule.transactions.forEach(async t => await TransactionsModule.removeTransaction(t));
     }
 }
 </script>

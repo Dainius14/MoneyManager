@@ -1,5 +1,6 @@
 import { Account, GetAccountDto } from './account.model';
 import { Category, GetCategoryDto } from './category.model';
+import { IListItem } from '@/components/list/list-item.model';
 
 export enum TransactionType {
     Expense = 'expense',
@@ -16,7 +17,7 @@ export class TransactionDetails {
     category?: Category;
 }
 
-export class Transaction {
+export class Transaction implements IListItem {
     id: number = -1;
     description: string = '';
     date: Date = new Date();
@@ -25,6 +26,10 @@ export class Transaction {
     transactionDetails: TransactionDetails[] = [new TransactionDetails()];
     createdAt: Date = new Date();
     updatedAt?: Date;
+
+    toString() {
+        return this.date.toDateString();
+    }
 }
 
 export interface GetTransactionDto {

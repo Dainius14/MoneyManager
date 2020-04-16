@@ -2,6 +2,7 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { DataTableHeader } from 'vuetify';
 import CreateItemCard from '@/components/create-item-card.component.vue';
+import { IListItem } from './list-item.model';
 
 export interface EditDialogField {
     label: string;
@@ -20,7 +21,7 @@ export default class ListComponent extends Vue {
     headers!: DataTableHeader[];
 
     @Prop({ type: Array, required: true })
-    items!: any[];
+    items!: IListItem[];
 
     @Prop({ type: String, required: true })
     title!: string;
@@ -32,9 +33,6 @@ export default class ListComponent extends Vue {
     editDialogFields!: EditDialogField[];
 
     @Prop({ type: Boolean, required: true })
-    showEditDialog!: boolean;
-
-    @Prop({ type: Boolean, required: true })
     isLoading!: boolean;
 
     @Prop({ type: String, required: false })
@@ -42,42 +40,92 @@ export default class ListComponent extends Vue {
     
     @Prop({ type: Boolean, required: false, default: false })
     sortDesc?: boolean;
-    
-    @Prop({ type: Boolean, required: true })
-    savingItem!: boolean;
+
+
+    showEditDialog: boolean = false;
+    savingItem: boolean = false;
+    deletingItem: boolean = false;
+    disableDeleteDialogButtons: boolean = false;
+    disableEditDialogButtons: boolean = false;
 
     get formTitle() {
         return this.editedIndex === -1 ? 'New item' : 'Edit item';
     }
 
+    showDeleteDialog: { [_: string]: boolean } = {};
+
     editedItem: any = {};
+    editedCustomItem: any = {};
     editedIndex = -1;
 
     onNewItemButtonClicked() {
         this.editedIndex = -1;
         this.editedItem = { ...this.newItem };
-        this.emitShowEditDialog(true);
+        this.showEditDialog = true;
+        this.disableEditDialogButtons = false;
     }
 
-    onEditItemClicked(item: any) {
+    onEditItemClicked(item: IListItem) {
         this.editedIndex = this.items.indexOf(item);
         this.editedItem = { ...item };
-        this.emitShowEditDialog(true);
+        this.showEditDialog = true;
+        this.disableEditDialogButtons = false;
     }
 
-    onDeleteItemClicked(item: any) {
-        this.$emit('deleteItemButtonClicked', item);
+    onDeleteItemClicked(item: IListItem) {
+        this.$emit('delete-item-clicked', {
+            item,
+            onStart: this.onDeleteStart,
+            onSuccess: () => this.onDeleteSuccess(item.id),
+            onError: this.onDeleteError
+        } as ListEventArgs<any>);
     }
     onEditDialogCloseClicked() {
-        this.emitShowEditDialog(false);
+        this.showEditDialog = false;
     }
 
     onEditDialogSaveClicked() {
-        this.$emit('editDialogSaveClicked', this.editedItem);
+        this.$emit('save-item-clicked', {
+            item: this.editedCustomItem || this.editedItem,
+            onStart: this.onSaveStart,
+            onSuccess: this.onSaveSuccess,
+            onError: this.onSaveError
+        } as ListEventArgs<any>);
     }
 
-    
-    private emitShowEditDialog(value: boolean) {
-        this.$emit('update:showEditDialog', value);
+    onCustomUpdate(item: IListItem) {
+        this.editedCustomItem = item;
     }
+
+    onSaveStart() {
+        this.savingItem = true;
+    }
+    onSaveSuccess() {
+        this.savingItem = false;
+        this.disableEditDialogButtons = true;
+        this.showEditDialog = false;
+    }
+    onSaveError() {
+        return;
+    }
+
+    onDeleteStart() {
+        this.deletingItem = true;
+    }
+    onDeleteSuccess(itemId: number) {
+        this.deletingItem = false;
+        this.disableDeleteDialogButtons = true;
+        this.showDeleteDialog[itemId] = false;
+    }
+    onDeleteError() {
+        console.log('onSaveError');
+    }
+
+}
+
+export interface ListEventArgs<T> {
+    item: T;
+    onStart: Function;
+    onSuccess: Function;
+    onError: Function;
 }
