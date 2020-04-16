@@ -23,9 +23,6 @@ export default class ListComponent extends Vue {
     @Prop({ type: Array, required: true })
     items!: IListItem[];
 
-    @Prop({ type: String, required: true })
-    title!: string;
-
     @Prop({ type: Object, required: true })
     newItem!: any;
 
@@ -41,6 +38,18 @@ export default class ListComponent extends Vue {
     @Prop({ type: Boolean, required: false, default: false })
     sortDesc?: boolean;
 
+    @Prop({ type: Boolean, required: false, default: false })
+    enablePagination?: boolean;
+
+
+    @Prop({ type: String, required: true })
+    title!: string;
+
+    @Prop({ type: String, required: false, default: 'New item' })
+    newItemText!: string;
+
+    @Prop({ type: String, required: false, default: 'Edit item' })
+    editItemText!: string;
 
     showEditDialog: boolean = false;
     savingItem: boolean = false;
@@ -49,7 +58,7 @@ export default class ListComponent extends Vue {
     disableEditDialogButtons: boolean = false;
 
     get formTitle() {
-        return this.editedIndex === -1 ? 'New item' : 'Edit item';
+        return this.editedIndex === -1 ? this.newItemText : this.editItemText;
     }
 
     showDeleteDialog: { [_: string]: boolean } = {};
@@ -57,6 +66,8 @@ export default class ListComponent extends Vue {
     editedItem: any = {};
     editedCustomItem: any = {};
     editedIndex = -1;
+
+    isFormValid: boolean = false;
 
     onNewItemButtonClicked() {
         this.editedIndex = -1;
@@ -93,9 +104,15 @@ export default class ListComponent extends Vue {
         } as ListEventArgs<any>);
     }
 
-    onCustomUpdate(item: IListItem) {
+
+    onCustomFormChanged(item: IListItem) {
         this.editedCustomItem = item;
     }
+
+    onCustomIsFormValidChanged(isValid: boolean) {
+        this.isFormValid = isValid;
+    }
+
 
     onSaveStart() {
         this.savingItem = true;

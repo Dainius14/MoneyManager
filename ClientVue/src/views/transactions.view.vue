@@ -1,11 +1,14 @@
 <template>
     <list
         title="Transactions"
+        newItemText="Create transaction"
+        editItemText="Edit transaction"
         :headers="headers"
         :items="transactionsState.transactions"
         :newItem="newItem"
         :isLoading="isLoading"
         :sortBy="'date'"
+        :enablePagination="true"
 
         @save-item-clicked="onSaveItemClicked"
         @delete-item-clicked="onDeleteItemClicked"
@@ -28,10 +31,11 @@
             {{ item.date | properDate }}
         </template>
 
-        <template #edit-dialog-content="{ item, customUpdate }">
+        <template #edit-dialog-content="{ item, formChanged, isFormValidChanged }">
             <create-transaction
                 :transaction="item"
-                @update:editedTransaction="customUpdate"
+                @update:editedTransaction="formChanged"
+                @update:isFormValid="isFormValidChanged"
             ></create-transaction>
         </template>
 
@@ -150,7 +154,7 @@ export default class CategoriesView extends Vue {
 
     async created() {
         try {
-            await TransactionsModule.getTransactions();
+            await TransactionsModule.getTransactions({ page: 0 });
         }
         catch (e) {
             ToastService.show(e, { color: 'error' });

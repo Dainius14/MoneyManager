@@ -11,6 +11,7 @@ if ((store as any).state[name]) {
 @Module({ name, store, dynamic: true, namespaced: true })
 class Transactions extends VuexModule {
     transactions: Transaction[] = [];
+    pagesLoaded: Set<number> = new Set();
 
     @Mutation
     addItems(items: Transaction[]) {
@@ -32,10 +33,14 @@ class Transactions extends VuexModule {
         this.transactions.splice(0, this.transactions.length);
     }
 
+    @Mutation
+    addLoadedPage(page: number) {
+        this.pagesLoaded.add(page);
+    }
+
     @Action({ rawError: true })
-    async getTransactions() {
-        this.clear();
-        this.addItems(await TransactionsApi.getTransactions());
+    async getTransactions({ page }: { page: number }) {
+        this.addItems(await TransactionsApi.getTransactions(page));
     }
 
     @Action({ rawError: true })

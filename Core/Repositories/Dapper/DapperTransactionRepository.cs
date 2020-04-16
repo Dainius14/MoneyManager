@@ -10,19 +10,12 @@ namespace MoneyManager.Core.Repositories.Dapper
 {
     public interface ITransactionRepository : IGenericRepository<Transaction>
     {
+        public Task<IEnumerable<Transaction>> GetRangeAsync(int from, int count);
     }
 
     public class DapperTransactionRepository : DapperGenericRepository<Transaction>, ITransactionRepository
     {
-        public DapperTransactionRepository(IDbTransaction transaction, CurrentUserService currentUserService)
-            : base(transaction, "transaction", currentUserService)
-        {
-        }
-
-        new public async Task<IEnumerable<Transaction>> GetAllAsync()
-        {
-            string sql = @"
-            SELECT *
+        private const string _joinedFromClause = @"
             FROM ""transaction"" AS t
 	            LEFT JOIN TransactionDetails as td
 		            ON td.TransactionId = t.Id
@@ -33,9 +26,20 @@ namespace MoneyManager.Core.Repositories.Dapper
 		        LEFT JOIN Category as cat
 			        on td.CategoryId = cat.Id
 			        LEFT JOIN Category as catParent
-				        on cat.ParentId = catParent.Id
+				        on cat.ParentId = catParent.Id";
+        public DapperTransactionRepository(IDbTransaction transaction, CurrentUserService currentUserService)
+            : base(transaction, "transaction", currentUserService)
+        {
+        }
+
+        public async Task<IEnumerable<Transaction>> GetRangeAsync(int from, int count)
+        {
+            string sql = @$"
+            SELECT *
+            {_joinedFromClause}
             WHERE t.userId=@CurrentUserId
             ORDER BY t.Date DESC, t.CreatedAt DESC
+            LIMIT @from, @count
             ";
 
             var transactionsDict = new Dictionary<int, Transaction>();
@@ -66,27 +70,22 @@ namespace MoneyManager.Core.Repositories.Dapper
 
                     return transaction;
                 },
-                param: new { CurrentUserId },
+                param: new { CurrentUserId, from, count },
                 transaction: Transaction
             );
             return items.Distinct().ToList();
         }
 
+        new public async Task<IEnumerable<Transaction>> GetAllAsync()
+        {
+            return await GetRangeAsync(0, -1);
+        }
+
         new public async Task<Transaction> GetAsync(int id)
         {
-            string sql = @"
+            string sql = @$"
             SELECT *
-            FROM ""transaction"" AS t
-	            LEFT JOIN TransactionDetails as td
-		            ON td.TransactionId = t.Id
-		        LEFT JOIN  Account as accFrom
-			        on td.FromAccountId = accFrom.Id
-		        LEFT JOIN Account as accTo
-			        on td.ToAccountId = accTo.Id
-		        LEFT JOIN Category as cat
-			        on td.CategoryId = cat.Id
-			        LEFT JOIN Category as catParent
-				        on cat.ParentId = catParent.Id
+            {_joinedFromClause}
             WHERE t.userId=@CurrentUserId AND t.Id=@id
             ";
 

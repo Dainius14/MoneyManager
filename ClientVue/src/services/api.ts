@@ -88,8 +88,8 @@ class ApiService {
         }
     }
 
-    async get<T>(resource: string): Promise<T> {
-        const response = await this.axios.get(resource);
+    async get<T>(resource: string, params: object): Promise<T> {
+        const response = await this.axios.get(resource + '?' + this.getQueryString(params));
         return response.data;
     }
 
@@ -106,6 +106,10 @@ class ApiService {
     async delete(resource: string): Promise<boolean> {
         const response = await this.axios.delete(resource);
         return response.status >= 200 && response.status < 300;
+    }
+
+    private getQueryString(params: {}): string {
+        return new URLSearchParams(params).toString();
     }
 }
 

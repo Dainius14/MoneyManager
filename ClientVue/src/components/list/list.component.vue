@@ -3,36 +3,33 @@
     <v-data-table
         :headers="headers"
         :items="items"
-        :disable-pagination="true"
+        :disable-pagination="!enablePagination"
         :loading="isLoading"
         :sort-by="sortBy"
         :sort-desc="sortDesc"
+        :items-per-page="20"
+        :footer-props="{ disableItemsPerPage: true }"
         class="elevation-1"
     >
 
         <template v-slot:top>
             <v-toolbar flat color="white">
                 <v-toolbar-title>{{ title }}</v-toolbar-title>
-                <v-divider
-                    class="mx-4"
-                    inset
-                    vertical
-                ></v-divider>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" dark class="mb-2" @click="onNewItemButtonClicked">New Item</v-btn>
+                <v-btn color="primary" dark class="mb-2" @click="onNewItemButtonClicked">{{ newItemText }}</v-btn>
 
                 <v-dialog v-model="showEditDialog" max-width="500px"
                     :persistent="true">
 
                     <create-item-card
                         :title="formTitle"
-                        :item="editedItem"
                         :savingItem="savingItem"
                         :disableButtons="disableEditDialogButtons"
+                        :enableSave="isFormValid"
                         @close-clicked="onEditDialogCloseClicked"
                         @save-clicked="onEditDialogSaveClicked"
                     >
-                        <slot name="edit-dialog-content" v-bind="{ item: editedItem, customUpdate: onCustomUpdate }">
+                        <slot name="edit-dialog-content" v-bind="{ item: editedItem, formChanged: onCustomFormChanged, isFormValidChanged: onCustomIsFormValidChanged }">
                             <div v-for="field in editDialogFields" :key="field.value">
                                 <v-text-field
                                     v-if="field.type === 'number'"

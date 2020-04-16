@@ -1,20 +1,22 @@
 <template>
-    <div>
+    <v-form ref="form" @input="$emit('update:isFormValid', $event)">
         <v-row>
             <v-col>
                 <date-picker
                     required
+                    enableValidation
                     label="Date"
-                    :value="date"
-                    @update:value="onDateChanged"
+                    :value.sync="date"
+                    @update="onFormChanged"
                 ></date-picker>
             </v-col>
             <v-col>
                 <time-picker
                     required
+                    enableValidation
                     label="Time"
-                    :value="time"
-                    @update:value="onTimeChanged"
+                    :value.sync="time"
+                    @update="onFormChanged"
                 ></time-picker>
             </v-col>
         </v-row>
@@ -26,6 +28,7 @@
             :loading="isLoadingAccounts"
             :search-input.sync="fromAccountSearchTerm"
             :filter="filterAccount"
+            :rules="accountRules"
             auto-select-first
             clearable
             item-text="name"
@@ -43,6 +46,7 @@
             :loading="isLoadingAccounts"
             :search-input.sync="toAccountSearchTerm"
             :filter="filterAccount"
+            :rules="accountRules"
             auto-select-first
             clearable
             item-text="name"
@@ -53,7 +57,7 @@
             @change="onFormChanged"
         ></v-autocomplete>
 
-        <p class="font-weight-light" style="font-size: 12px">Creating {{ transactionType }} transaction.</p>
+        <p class="font-weight-light" style="font-size: 12px">{{ transactionType }}<br/></p>
         
         <v-text-field
             class="required"
@@ -84,10 +88,12 @@
         <v-text-field
             label="Description"
             v-model="description"
-            @change="onFormChanged"
+            @input="onFormChanged"
             prepend-inner-icon="mdi-message-text"
+            :counter="descriptionMaxLength"
+            :rules="descriptionRules"
         ></v-text-field>
-    </div>
+    </v-form>
 </template>
 
 <script lang="ts">
@@ -97,7 +103,7 @@ import { CategoriesModule } from '../store/modules/categories-module.store';
 import { AccountsModule } from '../store/modules/accounts-module.store';
 import { Category } from '@/models/category.model';
 import { Account } from '@/models/account.model';
-import { number, positiveNumber } from '@/utils/rules';
+import { number, positiveNumber, notEmpty, maxLength } from '@/utils/rules';
 import DatePicker from '@/components/date-picker.component.vue';
 import TimePicker from '@/components/time-picker.component.vue';
 import { toIsoDate } from '../utils/utils';
@@ -111,20 +117,56 @@ import { format } from 'date-fns';
     }
 })
 export default class CreateTransactionComponent extends Vue {
+
     @Prop({ type: Object, required: true })
     transaction!: Transaction;
 
-    editedTransaction: Transaction = new Transaction();
+    private isLoadingCategories: boolean = false;
+    private isLoadingAccounts: boolean = false;
 
-    get categories() {
+    private editedTransaction: Transaction = new Transaction();
+    private date: string = '';
+    private time: string = '';
+    private amount: number = 0;
+    private description: string = '';
+    private fromAccount: Account = new Account();
+    private fromAccountSearchTerm: string = '';
+    private toAccount: Account = new Account();
+    private toAccountSearchTerm: string = '';
+    private category?: Category = new Category();
+    private categorySearchTerm: string = '';
+    private readonly descriptionMaxLength = 100;
+    
+
+    private readonly amountRules = [
+        number('Amount must be a number'),
+        positiveNumber('Amount must be a positive number')
+    ];
+
+    private readonly descriptionRules = [
+        maxLength(this.descriptionMaxLength, "Description can't be that long")
+    ];
+    
+    private get accountRules() {
+        return [
+            (item: Account) => notEmpty('Account must be selected')(item?.name),
+            () => !this.bothAccountsNotPersonal || "Both accounts must can't be non personal"
+        ]
+    }
+
+    private get bothAccountsNotPersonal() {
+        if (this.fromAccount?.id === -1 || this.toAccount?.id === -1) {
+            return false;
+        }
+        return !this.fromAccount?.isPersonal && !this.toAccount?.isPersonal;
+    }
+    
+
+    private get categories() {
         return CategoriesModule.categories;
     }
 
-    get accountStore() {
-        return AccountsModule;
-    }
-
-    get accountItems() {
+    private get accountItems() {
         return [
             { header: 'My accounts' },
             ...AccountsModule.personalAccounts,
@@ -133,40 +175,23 @@ export default class CreateTransactionComponent extends Vue {
         ];
     }
 
-    get transactionType() {
+    private get transactionType() {
+        let str = 'Creating ';
         if (this.fromAccount?.isPersonal && this.toAccount?.isPersonal) {
-            return 'a transfer';
+            str += 'a transfer';
         }
         else if (this.fromAccount?.isPersonal && !this.toAccount?.isPersonal) {
-            return 'an expense';
+            str += 'an expense';
         }
         else if (!this.fromAccount?.isPersonal && this.toAccount?.isPersonal) {
-            return 'an income';
+            str += 'an income';
         }
-        return 'an empty';
+        else {
+            str += 'some kind of'
+        }
+        str += ' transaction';
+        return str;
     }
-
-    isLoadingCategories: boolean = false;
-    isLoadingAccounts: boolean = false;
-
-    date: string = '';
-    time: string = '';
-    amount: number = 0;
-    amountRules = [
-        number('Amount must be a number'),
-        positiveNumber('Amount must be a non-negative number')
-    ];
-
-    description: string = '';
-
-    fromAccount: Account = new Account();
-    fromAccountSearchTerm: string = '';
-    
-    toAccount: Account = new Account();
-    toAccountSearchTerm: string = '';
-
-    category?: Category = new Category();
-    categorySearchTerm: string = '';
 
     created() {        
         if (!CategoriesModule.loaded) {
@@ -193,7 +218,7 @@ export default class CreateTransactionComponent extends Vue {
         }
     }
 
-    onFormChanged() {
+    private onFormChanged() {
         this.editedTransaction.date = new Date(this.date + 'T' + this.time);
         this.editedTransaction.description = this.description;
         this.editedTransaction.transactionDetails[0].amount = this.amount;
@@ -205,7 +230,7 @@ export default class CreateTransactionComponent extends Vue {
 
 
     @Watch('transaction', { immediate: true })
-    onTransactionChanged(transaction: Transaction) {
+    private onTransactionChanged(transaction: Transaction) {
         if (transaction.id === -1) {
             this.resetFields();
             return;
@@ -234,7 +259,11 @@ export default class CreateTransactionComponent extends Vue {
     }
 
     private resetFields() {
-        // TODO when closing new form you can see how fields dissapear
+        const form = this.$refs.form as any;
+        if (!form) {
+            return;
+        }
+        
         this.date = toIsoDate(new Date());
         this.time = '00:00';
         this.amount = 0;
@@ -245,17 +274,8 @@ export default class CreateTransactionComponent extends Vue {
         this.editedTransaction = new Transaction();
     }
 
-    filterAccount(item: Account&{ header: string }, queryText: string, itemText: string): boolean {
+    private filterAccount(item: Account&{ header: string }, queryText: string, itemText: string): boolean {
         return !!item.header || itemText.toLowerCase().indexOf(queryText.toLowerCase()) !== -1;
-    }
-
-    onDateChanged(value: string) {
-        this.date = value;
-        this.onFormChanged();
-    }
-    onTimeChanged(value: string) {
-        this.time = value;
-        this.onFormChanged();
     }
 }
 </script>

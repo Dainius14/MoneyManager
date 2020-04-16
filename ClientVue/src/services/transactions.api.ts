@@ -4,8 +4,8 @@ import { Transaction, GetTransactionDto } from '@/models/transaction.model';
 import { ImportTransactionsResults } from '@/models/import-transactions-results.model';
 
 export class TransactionsApi {
-    static async getTransactions(): Promise<Transaction[]> {
-        const dtos = await api.get<GetTransactionDto[]>('/transactions');
+    static async getTransactions(page: number): Promise<Transaction[]> {
+        const dtos = await api.get<GetTransactionDto[]>('/transactions', { page });
         return dtos.map((dto) => {
             return TransactionMapper.fromGetTransactionDto(dto);
         });

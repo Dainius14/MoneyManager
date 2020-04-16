@@ -10,6 +10,8 @@ namespace MoneyManager.Core.Services
 {
     public class TransactionService
     {
+        private const int _pageSize = 20;
+
         private readonly IUnitOfWork _uow;
         private readonly int _currentUserId;
 
@@ -19,8 +21,10 @@ namespace MoneyManager.Core.Services
             _currentUserId = currentUserService.Id;
         }
 
-        public async Task<IEnumerable<Transaction>> ListAsync()
+        public async Task<IEnumerable<Transaction>> ListAsync(int page)
         {
+            //int from = (page - 1) * _pageSize;
+            //return await _uow.TransactionRepo.GetRangeAsync(from, _pageSize);
             return await _uow.TransactionRepo.GetAllAsync();
         }
 

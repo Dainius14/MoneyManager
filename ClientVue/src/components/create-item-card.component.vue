@@ -5,16 +5,13 @@
         </v-card-title>
 
         <v-card-text>
-            <v-container>
-                <slot></slot>
-            </v-container>
+            <slot></slot>
         </v-card-text>
 
         <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
                 text
-                color="red darken-1"
                 :disabled="savingItem || disableButtons"
                 @click="$emit('close-clicked')"
             >
@@ -23,7 +20,7 @@
             <v-btn
                 color="primary"
                 :loading="savingItem"
-                :disabled="disableButtons"
+                :disabled="disableButtons || !enableSave"
                 @click="$emit('save-clicked')"
             >
                 Save
@@ -37,16 +34,16 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 
 @Component
 export default class CreateItemCard extends Vue {
-    @Prop({ type: Object, required: true })
-    item!: any;
-
     @Prop({ type: String, required: true })
     title!: string;
 
     @Prop({ type: Boolean, required: true })
-    savingItem!: string;
+    savingItem!: boolean;
 
     @Prop({ type: Boolean, required: true })
-    disableButtons!: string;
+    disableButtons!: boolean;
+
+    @Prop({ type: Boolean, required: true })
+    enableSave!: boolean;
 }
 </script>

@@ -12,10 +12,11 @@
             <v-text-field
                 v-bind:class="{ required }"
                 :value="value"
-                @change="onValueUpdated"
                 :label="label"
+                :rules="enableValidation && timeRules"
                 prepend-inner-icon="mdi-clock"
                 v-on="on"
+                @change="onValueUpdated"
                 @keydown.tab="isOpen = false"
             ></v-text-field>
         </template>
@@ -35,6 +36,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
+import { time } from '@/utils/rules';
 
 @Component
 export default class TimePickerComponent extends Vue {
@@ -47,7 +49,14 @@ export default class TimePickerComponent extends Vue {
     @Prop({ type: String, required: true })
     value!: string;
 
+    @Prop({ type: Boolean, required: false, default: false })
+    enableValidation!: boolean;
+
     isOpen: boolean = false;
+
+    timeRules = [
+        time('This is not a valid time')
+    ]
 
     onValueUpdated(value: string) {
         this.$emit('update:value', value);

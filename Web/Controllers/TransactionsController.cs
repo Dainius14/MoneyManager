@@ -29,11 +29,12 @@ namespace money_backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]int page)
         {
+            page = Math.Max(page, 1);
             try
             {
-                var transactions = await _transactionsService.ListAsync();
+                var transactions = await _transactionsService.ListAsync(page);
                 var transactionsDto = transactions.Select(t => t.ToGetTransactionDTO());
                 return Ok(transactionsDto);
             }
