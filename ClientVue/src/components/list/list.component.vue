@@ -30,19 +30,26 @@
                         @save-clicked="onEditDialogSaveClicked"
                     >
                         <slot name="edit-dialog-content" v-bind="{ item: editedItem, formChanged: onCustomFormChanged, isFormValidChanged: onCustomIsFormValidChanged }">
-                            <div v-for="field in editDialogFields" :key="field.value">
-                                <v-text-field
-                                    v-if="field.type === 'number'"
-                                    :label="field.label"
-                                    v-model.number="editedItem[field.value]"
-                                    type="number"
-                                ></v-text-field>
-                                <v-text-field
-                                    v-else
-                                    :label="field.label"
-                                    v-model="editedItem[field.value]"
-                                ></v-text-field>
-                            </div>
+                            <v-form v-model="isFormValid" ref="form">
+                                <div v-for="field in editDialogFields" :key="field.value">
+                                    <v-text-field
+                                        v-if="field.type === 'number'"
+                                        v-bind:class="{ required: field.required }"
+                                        v-model.number="editedItem[field.value]"
+                                        type="number"
+                                        :label="field.label"
+                                        :rules="field.rules"
+                                    ></v-text-field>
+                                    <v-text-field
+                                        v-else
+                                        v-bind:class="{ required: field.required }"
+                                        v-model="editedItem[field.value]"
+                                        :label="field.label"
+                                        :rules="field.rules"
+                                        :counter="field.maxLength"
+                                    ></v-text-field>
+                                </div>
+                            </v-form>
                         </slot>
                     </create-item-card>
 

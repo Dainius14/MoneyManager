@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator';
 import { ToastService } from '@/services/snackbar.service';
 import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
@@ -87,7 +87,8 @@ export default class CategoriesView extends Vue {
             align: 'start',
             sortable: true,
             filterable: false,
-            sort: (a: Date, b: Date) => isBefore(a, b) ? 1 : -1
+            // should be both dates, vetur is complaining
+            sort: (a: any, b: any) => isBefore(a, b) ? 1 : -1
         },
         {
             text: 'From',

@@ -97,7 +97,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { Transaction } from '@/models/transaction.model';
 import { CategoriesModule } from '../store/modules/categories-module.store';
 import { AccountsModule } from '../store/modules/accounts-module.store';
@@ -151,7 +151,7 @@ export default class CreateTransactionComponent extends Vue {
         return [
             (item: Account) => notEmpty('Account must be selected')(item?.name),
             () => !this.bothAccountsNotPersonal || "Both accounts must can't be non personal"
-        ]
+        ];
     }
 
     private get bothAccountsNotPersonal() {
@@ -187,7 +187,7 @@ export default class CreateTransactionComponent extends Vue {
             str += 'an income';
         }
         else {
-            str += 'some kind of'
+            str += 'some kind of';
         }
         str += ' transaction';
         return str;
@@ -203,7 +203,7 @@ export default class CreateTransactionComponent extends Vue {
                     this.onFormChanged();
                 }
 
-            })
+            });
         }
 
         if (!AccountsModule.loaded) {
@@ -214,11 +214,12 @@ export default class CreateTransactionComponent extends Vue {
                     this.setAccountsFromStore();
                     this.onFormChanged();
                 }
-            })
+            });
         }
     }
 
     private onFormChanged() {
+        console.log(this.description.toString())
         this.editedTransaction.date = new Date(this.date + 'T' + this.time);
         this.editedTransaction.description = this.description;
         this.editedTransaction.transactionDetails[0].amount = this.amount;

@@ -1,6 +1,8 @@
 <template>
     <list
         title="Categories"
+        newItemText="New category"
+        editItemText="Edit category"
         :headers="headers"
         :items="categoriesState.categories"
         :newItem="newItem"
@@ -13,13 +15,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator';
 import { CategoriesModule } from '@/store/modules/categories-module.store';
 import { ToastService } from '@/services/snackbar.service';
 import { Category } from '@/models/category.model';
 import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
 import { EditDialogField, ListEventArgs } from '@/components/list/list.component';
+import { notEmpty, maxLength } from '../utils/rules';
 
 @Component({
     components: {
@@ -27,7 +30,7 @@ import { EditDialogField, ListEventArgs } from '@/components/list/list.component
     }
 })
 export default class CategoriesView extends Vue {
-    headers: DataTableHeader<Category>[] = [
+    readonly headers: DataTableHeader<Category>[] = [
         {
             text: 'Name',
             value: 'name',
@@ -56,10 +59,16 @@ export default class CategoriesView extends Vue {
         },
     ];
 
-    editDialogFields: EditDialogField[] = [
+    readonly editDialogFields: EditDialogField[] = [
         {
             label: 'Name',
-            value: 'name'
+            value: 'name',
+            maxLength: 30,
+            required: true,
+            rules: [
+                notEmpty('Category must have a name'),
+                maxLength(30, "Category name can't be that long")
+            ]
         },
     ];
 

@@ -1,5 +1,5 @@
 
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop } from 'vue-property-decorator';
 import { DataTableHeader } from 'vuetify';
 import CreateItemCard from '@/components/create-item-card.component.vue';
 import { IListItem } from './list-item.model';
@@ -9,6 +9,8 @@ export interface EditDialogField {
     value: string;
     type?: string;
     rules?: ((value: string) => (boolean|string))[];
+    maxLength?: number;
+    required?: boolean;
 }
 
 @Component({
@@ -22,9 +24,6 @@ export default class ListComponent extends Vue {
 
     @Prop({ type: Array, required: true })
     items!: IListItem[];
-
-    @Prop({ type: Object, required: true })
-    newItem!: any;
 
     @Prop({ type: Array, required: false })
     editDialogFields!: EditDialogField[];
@@ -67,16 +66,20 @@ export default class ListComponent extends Vue {
     editedCustomItem: any = {};
     editedIndex = -1;
 
+    field: string = '';
+
     isFormValid: boolean = false;
 
     onNewItemButtonClicked() {
+        (this.$refs.form as any)?.resetValidation();
         this.editedIndex = -1;
-        this.editedItem = { ...this.newItem };
+        this.editedItem = {};
         this.showEditDialog = true;
         this.disableEditDialogButtons = false;
     }
 
     onEditItemClicked(item: IListItem) {
+        (this.$refs.form as any)?.resetValidation();
         this.editedIndex = this.items.indexOf(item);
         this.editedItem = { ...item };
         this.showEditDialog = true;

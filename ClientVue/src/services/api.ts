@@ -58,7 +58,7 @@ class ApiService {
         const header = 'Bearer ' + accessToken;
         if (requestConfig) {
             requestConfig.headers.Authorization = header;
-            return
+            return;
         }
         this.axios.defaults.headers.Authorization = header;
     }
@@ -80,7 +80,7 @@ class ApiService {
             this.setAuthorizationHeader(response.data.accessToken);
         }
         catch (ex) {
-            console.log(ex)
+            console.log(ex);
             throw ex;
         }
         finally {
@@ -88,7 +88,7 @@ class ApiService {
         }
     }
 
-    async get<T>(resource: string, params: object): Promise<T> {
+    async get<T>(resource: string, params?: object): Promise<T> {
         const response = await this.axios.get(resource + '?' + this.getQueryString(params));
         return response.data;
     }
@@ -108,7 +108,7 @@ class ApiService {
         return response.status >= 200 && response.status < 300;
     }
 
-    private getQueryString(params: {}): string {
+    private getQueryString(params: any): string {
         return new URLSearchParams(params).toString();
     }
 }
