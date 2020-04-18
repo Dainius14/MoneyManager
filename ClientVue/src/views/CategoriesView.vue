@@ -21,9 +21,11 @@ import { ToastService } from '@/services/snackbar.service';
 import { Category } from '@/models/category.model';
 import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
-import { EditDialogField, ListEventArgs } from '@/components/list/list.component';
+import { ListEventArgs } from '@/components/list/list.component';
 import { notEmpty, maxLength } from '../utils/rules';
 import { LoadState } from '@/models/common.models';
+import { InputOptions } from "@/components/list/dynamic-input.component";
+import { IconNames } from "@/constants";
 
 @Component({
     components: {
@@ -60,16 +62,17 @@ export default class CategoriesView extends Vue {
         },
     ];
 
-    readonly editDialogFields: EditDialogField[] = [
+    readonly editDialogFields: InputOptions[] = [
         {
             label: 'Name',
-            value: 'name',
+            key: 'name',
             maxLength: 30,
             required: true,
             rules: [
                 notEmpty('Category must have a name'),
                 maxLength(30, "Category name can't be that long")
-            ]
+            ],
+            prependInnerIcon: IconNames.Category
         },
     ];
 

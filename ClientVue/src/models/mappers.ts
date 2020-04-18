@@ -71,7 +71,7 @@ export class TransactionMapper {
                 amount: detail.amount,
                 fromAccount: detail.fromAccount!.id,
                 toAccount: detail.toAccount!.id,
-                category: (detail.category && detail.category.id !== -1) ? detail.category.id : null,
+                Category: (detail.category && detail.category.id !== -1) ? detail.category.id : null,
             }))
         };
     }

@@ -19,7 +19,7 @@
                 <v-btn color="primary" dark class="mb-2" @click="onNewItemButtonClicked">{{ newItemText }}</v-btn>
 
                 <v-dialog v-model="showEditDialog" max-width="500px"
-                    :persistent="true">
+                          @click:outside="onEditDialogCloseClicked">
 
                     <create-item-card
                         :title="formTitle"
@@ -31,24 +31,12 @@
                     >
                         <slot name="edit-dialog-content" v-bind="{ item: editedItem, formChanged: onCustomFormChanged, isFormValidChanged: onCustomIsFormValidChanged }">
                             <v-form v-model="isFormValid" ref="form">
-                                <div v-for="field in editDialogFields" :key="field.value">
-                                    <v-text-field
-                                        v-if="field.type === 'number'"
-                                        v-bind:class="{ required: field.required }"
-                                        v-model.number="editedItem[field.value]"
-                                        type="number"
-                                        :label="field.label"
-                                        :rules="field.rules"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        v-else
-                                        v-bind:class="{ required: field.required }"
-                                        v-model="editedItem[field.value]"
-                                        :label="field.label"
-                                        :rules="field.rules"
-                                        :counter="field.maxLength"
-                                    ></v-text-field>
-                                </div>
+                                <dynamic-input
+                                    v-for="field in editDialogFields"
+                                    :key="field.value"
+                                    :options="field"
+                                    v-model="editedItem[field.key]"
+                                ></dynamic-input>
                             </v-form>
                         </slot>
                     </create-item-card>
@@ -120,7 +108,7 @@
                             @click="showDeleteDialog[item.id] = false"
                         >
                             No, cancel
-                        </v-btn>
+                        </v-btn>ss
                         <v-btn
                             color="red"
                             :loading="deletingItem"
@@ -143,4 +131,4 @@
     </v-data-table>
 </template>
 
-<script src="./list.component"></script>
+<script src="./list.component.ts"></script>

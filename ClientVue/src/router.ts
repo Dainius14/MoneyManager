@@ -91,11 +91,11 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     if (to.name !== Routes.Login.name && !UserModule.accessToken) {
-        next({ name: Routes.Login.name });
+        next(Routes.Login.path);
     }
-    // else if (to.name === Routes.Login && isUserLoggedIn()) {
-    //     // next({ name: Routes.Home });
-    // }
+    else if (to.name === Routes.Login.name && UserModule.accessToken) {
+        next(Routes.Root.path);
+    }
     else {
         next();
     }

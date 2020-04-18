@@ -1,21 +1,15 @@
-
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { DataTableHeader } from 'vuetify';
 import CreateItemCard from '@/components/create-item-card.component.vue';
 import { IListItem } from './list-item.model';
-
-export interface EditDialogField {
-    label: string;
-    value: string;
-    type?: string;
-    rules?: ((value: string) => (boolean|string))[];
-    maxLength?: number;
-    required?: boolean;
-}
+import DynamicInput from "@/components/list/dynamic-input.component.vue";
+import { InputOptions } from "@/components/list/dynamic-input.component";
+import { isEmpty } from "@/utils/utils";
 
 @Component({
     components: {
-        CreateItemCard
+        CreateItemCard,
+        DynamicInput
     }
 })
 export default class ListComponent extends Vue {
@@ -26,7 +20,7 @@ export default class ListComponent extends Vue {
     items!: IListItem[];
 
     @Prop({ type: Array, required: false })
-    editDialogFields!: EditDialogField[];
+    editDialogFields!: InputOptions[];
 
     @Prop({ type: Boolean, required: true })
     isLoading!: boolean;
@@ -76,6 +70,14 @@ export default class ListComponent extends Vue {
         this.editedItem = {};
         this.showEditDialog = true;
         this.disableEditDialogButtons = false;
+
+        if (this.editDialogFields) {
+            for (const field of this.editDialogFields) {
+                if (field.defaultValue != null) {
+                    this.editedItem[field.key] = field.defaultValue;
+                }
+            }
+        }
     }
 
     onEditItemClicked(item: IListItem) {
@@ -99,14 +101,14 @@ export default class ListComponent extends Vue {
     }
 
     onEditDialogSaveClicked() {
+        const item = isEmpty(this.editedCustomItem) ? this.editedItem : this.editedCustomItem;
         this.$emit('save-item-clicked', {
-            item: this.editedCustomItem || this.editedItem,
+            item,
             onStart: this.onSaveStart,
             onSuccess: this.onSaveSuccess,
             onError: this.onSaveError
         } as ListEventArgs<any>);
     }
-
 
     onCustomFormChanged(item: IListItem) {
         this.editedCustomItem = item;

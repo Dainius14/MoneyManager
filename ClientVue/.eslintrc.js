@@ -16,6 +16,7 @@ module.exports = {
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+        'no-unreachable': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
         'curly': ['warn', 'all'],
         'semi': ['warn', 'always'],
         'quotes': ['warn', 'single', { avoidEscape: true }],

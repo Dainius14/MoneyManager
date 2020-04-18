@@ -6,8 +6,9 @@
                     required
                     enableValidation
                     label="Date"
-                    :value.sync="date"
-                    @update="onFormChanged"
+                    v-model="date"
+                    @input="onFormChanged"
+                    prepend-inner-icon
                 ></date-picker>
             </v-col>
             <v-col>
@@ -34,7 +35,7 @@
             item-text="name"
             item-value="id"
             label="From account"
-            prepend-inner-icon="mdi-account-arrow-right"
+            :prepend-inner-icon="iconNames.FromAccount"
             return-object
             @change="onFormChanged"
         ></v-autocomplete>
@@ -52,7 +53,7 @@
             item-text="name"
             item-value="id"
             label="To account"
-            prepend-inner-icon="mdi-account-arrow-left"
+            :prepend-inner-icon="iconNames.ToAccount"
             return-object
             @change="onFormChanged"
         ></v-autocomplete>
@@ -62,7 +63,7 @@
         <v-text-field
             class="required"
             label="Amount"
-            prepend-inner-icon="mdi-cash"
+            :prepend-inner-icon="iconNames.Cash"
             prefix="€"
             type="number"
             v-model.number="amount"
@@ -82,7 +83,7 @@
             return-object
             clearable
             @change="onFormChanged"
-            prepend-inner-icon="mdi-format-list-bulleted-square"
+            :prepend-inner-icon="iconNames.Category"
         ></v-autocomplete>
 
         <v-text-field
@@ -109,12 +110,13 @@ import TimePicker from '@/components/time-picker.component.vue';
 import { toIsoDate } from '../utils/utils';
 import { format } from 'date-fns';
 import { LoadState } from '@/models/common.models';
+import { IconNames } from "@/constants";
 
 
 @Component({
     components: {
         DatePicker,
-        TimePicker
+        TimePicker,
     }
 })
 export default class CreateTransactionComponent extends Vue {
@@ -166,6 +168,10 @@ export default class CreateTransactionComponent extends Vue {
         return CategoriesModule.categories;
     }
 
+    private get iconNames() {
+        return IconNames;
+    }
+
     private get accountItems() {
         return [
             { header: 'My accounts' },
@@ -200,7 +206,9 @@ export default class CreateTransactionComponent extends Vue {
         return AccountsModule.loadState === LoadState.Loading;
     }
 
-    async created() {        
+    async created() {
+        this.resetFields();
+
         if (CategoriesModule.loadState === LoadState.NotLoaded) {
             await CategoriesModule.getCategories();
             if (!this.isNewTransaction(this.transaction)) {
@@ -259,10 +267,6 @@ export default class CreateTransactionComponent extends Vue {
     }
 
     private resetFields() {
-        if (!this.form) {
-            return;
-        }
-        
         this.date = toIsoDate(new Date());
         this.time = '00:00';
         this.amount = 0;
@@ -271,7 +275,7 @@ export default class CreateTransactionComponent extends Vue {
         this.toAccount = new Account();
         this.category = new Category();
         this.editedTransaction = new Transaction();
-        this.form.resetValidation();
+        this.form?.resetValidation();
     }
 
     private filterAccount(item: Account&{ header: string }, queryText: string, itemText: string): boolean {

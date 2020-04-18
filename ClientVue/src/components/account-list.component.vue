@@ -3,7 +3,6 @@
         :title="title"
         :headers="headers"
         :items="items"
-        :newItem="newItem"
         :editDialogFields="editDialogFields"
         :isLoading="isLoading"
         @save-item-clicked="onSaveItemClicked"
@@ -23,8 +22,12 @@ import { DataTableHeader } from 'vuetify';
 import { ToastService } from '@/services/snackbar.service';
 import CreateItemCard from '@/components/create-item-card.component.vue';
 import { List } from '@/components/list';
-import { EditDialogField, ListEventArgs } from './list/list.component';
+import { ListEventArgs } from './list/list.component';
 import { LoadState } from '@/models/common.models';
+import { maxLength, number } from '@/utils/rules';
+import { InputOptions } from "@/components/list/dynamic-input.component";
+import { toIsoDate } from "@/utils/utils";
+import { IconNames } from "@/constants";
 
 @Component({
     components: {
@@ -75,19 +78,34 @@ export default class AccountList extends Vue {
         },
     ];
 
-    editDialogFields: EditDialogField[] = [
+    editDialogFields: InputOptions[] = [
         {
-            label: 'Name',
-            value: 'name',
+            label: 'Account name',
+            key: 'name',
+            required: true,
+            maxLength: 30,
+            rules: [
+                maxLength(30, "Name can't be that long")
+            ],
+            prependInnerIcon: 'mdi-account-circle'
         },
         {
             label: 'Opening balance',
-            value: 'openingBalance',
-            type: 'number'
+            key: 'openingBalance',
+            type: 'number',
+            required: true,
+            prependInnerIcon: IconNames.Cash,
+            rules: [
+                number('Amount must be a number')
+            ]
         },
         {
             label: 'Opening date',
-            value: 'openingDate',
+            key: 'openingDate',
+            type: 'date',
+            required: true,
+            prependInnerIcon: true,
+            defaultValue: toIsoDate(new Date())
         },
     ];
 
