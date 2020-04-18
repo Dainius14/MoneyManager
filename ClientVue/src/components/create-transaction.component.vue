@@ -97,7 +97,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch, Ref } from 'vue-property-decorator';
 import { Transaction } from '@/models/transaction.model';
 import { CategoriesModule } from '../store/modules/categories-module.store';
 import { AccountsModule } from '../store/modules/accounts-module.store';
@@ -108,6 +108,7 @@ import DatePicker from '@/components/date-picker.component.vue';
 import TimePicker from '@/components/time-picker.component.vue';
 import { toIsoDate } from '../utils/utils';
 import { format } from 'date-fns';
+import { LoadState } from '@/models/common.models';
 
 
 @Component({
@@ -121,8 +122,7 @@ export default class CreateTransactionComponent extends Vue {
     @Prop({ type: Object, required: true })
     transaction!: Transaction;
 
-    private isLoadingCategories: boolean = false;
-    private isLoadingAccounts: boolean = false;
+    @Ref() private readonly form!: any;
 
     private editedTransaction: Transaction = new Transaction();
     private date: string = '';
@@ -193,33 +193,32 @@ export default class CreateTransactionComponent extends Vue {
         return str;
     }
 
-    created() {        
-        if (!CategoriesModule.loaded) {
-            this.isLoadingCategories = true;
-            CategoriesModule.getCategories().then(() => {
-                this.isLoadingCategories = false;
-                if (this.transaction.id !== -1) {
-                    this.setCategoryFromStore();
-                    this.onFormChanged();
-                }
+    get isLoadingCategories(): boolean {
+        return CategoriesModule.loadState === LoadState.Loading;
+    }
+    get isLoadingAccounts(): boolean {
+        return AccountsModule.loadState === LoadState.Loading;
+    }
 
-            });
+    async created() {        
+        if (CategoriesModule.loadState === LoadState.NotLoaded) {
+            await CategoriesModule.getCategories();
+            if (!this.isNewTransaction(this.transaction)) {
+                this.setCategoryFromStore();
+                this.onFormChanged();
+            }
         }
 
-        if (!AccountsModule.loaded) {
-            this.isLoadingAccounts = true;
-            AccountsModule.getAccounts().then(() => {
-                this.isLoadingAccounts = false;
-                if (this.transaction.id !== -1) {
-                    this.setAccountsFromStore();
-                    this.onFormChanged();
-                }
-            });
+        if (AccountsModule.loadState === LoadState.NotLoaded) {
+            await AccountsModule.getAccounts();
+            if (!this.isNewTransaction(this.transaction)) {
+                this.setAccountsFromStore();
+                this.onFormChanged();
+            }
         }
     }
 
     private onFormChanged() {
-        console.log(this.description.toString());
         this.editedTransaction.date = new Date(this.date + 'T' + this.time);
         this.editedTransaction.description = this.description;
         this.editedTransaction.transactionDetails[0].amount = this.amount;
@@ -232,7 +231,7 @@ export default class CreateTransactionComponent extends Vue {
 
     @Watch('transaction', { immediate: true })
     private onTransactionChanged(transaction: Transaction) {
-        if (transaction.id === -1) {
+        if (this.isNewTransaction(transaction)) {
             this.resetFields();
             return;
         }
@@ -260,8 +259,7 @@ export default class CreateTransactionComponent extends Vue {
     }
 
     private resetFields() {
-        const form = this.$refs.form as any;
-        if (!form) {
+        if (!this.form) {
             return;
         }
         
@@ -273,10 +271,15 @@ export default class CreateTransactionComponent extends Vue {
         this.toAccount = new Account();
         this.category = new Category();
         this.editedTransaction = new Transaction();
+        this.form.resetValidation();
     }
 
     private filterAccount(item: Account&{ header: string }, queryText: string, itemText: string): boolean {
         return !!item.header || itemText.toLowerCase().indexOf(queryText.toLowerCase()) !== -1;
+    }
+
+    private isNewTransaction(transaction: Transaction) {
+        return transaction.id == null || transaction.id === -1;
     }
 }
 </script>

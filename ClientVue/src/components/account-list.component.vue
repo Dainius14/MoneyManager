@@ -24,6 +24,7 @@ import { ToastService } from '@/services/snackbar.service';
 import CreateItemCard from '@/components/create-item-card.component.vue';
 import { List } from '@/components/list';
 import { EditDialogField, ListEventArgs } from './list/list.component';
+import { LoadState } from '@/models/common.models';
 
 @Component({
     components: {
@@ -38,13 +39,7 @@ export default class AccountList extends Vue {
     @Prop({ type: String, required: true })
     title!: string;
 
-    inputRules = {
-        positiveNumber: (value: string) => parseFloat(value) >= 0 || 'Must be a positive number'
-    };
-
-    newItem: Account = new Account();
-    isLoading = true;
-    
+    newItem: Account = new Account();    
     headers: DataTableHeader<Account>[] = [
         {
             text: 'Name',
@@ -94,17 +89,22 @@ export default class AccountList extends Vue {
             label: 'Opening date',
             value: 'openingDate',
         },
-    ]
+    ];
+
+    get isLoading() {
+        return AccountsModule.loadState === LoadState.Loading;
+    }
 
 
     async created() {
-        try {
-            await AccountsModule.getAccounts();
+        if (AccountsModule.loadState === LoadState.NotLoaded) {
+            try {
+                await AccountsModule.getAccounts();
+            }
+            catch (e) {
+                ToastService.show(e, { color: 'error' });
+            }
         }
-        catch (e) {
-            ToastService.show(e, { color: 'error' });
-        }
-        this.isLoading = false;
     }
 
     async onDeleteItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Account>) {

@@ -19,7 +19,7 @@
         <!-- </v-app-bar> -->
 
         <v-content>
-            <v-container fluid>
+            <v-container style="padding: 0">
                 <router-view></router-view>
             </v-container>
         </v-content>

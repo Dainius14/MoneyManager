@@ -2,6 +2,7 @@ import { Module, VuexModule, Mutation, Action, getModule } from 'vuex-module-dec
 import { Account } from '@/models/account.model';
 import { AccountApi } from '@/services/account.api';
 import store from '@/store';
+import { LoadState } from '@/models/common.models';
 
 const name = 'accounts';
 if ((store as any).state[name]) {
@@ -10,7 +11,7 @@ if ((store as any).state[name]) {
 
 @Module({ name, store, dynamic: true, namespaced: true })
 class Accounts extends VuexModule {
-    loaded: boolean = false;
+    loadState: LoadState = LoadState.NotLoaded;
     accounts: Account[] = [];
 
     get accountsSorted() {
@@ -26,49 +27,61 @@ class Accounts extends VuexModule {
     }
 
     @Mutation
-    addItems(items: Account[]) {
+    private _addItems(items: Account[]) {
         this.accounts = this.accounts.concat(items);
-        this.loaded = true;
     }
+
     @Mutation
-    removeItem(item: Account) {
+    private _removeItem(item: Account) {
         const index = this.accounts.indexOf(item);
         this.accounts.splice(index, 1);
     }
     @Mutation
-    replaceItem(newItem: Account) {
+    private _replaceItem(newItem: Account) {
         const index = this.accounts.findIndex(a => a.id === newItem.id);
         this.accounts.splice(index, 1, newItem);
     }
 
     @Mutation
-    clear() {
+    private _clear() {
         this.accounts.splice(0, this.accounts.length);
     }
+    @Mutation
+    private _setState(state: LoadState) {
+        this.loadState = state;
+    }
+
 
     @Action({ rawError: true })
     async getAccounts() {
-        this.clear();
-        this.addItems(await AccountApi.getAccounts());
+        this._setState(LoadState.Loading);
+        try {
+            this._addItems(await AccountApi.getAccounts());
+            this._setState(LoadState.Loaded);
+        }
+        catch (ex) {
+            this._setState(LoadState.NotLoaded);
+            throw ex;
+        }
     }
 
     @Action({ rawError: true })
     async removeAccount(item: Account) {
         if (await AccountApi.deleteAccount(item.id)) {
-            this.removeItem(item);
+            this._removeItem(item);
         }
     }
 
     @Action({ rawError: true })
     async editAccount(item: Account) {
         const updated = await AccountApi.editAccount(item);
-        this.replaceItem(updated);
+        this._replaceItem(updated);
     }
 
     @Action({ rawError: true })
     async createAccount(item: Account) {
         const created = await AccountApi.createAccount(item);
-        this.addItems([created]);
+        this._addItems([created]);
     }
 
 }

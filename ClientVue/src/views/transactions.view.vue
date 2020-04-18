@@ -55,6 +55,7 @@ import { TransactionsModule } from '@/store/modules/transactions-module.store';
 import { Transaction, TransactionType } from '../models/transaction.model';
 import CreateTransaction from '@/components/create-transaction.component.vue';
 import { format, isBefore } from 'date-fns';
+import { LoadState } from '@/models/common.models';
 
 @Component({
     components: {
@@ -147,20 +148,24 @@ export default class CategoriesView extends Vue {
     ];
 
     newItem = new Transaction();
-    isLoading = true;
 
     get transactionsState() {
         return TransactionsModule;
     }
 
+    get isLoading() {
+        return TransactionsModule.loadState === LoadState.Loading;
+    }
+
     async created() {
-        try {
-            await TransactionsModule.getTransactions({ page: 0 });
+        if (TransactionsModule.loadState === LoadState.NotLoaded) {
+            try {
+                await TransactionsModule.getTransactions({ page: 0 });
+            }
+            catch (e) {
+                ToastService.show(e, { color: 'error' });
+            }
         }
-        catch (e) {
-            ToastService.show(e, { color: 'error' });
-        }
-        this.isLoading = false;
     }
 
     async onDeleteItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Transaction>) {

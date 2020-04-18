@@ -23,6 +23,7 @@ import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
 import { EditDialogField, ListEventArgs } from '@/components/list/list.component';
 import { notEmpty, maxLength } from '../utils/rules';
+import { LoadState } from '@/models/common.models';
 
 @Component({
     components: {
@@ -73,21 +74,25 @@ export default class CategoriesView extends Vue {
     ];
 
     newItem = new Category();
-    isLoading = true;
 
     get categoriesState() {
         return CategoriesModule;
     }
 
+    get isLoading() {
+        return CategoriesModule.loadState === LoadState.Loading;
+    }
+
 
     async created() {
-        try {
+        if (CategoriesModule.loadState === LoadState.NotLoaded) {
+            try {
             await CategoriesModule.getCategories();
+            }
+            catch (e) {
+                ToastService.show(e, { color: 'error' });
+            }
         }
-        catch (e) {
-            ToastService.show(e, { color: 'error' });
-        }
-        this.isLoading = false;
     }
 
     async onDeleteItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Category>) {

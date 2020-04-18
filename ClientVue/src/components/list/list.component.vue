@@ -7,9 +7,9 @@
         :loading="isLoading"
         :sort-by="sortBy"
         :sort-desc="sortDesc"
-        :items-per-page="20"
+        :items-per-page="25"
         :footer-props="{ disableItemsPerPage: true }"
-        class="elevation-1"
+        
     >
 
         <template v-slot:top>
