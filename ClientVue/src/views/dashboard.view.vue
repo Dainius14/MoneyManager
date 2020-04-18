@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import Highcharts, { SeriesPieOptions } from 'highcharts';
 import { Chart } from 'highcharts-vue';
 import { DashboardApi } from '@/services/dashboard.api';

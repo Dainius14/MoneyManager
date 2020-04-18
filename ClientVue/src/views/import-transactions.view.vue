@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator';
 import { TransactionsApi } from '@/services/transactions.api';
 import { ImportTransactionsResults } from '@/models/import-transactions-results.model';
 

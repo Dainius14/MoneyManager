@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator';
 import { AccountsModule } from '@/store/modules/accounts-module.store';
 import AccountList from '@/components/account-list.component.vue';
 

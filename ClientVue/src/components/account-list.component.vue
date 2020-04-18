@@ -16,8 +16,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { Account } from "@/models/account.model";
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Account } from '@/models/account.model';
 import { AccountsModule } from '@/store/modules/accounts-module.store';
 import { DataTableHeader } from 'vuetify';
 import { ToastService } from '@/services/snackbar.service';

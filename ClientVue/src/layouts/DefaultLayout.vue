@@ -27,45 +27,45 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator';
 import { Routes } from '../router';
 
 @Component
 export default class DefaultLayout extends Vue {
     items = [
         {
-            title: "Logout",
-            icon: "mdi-logout",
+            title: 'Logout',
+            icon: 'mdi-logout',
             path: Routes.Logout.path
         },
         {
-            title: "Dashboard",
-            icon: "mdi-monitor-dashboard",
+            title: 'Dashboard',
+            icon: 'mdi-monitor-dashboard',
             path: Routes.Dashboard.path
         },
         {
-            title: "Transactions",
-            icon: "mdi-bank-transfer",
+            title: 'Transactions',
+            icon: 'mdi-bank-transfer',
             path: Routes.Transactions.path
         },
         {
-            title: "Other Accounts",
-            icon: "mdi-account",
+            title: 'Other Accounts',
+            icon: 'mdi-account',
             path: Routes.OtherAccounts.path
         },
         {
-            title: "My Accounts",
-            icon: "mdi-account",
+            title: 'My Accounts',
+            icon: 'mdi-account',
             path: Routes.MyAccounts.path
         },
         {
-            title: "Categories",
-            icon: "mdi-view-list",
+            title: 'Categories',
+            icon: 'mdi-view-list',
             path: Routes.Categories.path
         },
         {
-            title: "Import transactions",
-            icon: "mdi-import",
+            title: 'Import transactions',
+            icon: 'mdi-import',
             path: Routes.ImportTransactions.path
         },
     ];

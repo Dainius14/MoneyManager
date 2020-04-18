@@ -219,7 +219,7 @@ export default class CreateTransactionComponent extends Vue {
     }
 
     private onFormChanged() {
-        console.log(this.description.toString())
+        console.log(this.description.toString());
         this.editedTransaction.date = new Date(this.date + 'T' + this.time);
         this.editedTransaction.description = this.description;
         this.editedTransaction.transactionDetails[0].amount = this.amount;

@@ -18,12 +18,12 @@
     </v-snackbar>
 </template>
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { ToastOptions } from "./snackbar.service";
+import { Component, Vue } from 'vue-property-decorator';
+import { ToastOptions } from './snackbar.service';
 
 @Component
 export default class Snackbar extends Vue {
-    text: string = "";
+    text: string = '';
     active: boolean = false;
     options: ToastOptions = {};
 
