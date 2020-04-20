@@ -26,6 +26,9 @@
                         :savingItem="savingItem"
                         :disableButtons="disableEditDialogButtons"
                         :enableSave="isFormValid"
+                        :show-keep-open-buttons="isNewItem"
+                        :keep-open.sync="keepDialogOpen"
+                        :keep-values.sync="keepDialogValues"
                         @close-clicked="onEditDialogCloseClicked"
                         @save-clicked="onEditDialogSaveClicked"
                     >
@@ -108,7 +111,7 @@
                             @click="showDeleteDialog[item.id] = false"
                         >
                             No, cancel
-                        </v-btn>ss
+                        </v-btn>
                         <v-btn
                             color="red"
                             :loading="deletingItem"

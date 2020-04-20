@@ -1,10 +1,10 @@
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Ref, Vue } from 'vue-property-decorator';
 import { DataTableHeader } from 'vuetify';
 import CreateItemCard from '@/components/create-item-card.component.vue';
 import { IListItem } from './list-item.model';
-import DynamicInput from "@/components/list/dynamic-input.component.vue";
-import { InputOptions } from "@/components/list/dynamic-input.component";
-import { isEmpty } from "@/utils/utils";
+import DynamicInput from '@/components/list/dynamic-input.component.vue';
+import { InputOptions } from '@/components/list/dynamic-input.component';
+import { isEmpty } from '@/utils/utils';
 
 @Component({
     components: {
@@ -13,6 +13,8 @@ import { isEmpty } from "@/utils/utils";
     }
 })
 export default class ListComponent extends Vue {
+    @Ref() private readonly form?: any;
+
     @Prop({ type: Array, required: true })
     headers!: DataTableHeader[];
 
@@ -49,9 +51,15 @@ export default class ListComponent extends Vue {
     deletingItem: boolean = false;
     disableDeleteDialogButtons: boolean = false;
     disableEditDialogButtons: boolean = false;
+    keepDialogOpen: boolean = false;
+    keepDialogValues: boolean = false;
+
+    get isNewItem() {
+        return this.editedIndex === -1;
+    }
 
     get formTitle() {
-        return this.editedIndex === -1 ? this.newItemText : this.editItemText;
+        return this.isNewItem ? this.newItemText : this.editItemText;
     }
 
     showDeleteDialog: { [_: string]: boolean } = {};
@@ -60,28 +68,14 @@ export default class ListComponent extends Vue {
     editedCustomItem: any = {};
     editedIndex = -1;
 
-    field: string = '';
-
     isFormValid: boolean = false;
 
     onNewItemButtonClicked() {
-        (this.$refs.form as any)?.resetValidation();
-        this.editedIndex = -1;
-        this.editedItem = {};
-        this.showEditDialog = true;
-        this.disableEditDialogButtons = false;
-
-        if (this.editDialogFields) {
-            for (const field of this.editDialogFields) {
-                if (field.defaultValue != null) {
-                    this.editedItem[field.key] = field.defaultValue;
-                }
-            }
-        }
+        this.resetFormForNewItem();
     }
 
     onEditItemClicked(item: IListItem) {
-        (this.$refs.form as any)?.resetValidation();
+        this.form?.resetValidation();
         this.editedIndex = this.items.indexOf(item);
         this.editedItem = { ...item };
         this.showEditDialog = true;
@@ -124,8 +118,17 @@ export default class ListComponent extends Vue {
     }
     onSaveSuccess() {
         this.savingItem = false;
-        this.disableEditDialogButtons = true;
-        this.showEditDialog = false;
+        if (this.keepDialogOpen) {
+            this.disableEditDialogButtons = false;
+            this.showEditDialog = true;
+            if (!this.keepDialogValues) {
+                this.resetFormForNewItem();
+            }
+        }
+        else {
+            this.disableEditDialogButtons = true;
+            this.showEditDialog = false;
+        }
     }
     onSaveError() {
         return;
@@ -143,6 +146,21 @@ export default class ListComponent extends Vue {
         console.log('onSaveError');
     }
 
+    private resetFormForNewItem() {
+        this.form?.resetValidation();
+        this.editedIndex = -1;
+        this.editedItem = {};
+        this.showEditDialog = true;
+        this.disableEditDialogButtons = false;
+
+        if (this.editDialogFields) {
+            for (const field of this.editDialogFields) {
+                if (field.defaultValue != null) {
+                    this.editedItem[field.key] = field.defaultValue;
+                }
+            }
+        }
+    }
 }
 
 export interface ListEventArgs<T> {
