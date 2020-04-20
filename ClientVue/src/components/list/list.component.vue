@@ -26,7 +26,7 @@
                         :savingItem="savingItem"
                         :disableButtons="disableEditDialogButtons"
                         :enableSave="isFormValid"
-                        :show-keep-open-buttons="isNewItem"
+                        :show-keep-open-buttons="showKeepOpenButtons && isNewItem"
                         :keep-open.sync="keepDialogOpen"
                         :keep-values.sync="keepDialogValues"
                         @close-clicked="onEditDialogCloseClicked"

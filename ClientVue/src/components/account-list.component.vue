@@ -20,18 +20,16 @@ import { Account } from '@/models/account.model';
 import { AccountsModule } from '@/store/modules/accounts-module.store';
 import { DataTableHeader } from 'vuetify';
 import { ToastService } from '@/services/snackbar.service';
-import CreateItemCard from '@/components/create-item-card.component.vue';
 import { List } from '@/components/list';
 import { ListEventArgs } from './list/list.component';
 import { LoadState } from '@/models/common.models';
 import { maxLength, number } from '@/utils/rules';
-import { InputOptions } from "@/components/list/dynamic-input.component";
-import { toIsoDate } from "@/utils/utils";
-import { IconNames } from "@/constants";
+import { InputOptions } from '@/components/list/dynamic-input.component';
+import { toIsoDate } from '@/utils/utils';
+import { IconNames } from '@/constants';
 
 @Component({
     components: {
-        CreateItemCard,
         List
     }
 })
@@ -42,7 +40,6 @@ export default class AccountList extends Vue {
     @Prop({ type: String, required: true })
     title!: string;
 
-    newItem: Account = new Account();    
     headers: DataTableHeader<Account>[] = [
         {
             text: 'Name',

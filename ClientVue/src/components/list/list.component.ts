@@ -46,6 +46,9 @@ export default class ListComponent extends Vue {
     @Prop({ type: String, required: false, default: 'Edit item' })
     editItemText!: string;
 
+    @Prop({ type: Boolean, required: false, default: false })
+    showKeepOpenButtons!: boolean;
+
     showEditDialog: boolean = false;
     savingItem: boolean = false;
     deletingItem: boolean = false;

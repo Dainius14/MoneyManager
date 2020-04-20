@@ -9,6 +9,7 @@
         :isLoading="isLoading"
         :sortBy="'date'"
         :enablePagination="true"
+        :show-keep-open-buttons="true"
 
         @save-item-clicked="onSaveItemClicked"
         @delete-item-clicked="onDeleteItemClicked"
@@ -52,7 +53,7 @@ import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
 import { ListEventArgs } from '@/components/list/list.component';
 import { TransactionsModule } from '@/store/modules/transactions-module.store';
-import { Transaction, TransactionType } from '../models/transaction.model';
+import { Transaction, TransactionType } from '@/models/transaction.model';
 import CreateTransaction from '@/components/create-transaction.component.vue';
 import { format, isBefore } from 'date-fns';
 import { LoadState } from '@/models/common.models';

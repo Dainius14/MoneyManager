@@ -74,21 +74,24 @@ export default class CreateItemCard extends Vue {
 }
 </script>
 
-<style scoped>
-    /deep/ .small .v-label {
-        font-size: 12px;
-    }
-    /deep/ .small .v-icon {
-        width: 80% !important;
-    }
-    /deep/ .small .v-input--selection-controls__input {
-        margin-right: 0 !important;
-    }
-    /deep/ .small.v-input {
-        margin-top: 0;
-        padding-top: 0;
-    }
-    /deep/ .small .v-messages {
-        display: none;
+<style lang="scss" scoped>
+    ::v-deep .small {
+        &.v-input {
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .v-label {
+            font-size: 12px;
+        }
+        .v-icon {
+            width: 80% !important;
+        }
+        .v-input--selection-controls__input {
+            margin-right: 0 !important;
+        }
+        .v-messages {
+            display: none;
+        }
     }
 </style>
