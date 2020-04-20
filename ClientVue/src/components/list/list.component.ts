@@ -5,6 +5,7 @@ import { IListItem } from './list-item.model';
 import DynamicInput from '@/components/list/dynamic-input.component.vue';
 import { InputOptions } from '@/components/list/dynamic-input.component';
 import { isEmpty } from '@/utils/utils';
+import { ToastService } from '@/services/snackbar.service';
 
 @Component({
     components: {
@@ -119,7 +120,7 @@ export default class ListComponent extends Vue {
     onSaveStart() {
         this.savingItem = true;
     }
-    onSaveSuccess() {
+    onSaveSuccess(toastText?: string) {
         this.savingItem = false;
         if (this.keepDialogOpen) {
             this.disableEditDialogButtons = false;
@@ -132,9 +133,15 @@ export default class ListComponent extends Vue {
             this.disableEditDialogButtons = true;
             this.showEditDialog = false;
         }
+        if (toastText) {
+            ToastService.success(toastText);
+        }
     }
-    onSaveError() {
-        return;
+    onSaveError(ex: Error, toastText?: string) {
+        console.error(ex);
+        if (toastText) {
+            ToastService.error(toastText + ':\n' + ex.message);
+        }
     }
 
     onDeleteStart() {
@@ -169,6 +176,6 @@ export default class ListComponent extends Vue {
 export interface ListEventArgs<T> {
     item: T;
     onStart: Function;
-    onSuccess: Function;
-    onError: Function;
+    onSuccess: (toastText?: string) => void;
+    onError: (ex: Error, toastText?: string) => void;
 }

@@ -117,7 +117,7 @@ export default class AccountList extends Vue {
                 await AccountsModule.getAccounts();
             }
             catch (e) {
-                ToastService.show(e, { color: 'error' });
+                ToastService.error(e);
             }
         }
     }
@@ -126,11 +126,10 @@ export default class AccountList extends Vue {
         onStart();
         try {
             await AccountsModule.removeAccount(item);
-            onSuccess();
+            onSuccess('Account deleted successfully');
         }
         catch (e) {
-            onError();
-            ToastService.show(e, { color: 'error' });
+            onError(e, 'There was en error deleting the account');
         }
     }
     
@@ -144,11 +143,10 @@ export default class AccountList extends Vue {
             else {
                 await AccountsModule.createAccount(item);
             }
-            onSuccess();
+            onSuccess(`Account ${item.name} saved successfully`);
         }
         catch (e) {
-            onError();
-            ToastService.show(e, { color: 'error' });
+            onError(e, 'There was an error saving the account');
             return;
         }
     }

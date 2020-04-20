@@ -164,7 +164,7 @@ export default class CategoriesView extends Vue {
                 await TransactionsModule.getTransactions({ page: 0 });
             }
             catch (e) {
-                ToastService.show(e, { color: 'error' });
+                ToastService.error(e);
             }
         }
     }
@@ -173,11 +173,11 @@ export default class CategoriesView extends Vue {
         onStart();
         try {
             await TransactionsModule.removeTransaction(item);
-            onSuccess();
+            onSuccess('Transaction deleted successfully');
         }
         catch (e) {
-            ToastService.show(e, { color: 'error' });
-            onError();
+            ToastService.error(e);
+            onError(e, 'There was an error deleting the transaction');
         }
     }
 
@@ -190,11 +190,11 @@ export default class CategoriesView extends Vue {
             else {
                 await TransactionsModule.createTransaction(item);
             }
-            onSuccess();
+            const toastText = `${item.transactionDetails[0].amount} € transaction saved successfully`;
+            onSuccess(toastText);
         }
         catch (e) {
-            ToastService.show(e, { color: 'error' });
-            onError();
+            onError(e, 'There was an error saving the transaction');
         }
     }
 }

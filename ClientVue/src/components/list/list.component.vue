@@ -12,6 +12,7 @@
         
     >
 
+
         <template v-slot:top>
             <v-toolbar flat color="white">
                 <v-toolbar-title>{{ title }}</v-toolbar-title>

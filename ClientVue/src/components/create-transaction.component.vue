@@ -100,17 +100,17 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Ref } from 'vue-property-decorator';
 import { Transaction } from '@/models/transaction.model';
-import { CategoriesModule } from '../store/modules/categories-module.store';
-import { AccountsModule } from '../store/modules/accounts-module.store';
+import { CategoriesModule } from '@/store/modules/categories-module.store';
+import { AccountsModule } from '@/store/modules/accounts-module.store';
 import { Category } from '@/models/category.model';
 import { Account } from '@/models/account.model';
 import { number, positiveNumber, notEmpty, maxLength } from '@/utils/rules';
 import DatePicker from '@/components/date-picker.component.vue';
 import TimePicker from '@/components/time-picker.component.vue';
-import { toIsoDate } from '../utils/utils';
+import { toIsoDate } from '@/utils/utils';
 import { format } from 'date-fns';
 import { LoadState } from '@/models/common.models';
-import { IconNames } from "@/constants";
+import { IconNames } from '@/constants';
 
 
 @Component({
@@ -241,6 +241,7 @@ export default class CreateTransactionComponent extends Vue {
     private onTransactionChanged(transaction: Transaction) {
         if (this.isNewTransaction(transaction)) {
             this.resetFields();
+            this.onFormChanged();
             return;
         }
         this.editedTransaction.id = transaction.id;

@@ -22,10 +22,10 @@ import { Category } from '@/models/category.model';
 import { DataTableHeader } from 'vuetify';
 import { List } from '@/components/list';
 import { ListEventArgs } from '@/components/list/list.component';
-import { notEmpty, maxLength } from '../utils/rules';
+import { notEmpty, maxLength } from '@/utils/rules';
 import { LoadState } from '@/models/common.models';
-import { InputOptions } from "@/components/list/dynamic-input.component";
-import { IconNames } from "@/constants";
+import { InputOptions } from '@/components/list/dynamic-input.component';
+import { IconNames } from '@/constants';
 
 @Component({
     components: {
@@ -93,7 +93,7 @@ export default class CategoriesView extends Vue {
             await CategoriesModule.getCategories();
             }
             catch (e) {
-                ToastService.show(e, { color: 'error' });
+                ToastService.error(e);
             }
         }
     }
@@ -102,11 +102,10 @@ export default class CategoriesView extends Vue {
         onStart();
         try {
             await CategoriesModule.removeCategory(item);
-            onSuccess();
+            onSuccess('Category deleted successfully');
         }
         catch (e) {
-            ToastService.show(e, { color: 'error' });
-            onError();
+            onError(e, 'There was an error deleting the category');
         }
     }
 
@@ -119,16 +118,11 @@ export default class CategoriesView extends Vue {
             else {
                 await CategoriesModule.createCategory(item);
             }
-            onSuccess();
+            onSuccess(`Category ${item.name} saved successfully`);
         }
         catch (e) {
-            ToastService.show(e, { color: 'error' });
-            onError();
+            onError(e, 'There was an error saving the category');
         }
-    }
-
-    async deleteAll() {
-        CategoriesModule.categories.forEach(async t => await CategoriesModule.removeCategory(t));
     }
 }
 </script>
