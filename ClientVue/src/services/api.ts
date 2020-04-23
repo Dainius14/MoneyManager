@@ -1,11 +1,6 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
 import { TokenService } from '@/services/token.service';
 import router, { Routes } from '@/router';
-// import { UserModule } from '@/store/modules/user';
-
-// export default axios.create({
-//     baseURL: 'http://localhost:5500/api'
-// });
 
 class ApiService {
     private axios: AxiosInstance;
@@ -14,7 +9,7 @@ class ApiService {
 
     constructor() {
         this.axios = axios.create({
-            baseURL: 'https://localhost:5501/api',
+            baseURL: process.env.VUE_APP_BASE_API_URL,
             headers: {
                 Authorization: 'Bearer ' + TokenService.getAccessToken()
             }

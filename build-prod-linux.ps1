@@ -1,0 +1,1 @@
+dotnet build Web --configuration Release --runtime linux-arm --output ./bin

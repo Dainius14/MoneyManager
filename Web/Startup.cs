@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MoneyManager.Core.Data;
 using MoneyManager.Core.Repositories;
@@ -18,20 +20,18 @@ namespace MoneyManager.Web
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        private readonly IConfiguration _configuration;
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.Configure<DapperDbContext>(opt =>
-                opt.ConnectionString = Configuration.GetConnectionString("MoneyContext")
+                opt.ConnectionString = _configuration.GetConnectionString("MoneyContext")
             );
 
             services.AddScoped<AccountService>();
@@ -45,11 +45,11 @@ namespace MoneyManager.Web
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
-            var appSetingsSection = Configuration.GetSection("AppSettings");
+            var appSetingsSection = _configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSetingsSection);
 
-            var secret = Encoding.ASCII.GetBytes(Configuration["App:Secret"]);
-;
+            var secret = Encoding.ASCII.GetBytes(_configuration["App:Secret"]);
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -87,6 +87,7 @@ namespace MoneyManager.Web
                     }
                 };
 
+                
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -101,24 +102,24 @@ namespace MoneyManager.Web
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .WithMethods("GET", "POST", "PUT", "DELETE")
+                           .WithExposedHeaders("Token-Expired")
+                           .AllowAnyHeader();
+                });
             }
-            
-            app.UseCors(builder =>
-            {
-                //builder.WithOrigins("http://localhost:5000", "https://localhost:5001", "http://localhost:8080")
-                builder.AllowAnyOrigin()
-                       .WithMethods("GET", "POST", "PUT", "DELETE")
-                       .WithExposedHeaders("Token-Expired")
-                       .AllowAnyHeader();
-            });
 
-            app.UseHttpsRedirection();
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseRouting();
 
