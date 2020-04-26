@@ -1,5 +1,6 @@
 <template>
     <div>
+        Test buildbot
         <v-btn v-for="btn in buttons" v-bind:key="btn.label"
             @click="btn.onClick"
         >
