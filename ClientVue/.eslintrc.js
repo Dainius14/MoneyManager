@@ -23,6 +23,6 @@ module.exports = {
         '@typescript-eslint/no-inferrable-types': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        'no-unused-vars': ['error', { 'varsIgnorePattern': '_\.*' }]
+        'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }]
     }
 };
