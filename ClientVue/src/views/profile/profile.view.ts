@@ -28,7 +28,7 @@ export default class ProfileView extends Vue {
 
     newPasswordRules = [
         notEmpty('New password is required'),
-        (_value: string) => this.passwordsMatch() || 'Password do not match'
+        () => this.passwordsMatch() || 'Password do not match'
     ];
 
     mounted() {
