@@ -1,6 +1,6 @@
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
-import DatePicker from "@/components/date-picker.component.vue";
-import TimePicker from "@/components/time-picker.component.vue";
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import DatePicker from '@/components/date-picker.component.vue';
+import TimePicker from '@/components/time-picker.component.vue';
 
 @Component({
     components: {

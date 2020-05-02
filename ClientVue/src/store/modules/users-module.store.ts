@@ -1,46 +1,61 @@
 import { Module, VuexModule, Mutation, Action, getModule } from 'vuex-module-decorators';
 import store from '@/store';
-import { TokenService } from '@/services/token.service';
 import api from '@/services/api';
-import { Authentication } from '@/models/user.models';
+import { Authentication, User } from '@/models/user.models';
 
 @Module({ name: 'user', dynamic: true, store, namespaced: true })
-class User extends VuexModule {
-    public accessToken: string = TokenService.getAccessToken() ?? '';
-    public refreshToken: string = TokenService.getRefreshToken() ?? '';
+class UserStore extends VuexModule {
 
-    @Mutation
-    private setAccessToken(token: string) {
-        this.accessToken = token;
+    public currentUser: User = new User();
+
+    get isLoggedIn() {
+        return this.currentUser.id !== -1;
     }
 
     @Mutation
-    private setRefreshToken(token: string) {
-        this.refreshToken = token;
+    private _setCurrentUser(user: User) {
+        this.currentUser = user;
     }
 
     @Action({ rawError: true })
     public async login({ email, password }: { email: string; password: string }) {
         const response = await api.post<Authentication>('/users/authenticate', { email, password });
-        this.setAccessToken(response.accessToken);
-        this.setRefreshToken(response.refreshToken);
-
-        api.setAuthorizationHeader(this.accessToken);
-
-        TokenService.saveAccessToken(response.accessToken);
-        TokenService.saveRefreshToken(response.refreshToken);
+        this._setCurrentUser(response.user);
+        api.setAuth(response.accessToken, response.refreshToken);
     }
 
     @Action({ rawError: true })
-    public async logout() {
-        this.setAccessToken('');
-        this.setRefreshToken('');
+    public logout() {
+        this._setCurrentUser(new User());
+        api.resetAuth();
+    }
 
-        api.resetAuthorizationHeader();
+    @Action({ rawError: true })
+    public async changeEmail(email: string) {
+        await api.post<void>('/users/email', { email });
+        this.logout();
+    }
 
-        TokenService.removeAccessToken();
-        TokenService.removeRefreshToken();
+    @Action({ rawError: true })
+    public async changePassword(data: object) {
+        await api.post<void>('/users/password', data);
+        this.logout();
+    }
+
+    @Action({ rawError: true })
+    public async getCurrentUser() {
+        if (!api.hasAccessToken()) {
+            return;
+        }
+
+        try {
+            const response = await api.get<User>('/users/current');
+            this._setCurrentUser(response);
+        }
+        catch {
+            return;
+        }
     }
 }
 
-export const UserModule = getModule(User);
+export const UserModule = getModule(UserStore);

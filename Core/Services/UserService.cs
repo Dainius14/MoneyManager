@@ -91,32 +91,57 @@ namespace MoneyManager.Core.Services
         {
             return await _uow.UserRepo.GetWithoutUserAsync(id);
         }
+        
+        public async Task<User> GetCurrentUser()
+        {
+            return await _uow.UserRepo.GetCurrentUserAsync();
+        }
+        
+        public async Task ChangeEmail(string newEmail)
+        {
+            await _uow.UserRepo.UpdateEmailAsync(newEmail);
+        }
+
+        public async Task ChangePassword(string currentPassword, string newPassword)
+        {
+            var user = await _uow.UserRepo.GetCurrentUserAsync();
+            
+            if (!VerifyPasswordHash(currentPassword, user.PasswordHash!, user.PasswordSalt!))
+            {
+                throw new BadUserPasswordException("Wrong password");
+            }
+            
+            CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
+            await _uow.UserRepo.UpdatePasswordAsync(passwordHash, passwordSalt);
+        }
 
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            if (password == null) throw new ArgumentNullException("password");
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+            if (password == null) throw new ArgumentNullException(nameof(password));
+            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(password));
 
-            using (var hmac = new System.Security.Cryptography.HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
+            using var hmac = new System.Security.Cryptography.HMACSHA512();
+            passwordSalt = hmac.Key;
+            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
         }
 
         private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
-            if (password == null) throw new ArgumentNullException("password");
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-            if (storedHash.Length != 64) throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
-            if (storedSalt.Length != 128) throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
+            if (password == null) throw new ArgumentNullException(nameof(password));
+            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException(
+                "Value cannot be empty or whitespace only string.", nameof(password));
+            if (storedHash.Length != 64) throw new ArgumentException(
+                "Invalid length of password hash (64 bytes expected).", nameof(storedHash));
+            if (storedSalt.Length != 128) throw new ArgumentException(
+                "Invalid length of password salt (128 bytes expected).", nameof(storedSalt));
 
-            using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
+            using var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt);
+            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            for (int i = 0; i < computedHash.Length; i++)
             {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                for (int i = 0; i < computedHash.Length; i++)
+                if (computedHash[i] != storedHash[i])
                 {
-                    if (computedHash[i] != storedHash[i]) return false;
+                    return false;
                 }
             }
 

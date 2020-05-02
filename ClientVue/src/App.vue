@@ -4,3 +4,8 @@
     </v-app>
 </template>
 
+<style>
+    #app {
+        background-color: #eef5f9;
+    }
+</style>

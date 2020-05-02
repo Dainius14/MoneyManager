@@ -1,6 +1,7 @@
 <template>
     <div>
-        <v-navigation-drawer app :permanent="true" class="nav-drawer-bg elevation-3">
+        <v-navigation-drawer app class="nav-drawer-bg elevation-3" v-model="showDrawer"
+            :permanent="!isMobile">
             <v-layout fill-height column justify-space-between>
                 <v-list dense nav>
                     <v-list-item v-for="item in items" :key="item.title" :to="item.path" link>
@@ -16,22 +17,27 @@
 
                 <v-list dense nav>
                     <v-divider fill-height></v-divider>
-                    <v-list-item link :to="logout.path" justify-end>
+
+                    <v-list-item v-for="item in bottomItems" :key="item.title"
+                                 link
+                                 :to="item.path"
+                                 justify-end>
                         <v-list-item-icon>
-                            <v-icon>{{ logout.icon }}</v-icon>
+                            <v-icon>{{ item.icon }}</v-icon>
                         </v-list-item-icon>
 
                         <v-list-item-content>
-                            <v-list-item-title>{{ logout.title }}</v-list-item-title>
+                            <v-list-item-title>{{ item.title }}</v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
                 </v-list>
             </v-layout>
         </v-navigation-drawer>
 
-        <!-- <v-app-bar app> -->
-        <!-- -->
-        <!-- </v-app-bar> -->
+         <v-app-bar app v-if="isMobile">
+             <v-app-bar-nav-icon @click="showDrawer = true"
+             ></v-app-bar-nav-icon>
+         </v-app-bar>
 
         <v-content>
             <v-container style="padding: 0">
@@ -43,16 +49,31 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Routes } from '../router';
-import { IconNames } from "@/constants";
+import { Routes } from '@/router';
+import { IconNames } from '@/constants';
+import { UserModule } from '@/store/modules/users-module.store';
 
 @Component
 export default class DefaultLayout extends Vue {
-    private readonly logout = {
-        title: 'Logout',
-        icon: 'mdi-logout',
-        path: Routes.Logout.path
-    };
+
+    showDrawer: boolean = false;
+
+    get isMobile() {
+        return this.$vuetify.breakpoint.xsOnly;
+    }
+
+    private readonly bottomItems = [
+        {
+            title: `Profile (${UserModule.currentUser.email})`,
+            icon: 'mdi-account',
+            path: Routes.Profile.path
+        },
+        {
+            title: 'Logout',
+            icon: 'mdi-logout',
+            path: Routes.Logout.path
+        }
+    ];
     private readonly items = [
         {
             title: 'Dashboard',

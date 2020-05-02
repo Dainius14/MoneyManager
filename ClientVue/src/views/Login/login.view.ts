@@ -2,37 +2,36 @@ import { Component, Vue } from 'vue-property-decorator';
 import router, { Routes } from '@/router';
 import { UserModule } from '@/store/modules/users-module.store';
 import { ToastService } from '@/services/snackbar.service';
+import { email, notEmpty } from '@/utils/rules';
 
 @Component({})
 export default class LoginView extends Vue {
-    email: string = 'dd@d.lt';
-    password: string = 'ayylmao';
+    email: string = '';
+    password: string = '';
     
     isFormValid: boolean = false;
-
-    private emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i;
+    loggingIn: boolean = false;
 
     emailRules = [
-        (value: string) => this.validateEmail(value) || 'Invalid email'
+        notEmpty('Valid email is required'),
+        email('Valid email is required')
     ];
 
     passwordRules = [
-        (value: string) => !!value || 'Password is required'
+        notEmpty('Password is required')
     ];
 
 
-    async onLoginClick() {
+    async onLogin() {
+        this.loggingIn = true;
         try {
             await UserModule.login({ email: this.email, password: this.password });
-            router.push(Routes.Root.path);
+            await router.push(Routes.Root.path);
         }
         catch (e) {
             const ex = e as Error;
             ToastService.error(ex.message);
         }
-    }
-
-    private validateEmail(email: string): boolean {
-        return this.emailRegex.test(email);
+        this.loggingIn = false;
     }
 }

@@ -1,6 +1,5 @@
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
 import { TokenService } from '@/services/token.service';
-import router, { Routes } from '@/router';
 
 class ApiService {
     private axios: AxiosInstance;
@@ -21,62 +20,61 @@ class ApiService {
     private createRefreshTokenResponseInterceptor() {
         const interceptor = this.axios.interceptors.response.use(
             (success) => success,
-            async (error: AxiosError) => {
-                if (error.response?.status !== 401) {
+            (error: AxiosError) => {
+                if (error.response == null
+                    || error.response.status !== 401
+                    || !error.response.headers['token-expired']) {
                     return Promise.reject(error);
                 }
-                if (!error.response?.headers['token-expired']) {
-                    router.push(Routes.Login.path);
-                    return Promise.reject(error);
-                }
+
                 this.axios.interceptors.response.eject(interceptor);
 
-                try {
-                    console.log('refreshing token');
-                    await this.refreshAccessToken();
-                }
-                catch (ex) {
-                    console.log('refreshing did not succeed', ex);
-                    router.push(Routes.Login.path);
-                    return Promise.reject(ex);
-                }
-                finally {
-                    this.createRefreshTokenResponseInterceptor();
-                }
-                this.setAuthorizationHeader(TokenService.getAccessToken()!, error.config);
-                return axios(error.config);
+                return this.refreshAccessToken()
+                    .then((accessToken) => {
+                        error.config.headers.Authorization = this.getAuthHeaderValue(accessToken);
+                        return axios(error.config);
+                    })
+                    .catch((ex) => {
+                        return Promise.reject(ex);
+                    })
+                    .finally(() => {
+                        this.createRefreshTokenResponseInterceptor();
+                    });
+
             }
         );
     }
 
-    public setAuthorizationHeader(accessToken: string, requestConfig?: AxiosRequestConfig) {
-        const header = 'Bearer ' + accessToken;
-        if (requestConfig) {
-            requestConfig.headers.Authorization = header;
-            return;
-        }
-        this.axios.defaults.headers.Authorization = header;
+    private getAuthHeaderValue(accessToken: string) {
+        return 'Bearer ' + accessToken;
     }
 
-    public resetAuthorizationHeader() {
+    public setAuth(accessToken: string, refreshToken: string) {
+        this.axios.defaults.headers.Authorization = this.getAuthHeaderValue(accessToken);
+        TokenService.saveAccessToken(accessToken);
+        TokenService.saveRefreshToken(refreshToken);
+    }
+
+    public resetAuth() {
         this.axios.defaults.headers.Authorization = undefined;
+        TokenService.removeAccessToken();
+        TokenService.removeRefreshToken();
     }
 
-    private async refreshAccessToken() {
+    public hasAccessToken() {
+        return !!TokenService.getAccessToken();
+    }
+
+    private async refreshAccessToken(): Promise<string> {
         this.isRefreshing = true;
         try {
             const response = await this.axios.post('/users/refreshToken', {
                 accessToken: TokenService.getAccessToken(),
                 refreshToken: TokenService.getRefreshToken()
             });
-            TokenService.saveAccessToken(response.data.accessToken);
-            TokenService.saveRefreshToken(response.data.refreshToken);
 
-            this.setAuthorizationHeader(response.data.accessToken);
-        }
-        catch (ex) {
-            console.log(ex);
-            throw ex;
+            this.setAuth(response.data.accessToken, response.data.refreshToken);
+            return response.data.accessToken;
         }
         finally {
             this.isRefreshing = false;
@@ -84,7 +82,10 @@ class ApiService {
     }
 
     async get<T>(resource: string, params?: object): Promise<T> {
-        const response = await this.axios.get(resource + '?' + this.getQueryString(params));
+        if (params) {
+            resource += '?' + this.getQueryString(params);
+        }
+        const response = await this.axios.get(resource);
         return response.data;
     }
 

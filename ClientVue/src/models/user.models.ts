@@ -4,7 +4,7 @@ export interface Authentication {
     refreshToken: string;
 }
 
-export interface User {
-    id: number;
-    email: string;
+export class User {
+    id: number = -1;
+    email: string = '';
 }

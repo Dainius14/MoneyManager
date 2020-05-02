@@ -9,6 +9,7 @@ import TransactionsView from '@/views/transactions.view.vue';
 import DashboardView from '@/views/dashboard.view.vue';
 import ImportTransactionsView from '@/views/import-transactions.view.vue';
 import { UserModule } from '@/store/modules/users-module.store';
+import ProfileView from '@/views/profile/profile.view.vue';
 
 Vue.use(VueRouter);
 
@@ -22,7 +23,8 @@ export const Routes = {
     Categories: { name: 'Categories', path: '/categories' },
     Transactions: { name: 'Transactions', path: '/transactions' },
     ImportTransactions: { name: 'ImportTransactions', path: '/transactions/import' },
-}
+    Profile: { name: 'Profile', path: '/profile' },
+};
 
 const routes: RouteConfig[] = [
     {
@@ -32,7 +34,7 @@ const routes: RouteConfig[] = [
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "login" */ '@/views/Login/LoginView.vue')
+        component: () => import(/* webpackChunkName: "login" */ '@/views/Login/login.view.vue')
     },
     {
         path: Routes.Logout.path,
@@ -77,6 +79,11 @@ const routes: RouteConfig[] = [
                 path: Routes.ImportTransactions.path,
                 name: Routes.ImportTransactions.name,
                 component: ImportTransactionsView,
+            },
+            {
+                path: Routes.Profile.path,
+                name: Routes.Profile.name,
+                component: ProfileView,
             }
         ]
     },
@@ -89,11 +96,17 @@ const router = new VueRouter({
     routes
 });
 
-router.beforeEach((to, from, next) => {
-    if (to.name !== Routes.Login.name && !UserModule.accessToken) {
-        next(Routes.Login.path);
+router.beforeEach(async (to, from, next) => {
+    if (to.name !== Routes.Login.name && !UserModule.isLoggedIn) {
+        await UserModule.getCurrentUser();
+        if (UserModule.isLoggedIn) {
+            return next();
+        }
+        else {
+            return next(Routes.Login.path);
+        }
     }
-    else if (to.name === Routes.Login.name && UserModule.accessToken) {
+    else if (to.name === Routes.Login.name && UserModule.isLoggedIn) {
         next(Routes.Root.path);
     }
     else {

@@ -125,9 +125,33 @@ namespace MoneyManager.Web.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            int userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var user = await _userService.GetOne(userId);
+            var user = await _userService.GetCurrentUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
             return Ok(user.ToGetUserDto());
+        }
+        
+        [HttpPost("email")]
+        public async Task<IActionResult> PostEmail([FromBody]ChangeEmailDto dto)
+        {
+            await _userService.ChangeEmail(dto.Email!);
+            return NoContent();
+        }
+        
+        [HttpPost("password")]
+        public async Task<IActionResult> PostChangePassword([FromBody]ChangePasswordDto dto)
+        {
+            try
+            {
+                await _userService.ChangePassword(dto.CurrentPassword!, dto.NewPassword!);
+                return NoContent();
+            }
+            catch (BadUserPasswordException ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
         }
 
         [HttpGet]

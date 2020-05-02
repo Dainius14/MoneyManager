@@ -11,11 +11,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import Highcharts, { SeriesPieOptions } from 'highcharts';
 import { Chart } from 'highcharts-vue';
 import { DashboardApi } from '@/services/dashboard.api';
-import { startOfMonth, sub, endOfMonth, getMonth, format } from 'date-fns';
+import { startOfMonth, sub, endOfMonth, format } from 'date-fns';
 
 @Component({
     components: {
