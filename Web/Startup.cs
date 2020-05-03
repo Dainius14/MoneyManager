@@ -86,7 +86,6 @@ namespace MoneyManager.Web
                         return Task.CompletedTask;
                     }
                 };
-
                 
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
