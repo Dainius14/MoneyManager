@@ -207,8 +207,6 @@ export default class CreateTransactionComponent extends Vue {
     }
 
     async created() {
-        this.resetFields();
-
         if (CategoriesModule.loadState === LoadState.NotLoaded) {
             await CategoriesModule.getCategories();
             if (!this.isNewTransaction(this.transaction)) {
