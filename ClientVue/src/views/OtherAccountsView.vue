@@ -2,6 +2,7 @@
     <account-list
         :title="'Other accounts'"
         :items="accountsState.otherAccounts"
+        :is-personal="false"
     ></account-list>
 </template>
 

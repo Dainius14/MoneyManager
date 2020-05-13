@@ -23,7 +23,7 @@ import { ToastService } from '@/services/snackbar.service';
 import { List } from '@/components/list';
 import { ListEventArgs } from './list/list.component';
 import { LoadState } from '@/models/common.models';
-import { maxLength, number } from '@/utils/rules';
+import { maxLength, notEmpty, number } from '@/utils/rules';
 import { InputOptions } from '@/components/list/dynamic-input.component';
 import { toIsoDate } from '@/utils/utils';
 import { IconNames } from '@/constants';
@@ -39,6 +39,9 @@ export default class AccountList extends Vue {
 
     @Prop({ type: String, required: true })
     title!: string;
+
+    @Prop({ type: Boolean, required: true })
+    isPersonal!: boolean;
 
     headers: DataTableHeader<Account>[] = [
         {
@@ -82,6 +85,7 @@ export default class AccountList extends Vue {
             required: true,
             maxLength: 30,
             rules: [
+                notEmpty('Name is required'),
                 maxLength(30, "Name can't be that long")
             ],
             prependInnerIcon: 'mdi-account-circle'
@@ -94,7 +98,8 @@ export default class AccountList extends Vue {
             prependInnerIcon: IconNames.Cash,
             rules: [
                 number('Amount must be a number')
-            ]
+            ],
+            defaultValue: 0,
         },
         {
             label: 'Opening date',
@@ -137,10 +142,11 @@ export default class AccountList extends Vue {
     async onSaveItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Account>) {
         onStart();
         try {
-            if (item.id !== -1) {
+            if (item.id != null) {
                 await AccountsModule.editAccount(item);
             }
             else {
+                item.isPersonal = this.isPersonal;
                 await AccountsModule.createAccount(item);
             }
             onSuccess(`Account ${item.name} saved successfully`);

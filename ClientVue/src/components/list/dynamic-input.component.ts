@@ -24,7 +24,7 @@ export default class DynamicInputComponent extends Vue {
 export interface InputOptions {
     label: string;
     key: string;
-    defaultValue?: string;
+    defaultValue?: string|number;
     type?: 'text' | 'number' | 'date';
     rules?: ((value: string) => (boolean | string))[];
     maxLength?: number;

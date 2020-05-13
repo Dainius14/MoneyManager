@@ -112,7 +112,7 @@ export default class CategoriesView extends Vue {
     async onSaveItemClicked({ item, onStart, onSuccess, onError }: ListEventArgs<Category>) {
         onStart();
         try {
-            if (item.id !== -1) {
+            if (item.id != null) {
                 await CategoriesModule.editCategory(item);
             }
             else {
