@@ -19,7 +19,8 @@
                 <v-spacer></v-spacer>
                 <v-btn color="primary" dark class="mb-2" @click="onNewItemButtonClicked">{{ newItemText }}</v-btn>
 
-                <v-dialog v-model="showEditDialog" max-width="500px"
+                <v-dialog content-class="edit-dialog"
+                          v-model="showEditDialog"
                           @click:outside="onEditDialogCloseClicked">
 
                     <create-item-card
@@ -136,3 +137,19 @@
 </template>
 
 <script src="./list.component.ts"></script>
+
+<style lang="scss">
+    .edit-dialog {
+        display: flex;
+        max-width: 550px;
+
+        .v-card {
+            display: flex;
+            flex-direction: column;
+
+            .v-card__text {
+                overflow: auto;
+            }
+        }
+    }
+</style>

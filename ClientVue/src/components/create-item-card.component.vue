@@ -8,11 +8,8 @@
             <slot></slot>
         </v-card-text>
 
-        <v-card-actions style="flex-direction: column">
-            <div v-if="showKeepOpenButtons"
-                 style="display: flex; flex-direction: row; width: 100%"
-            >
-                <v-spacer></v-spacer>
+        <v-card-actions class="create-card-actions">
+            <div v-if="showKeepOpenButtons" class="checkboxes">
                 <v-checkbox v-model="syncedKeepOpen"
                             class="small mr-2"
                             label="Keep dialog open after saving"
@@ -25,8 +22,8 @@
                             :ripple="false"
                 ></v-checkbox>
             </div>
-            <div style="display: flex; width: 100%">
-                <v-spacer></v-spacer>
+            <v-spacer></v-spacer>
+            <div class="buttons">
                 <v-btn
                     text
                     :disabled="savingItem || disableButtons"
@@ -75,6 +72,16 @@ export default class CreateItemCard extends Vue {
 </script>
 
 <style lang="scss" scoped>
+
+    .create-card-actions {
+        padding-left: 20px;
+        padding-right: 20px;
+
+        .checkboxes {
+            display: flex;
+        }
+    }
+
     ::v-deep .small {
         &.v-input {
             margin-top: 0;
@@ -86,6 +93,9 @@ export default class CreateItemCard extends Vue {
         }
         .v-icon {
             width: 80% !important;
+        }
+        .v-input__slot {
+            margin-bottom: 0;
         }
         .v-input--selection-controls__input {
             margin-right: 0 !important;
