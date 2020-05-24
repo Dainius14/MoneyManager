@@ -2,7 +2,7 @@
     <account-list
         :title="'My accounts'"
         :items="accountsState.personalAccounts"
-        :is-personal="false"
+        :isPersonal="true"
     ></account-list>
 </template>
 
