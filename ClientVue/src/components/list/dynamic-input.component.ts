@@ -17,6 +17,10 @@ export default class DynamicInputComponent extends Vue {
 
     @Emit('input')
     onInput(value: string) {
+        if (this.options.type === 'number') {
+            const parsedNumber = parseFloat(value);
+            return isNaN(parsedNumber) ? value : parsedNumber;
+        }
         return value;
     }
 }
